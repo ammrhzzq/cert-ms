@@ -22,5 +22,7 @@ class Cert extends Model
         'issue_date',
         'exp_date',
         'status',
+        'last_edited_at',
+        'last_edited_by'
     ];
 }

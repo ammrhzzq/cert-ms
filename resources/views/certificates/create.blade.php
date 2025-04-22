@@ -32,9 +32,9 @@
                 <div class="select-container">
                     <select name="cert_type" required>
                         <option value="" selected disabled>Select Certificate Type</option>
-                        <option value="isms">ISMS</option>
-                        <option value="bcms">BCMS</option>
-                        <option value="pims">PIMS</option>
+                        <option value="ISMS">ISMS</option>
+                        <option value="BCMS">BCMS</option>
+                        <option value="PIMS">PIMS</option>
                     </select>
                 </div>
             </div>

@@ -112,6 +112,9 @@ class CertController extends Controller
             'status' => 'required|string',
         ]);
 
+        $data['last_edited_at'] = now();
+        //$data['last_edited_by'] = auth()->id();
+
         $cert->update($data);
         return redirect()->route('certificates.index')->with('success', 'Certificate updated successfully.');
     }
@@ -119,6 +122,10 @@ class CertController extends Controller
     public function destroy(Cert $cert) {
         $cert->delete();
         return redirect()->route('certificates.index')->with('success', 'Certificate deleted successfully.');
+    }
+
+    public function show(Cert $cert) {
+        return view('certificates.show', ['cert' => $cert]);
     }
 
 }

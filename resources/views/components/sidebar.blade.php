@@ -28,13 +28,13 @@ $isCollapsed = isset($_COOKIE['sidebarCollapsed']) && $_COOKIE['sidebarCollapsed
             </a>
         </li>
         <li>
-            <a href="#" class="{{ $activeItem == 'pending' ? 'active' : '' }}">
+            <a href="{{ route('certificates.index') }}" class="{{ $activeItem == 'certificates' ? 'active' : '' }}">
                 <i class="fas fa-clipboard-list icon"></i>
-                <span class="text">Pending Action</span>
+                <span class="text">Status & Action</span>
             </a>
         </li>
         <li>
-            <a href="{{ route('certificates.index') }}" class="{{ $activeItem == 'certificates' ? 'active' : '' }}">
+        <a href="#" class="{{ $activeItem == 'templates' ? 'active' : '' }}">
                 <i class="fas fa-search icon"></i>
                 <span class="text">View & Search</span>
             </a>
