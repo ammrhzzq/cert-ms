@@ -6,8 +6,7 @@ $isCollapsed = isset($_COOKIE['sidebarCollapsed']) && $_COOKIE['sidebarCollapsed
 
 <div class="sidebar {{ $isCollapsed ? 'collapsed' : '' }}" id="sidebar">
     <div class="logo">
-        <i class="fas fa-chart-pie icon"></i>
-        <span class="text">CERMAT</span>
+        <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo-img">
     </div>
     <div class="sidebar-toggle-container">
         <button class="sidebar-toggle" id="toggle-sidebar">
