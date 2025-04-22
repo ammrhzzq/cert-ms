@@ -41,14 +41,7 @@
 
             <div class="form-group">
                 <label>ISO Number</label>
-                <div class="select-container">
-                    <select name="iso_num" required>
-                        <option value="" selected disabled>Select ISO Number</option>
-                        <option value="iso27001">ISO 27001</option>
-                        <option value="iso22301">ISO 22301</option>
-                        <option value="iso27701">ISO 27701</option>
-                    </select>
-                </div>
+                <input type="text" name="iso_num" placeholder="ISO Number" required>
             </div>
 
             <div class="form-group">
