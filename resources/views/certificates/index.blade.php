@@ -123,6 +123,7 @@
             <th>Registration Date</th>
             <th>Issue Date</th>
             <th>Expiry Date</th>
+            <th>Status</th>
             <th>Action</th>
         </tr>
     </thead>
@@ -144,6 +145,7 @@
             <td>{{ \Carbon\Carbon::parse($cert->reg_date)->format('d/m/Y') }}</td>
             <td>{{ \Carbon\Carbon::parse($cert->issue_date)->format('d/m/Y') }}</td>
             <td>{{ \Carbon\Carbon::parse($cert->exp_date)->format('d/m/Y') }}</td>
+            <td>{{ ucfirst(str_replace('_', ' ', $cert->status)) }}</td>
             <td>
                 <div class="action-icons">
                     <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form">

@@ -8,9 +8,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard.index');
-})->name('dashboard');
+Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
 Route::get('/client', [ClientController::class, 'index'])->name('clients.index');
 Route::get('/client/create', [ClientController::class, 'create'])->name('clients.create');

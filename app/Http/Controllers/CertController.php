@@ -86,6 +86,8 @@ class CertController extends Controller
             'exp_date' => 'required|date',
         ]);
 
+        $data['status'] = 'pending_review'; // Default status
+
         $newCert = Cert::create($data);
         return redirect()->route('certificates.index')->with('success', 'Certificate created successfully.');
     }
@@ -107,6 +109,7 @@ class CertController extends Controller
             'reg_date' => 'required|date',
             'issue_date' => 'required|date',
             'exp_date' => 'required|date',
+            'status' => 'required|string',
         ]);
 
         $cert->update($data);

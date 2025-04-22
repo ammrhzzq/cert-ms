@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Cert extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'cert_type',
         'iso_num',
@@ -20,6 +20,7 @@ class Cert extends Model
         'comp_phone2',
         'reg_date',
         'issue_date',
-        'exp_date'
+        'exp_date',
+        'status',
     ];
 }
