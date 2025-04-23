@@ -156,7 +156,7 @@ input[type="submit"]:hover {
     background-color: var(--primary-color);
 }
 
-.btn-cancel {
+.btn-back {
     background-color: var(--border-color);
     color: var(--text-color);
     border: none;
@@ -165,6 +165,7 @@ input[type="submit"]:hover {
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
+    text-decoration: none;
     transition: background-color 0.2s;
 }
 
@@ -206,4 +207,78 @@ input[type="submit"]:hover {
         flex-direction: column;
         gap: 15px;
     }
+}
+
+/* View Certificate styling */
+.detail-container {
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--card-bg);
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(231, 224, 224, 0.1);
+}
+
+.detail-group {
+    margin-bottom: 15px;
+}
+
+.detail-label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.detail-value {
+    padding: 8px;
+    background-color: var(bac);
+    border-radius: 4px;
+}
+
+.detail-row {
+    display: flex;
+    gap: 20px;
+}
+
+.detail-column {
+    flex: 1;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    color: white;
+}
+
+.status-pending_review { background-color: #3498db; }
+.status-client_verified { background-color: #f1c40f; }
+.status-need_revision { background-color: #e74c3c; }
+.status-pending_hod_approval { background-color: #2ecc71; }
+.status-certificate_issued { background-color: #e67e22; }
+
+.edit-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.back-button {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.last-edited-info {
+    font-size: 12px;
+    color: #7f8c8d;
+    text-align: right;
+    margin-top: 20px;
 }

@@ -10,7 +10,7 @@
 @section('content')
 <h1>Create Certificate</h1>
 <div class="container">
-    
+
 
     <div class="form-container">
         @if($errors->any())
@@ -101,7 +101,7 @@
             </div>
 
             <div class="button-group">
-                <button type="button" class="btn-cancel">Cancel</button>
+                <button type="reset" class="btn-back">Reset</button>
                 <input type="submit" value="Save" />
             </div>
         </form>

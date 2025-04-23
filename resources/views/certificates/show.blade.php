@@ -5,87 +5,6 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/data-entry.css') }}">
-<style>
-    .detail-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-        background-color: #fff;
-        border-radius: 5px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    
-    .detail-group {
-        margin-bottom: 15px;
-    }
-    
-    .detail-label {
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-    
-    .detail-value {
-        padding: 8px;
-        background-color: #f9f9f9;
-        border-radius: 4px;
-    }
-    
-    .detail-row {
-        display: flex;
-        gap: 20px;
-    }
-    
-    .detail-column {
-        flex: 1;
-    }
-    
-    .status-badge {
-        display: inline-block;
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-weight: bold;
-        color: white;
-    }
-    
-    .status-pending_review { background-color: #3498db; }
-    .status-client_verified { background-color: #f1c40f; }
-    .status-need_revision { background-color: #e74c3c; }
-    .status-pending_hod_approval { background-color: #2ecc71; }
-    .status-certificate_issued { background-color: #e67e22; }
-    
-    .button-group {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 30px;
-    }
-    
-    .edit-button {
-        background-color: #3498db;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 4px;
-        cursor: pointer;
-        text-decoration: none;
-    }
-    
-    .back-button {
-        background-color: #95a5a6;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 4px;
-        cursor: pointer;
-        text-decoration: none;
-    }
-    
-    .last-edited-info {
-        font-size: 12px;
-        color: #7f8c8d;
-        text-align: right;
-        margin-top: 20px;
-    }
-</style>
 @endsection
 
 @section('content')
@@ -174,8 +93,8 @@
         </div>
 
         <div class="button-group">
-            <a href="{{ route('certificates.index') }}" class="back-button">Back to List</a>
-            <a href="{{ route('certificates.edit', ['cert' => $cert]) }}" class="edit-button">Edit Certificate</a>
+            <a href="{{ route('certificates.index') }}" class="btn-back">Back</a>
+            
         </div>
     </div>
 </div>

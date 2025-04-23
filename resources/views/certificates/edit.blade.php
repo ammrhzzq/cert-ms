@@ -31,9 +31,9 @@
                 <div class="select-container">
                     <select name="cert_type" required>
                         <option value="" disabled>Select Certificate Type</option>
-                        <option value="isms" {{ $cert->cert_type == 'isms' ? 'selected' : '' }}>ISMS</option>
-                        <option value="bcms" {{ $cert->cert_type == 'bcms' ? 'selected' : '' }}>BCMS</option>
-                        <option value="pims" {{ $cert->cert_type == 'pims' ? 'selected' : '' }}>PIMS</option>
+                        <option value="ISMS" {{ $cert->cert_type == 'isms' ? 'selected' : '' }}>ISMS</option>
+                        <option value="BCMS" {{ $cert->cert_type == 'bcms' ? 'selected' : '' }}>BCMS</option>
+                        <option value="PIMS" {{ $cert->cert_type == 'pims' ? 'selected' : '' }}>PIMS</option>
                     </select>
                 </div>
             </div>
@@ -120,7 +120,7 @@
             </div>
 
             <div class="button-group">
-                <button type="button" class="btn-cancel">Cancel</button>
+                <a href="{{ route('certificates.index') }}" class="btn-back">Cancel</a>
                 <input type="submit" value="Update" />
             </div>
         </form>

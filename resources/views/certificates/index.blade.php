@@ -141,7 +141,7 @@
             <td>
                 <div class="action-icons">
                     <a href="{{ route('certificates.show', ['cert' => $cert]) }}" class="view-icon" title="View">
-                        <i class="fas fa-eye"></i>
+                        <i class="fa-regular fa-eye"></i>
                     </a>
 
                     <a href="{{ route('certificates.edit', ['cert' => $cert]) }}" class="edit-icon" title="Edit">
