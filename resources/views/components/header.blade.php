@@ -20,8 +20,14 @@
             <div class="avatar">
                 <i class="fas fa-user"></i>
             </div>
-            <span class="user-name">Staff ISCB</span>
+            <span class="user-name">{{ Auth::user()->name }}</span>
         </div>
+        <form action="{{ route('logout') }}" method="POST" class="d-inline">
+            @csrf
+            <button type="submit" class="logout-button">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </form>
     </div>
 </div>
 
