@@ -68,19 +68,5 @@
         @endforeach
     </tbody>
 </table>
-
-<!-- Pagination - assuming you'll implement pagination later -->
-<div class="pagination">
-    <div class="pagination-controls">
-        <span class="page-item"><a href="#" class="page-link">Previous</a></span>
-        <span class="page-item active"><a href="#" class="page-link">1</a></span>
-        <span class="page-item"><a href="#" class="page-link">2</a></span>
-        <span class="page-item"><a href="#" class="page-link">3</a></span>
-        <span class="page-item"><a href="#" class="page-link">4</a></span>
-        <span class="page-item"><a href="#" class="page-link">5</a></span>
-        <span class="page-item"><a href="#" class="page-link">Next</a></span>
-    </div>
-    <div class="results-info">Results 1 to 3 from 35</div>
-</div>
 </div>
 @endsection

@@ -1,4 +1,4 @@
-@extends('layouts.app', ['activeItem' => 'certificates'])
+@extends('layouts.app', ['activeItem' => 'view'])
 
 @section('title', 'Certificates List')
 

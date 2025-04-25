@@ -13,7 +13,7 @@ $isCollapsed = isset($_COOKIE['sidebarCollapsed']) && $_COOKIE['sidebarCollapsed
             <i class="fas fa-bars"></i>
         </button>
     </div>
-    
+
     <ul class="menu">
         <li>
             <a href="{{ route('dashboard') }}" class="{{ $activeItem == 'dashboard' ? 'active' : '' }}">
@@ -34,7 +34,7 @@ $isCollapsed = isset($_COOKIE['sidebarCollapsed']) && $_COOKIE['sidebarCollapsed
             </a>
         </li>
         <li>
-        <a href="{{ route('certificates.view') }}" class="{{ $activeItem == 'view' ? 'active' : '' }}">
+            <a href="{{ route('certificates.view') }}" class="{{ $activeItem == 'view' ? 'active' : '' }}">
                 <i class="fas fa-search icon"></i>
                 <span class="text">View & Search</span>
             </a>
@@ -45,12 +45,20 @@ $isCollapsed = isset($_COOKIE['sidebarCollapsed']) && $_COOKIE['sidebarCollapsed
                 <span class="text">Template Management</span>
             </a>
         </li>
-        <li>
-            <a href="#" class="{{ $activeItem == 'users' ? 'active' : '' }}">
-                <i class="fas fa-user-cog icon"></i>
-                <span class="text">User Management</span>
+        @if(Auth::user()->isHod())
+        <li class="{{ $activeItem == 'pending-approvals' ? 'active' : '' }}">
+            <a href="{{ route('users.pending-approvals') }}">
+                <i class="fas fa-user-clock"></i>
+                <span>Pending Approvals</span>
+                @php
+                $pendingCount = \App\Models\User::where('is_approved', false)->count();
+                @endphp
+                @if($pendingCount > 0)
+                <span class="badge">{{ $pendingCount }}</span>
+                @endif
             </a>
         </li>
+        @endif
         <li>
             <a href="{{ route('clients.index') }}" class="{{ $activeItem == 'clients' ? 'active' : '' }}">
                 <i class="fas fa-users icon"></i>
@@ -65,11 +73,11 @@ $isCollapsed = isset($_COOKIE['sidebarCollapsed']) && $_COOKIE['sidebarCollapsed
     document.getElementById('toggle-sidebar').addEventListener('click', function() {
         const sidebar = document.getElementById('sidebar');
         sidebar.classList.toggle('collapsed');
-        
+
         // Update cookie for persistence
         const isCollapsed = sidebar.classList.contains('collapsed');
         document.cookie = `sidebarCollapsed=${isCollapsed}; path=/; max-age=${60*60*24*365}`;
-        
+
         // Adjust main content margin if needed
         if (document.querySelector('.main-content')) {
             document.querySelector('.main-content').classList.toggle('expanded');

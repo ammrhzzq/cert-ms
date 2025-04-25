@@ -6,6 +6,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\UserController;
 
 // Redirect root to login page
 Route::get('/', function () {
@@ -57,4 +58,12 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/certificate/{cert}/update', [CertController::class, 'update'])->name('certificates.update');
     Route::delete('/certificate/{cert}/destroy', [CertController::class, 'destroy'])->name('certificates.destroy');
     Route::get('/certificate/{cert}', [CertController::class, 'show'])->name('certificates.show');
+
+    // User management routes
+    Route::get('/user', [UserController::class, 'index'])->name('users.index');
+    Route::get('/user/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/user', [UserController::class, 'store'])->name('users.store');
+    Route::get('/user/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/user/{user}/update', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/user/{user}/destroy', [UserController::class, 'destroy'])->name('users.destroy');
 });
