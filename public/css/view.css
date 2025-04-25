@@ -34,20 +34,13 @@ h1 {
     border: 1px solid #c3e6cb;
 }
 
-/* Top actions bar (search and create button) */
-.actions-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
 /* Filter button styles */
 .search-container {
     display: flex;
     position: relative;
     width: 400px;
     align-items: center;
+    padding-bottom: 30px;
 }
 
 .search-input {
@@ -143,26 +136,6 @@ h1 {
 
 .reset-filter-btn:hover {
     background-color: #5a6268;
-}
-
-/* Create button */
-.create-btn {
-    background-color: var(--primary-color); 
-    color: var(--bg-color);
-    border: none;
-    border-radius: 10px;
-    padding: 8px 16px;
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.create-btn:hover {
-    background-color: var(--primary-color);
-    opacity: 0.9;
 }
 
 /* Table styles */

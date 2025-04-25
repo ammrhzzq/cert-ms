@@ -1,13 +1,13 @@
 @extends('layouts.app', ['activeItem' => 'certificates'])
 
-@section('title', 'Status & Action - Certificate Management System')
+@section('title', 'Certificates List')
 
 @section('styles')
-<link rel="stylesheet" href="{{ asset('css/client-index.css') }}">
+<link rel="stylesheet" href="{{ asset('css/view.css') }}">
 @endsection
 
 @section('content')
-<h1>Status & Action</h1>
+<h1>List of Certificate</h1>
 
 <!-- Success alert -->
 @if(session()->has('success'))
@@ -18,7 +18,7 @@
 
 <div class="actions-bar">
     <div class="search-container">
-        <form action="{{ route('certificates.index') }}" method="GET" class="search-form">
+        <form action="{{ route('certificates.view') }}" method="GET" class="search-form">
             <i class="fas fa-search search-icon"></i>
             <input type="text" name="search" class="search-input" placeholder="Search for certificate" value="{{ request('search') }}">
             <button type="submit" class="search-submit" style="display: none;">Search</button>
@@ -28,16 +28,10 @@
         </button>
     </div>
 
-    <div class="action-button">
-        <a href="{{ route('certificates.create') }}" class="create-btn">
-            <i class="fas fa-plus"></i> Create Certificate
-        </a>
-    </div>
-</div>
 
 <!-- Filter panel (hidden by default) -->
 <div class="filter-panel" id="filterPanel" style="display: none;">
-    <form action="{{ route('certificates.index') }}" method="GET">
+    <form action="{{ route('certificates.view') }}" method="GET">
         <div class="filter-row">
             <div class="filter-group">
                 <label for="cert_type">Certificate Type:</label>
@@ -106,7 +100,7 @@
 
         <div class="filter-actions">
             <button type="submit" class="apply-filter-btn">Apply Filters</button>
-            <a href="{{ route('certificates.index') }}" class="reset-filter-btn">Reset</a>
+            <a href="{{ route('certificates.view') }}" class="reset-filter-btn">Reset</a>
         </div>
     </form>
 </div>
@@ -140,14 +134,6 @@
             <td>{{ ucfirst(str_replace('_', ' ', $cert->status)) }}</td>
             <td>
                 <div class="action-icons">
-                    <a href="{{ route('certificates.show', ['cert' => $cert]) }}" class="view-icon" title="View">
-                        <i class="fa-regular fa-eye"></i>
-                    </a>
-
-                    <a href="{{ route('certificates.edit', ['cert' => $cert]) }}" class="edit-icon" title="Edit">
-                        <i class="fas fa-pencil-alt"></i>
-                    </a>
-
                     <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form">
                         @csrf
                         @method('DELETE')

@@ -51,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
     // Certificate routes
     Route::get('/certificate', [CertController::class, 'index'])->name('certificates.index');
     Route::get('/certificate/create', [CertController::class, 'create'])->name('certificates.create');
+    Route::get('/certificate/view', [CertController::class, 'view'])->name('certificates.view');
     Route::post('/certificate', [CertController::class, 'store'])->name('certificates.store');
     Route::get('/certificate/{cert}/edit', [CertController::class, 'edit'])->name('certificates.edit');
     Route::put('/certificate/{cert}/update', [CertController::class, 'update'])->name('certificates.update');

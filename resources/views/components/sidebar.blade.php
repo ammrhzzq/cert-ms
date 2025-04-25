@@ -34,7 +34,7 @@ $isCollapsed = isset($_COOKIE['sidebarCollapsed']) && $_COOKIE['sidebarCollapsed
             </a>
         </li>
         <li>
-        <a href="#" class="{{ $activeItem == 'templates' ? 'active' : '' }}">
+        <a href="{{ route('certificates.view') }}" class="{{ $activeItem == 'view' ? 'active' : '' }}">
                 <i class="fas fa-search icon"></i>
                 <span class="text">View & Search</span>
             </a>
