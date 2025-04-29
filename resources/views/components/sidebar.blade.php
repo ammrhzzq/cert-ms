@@ -45,26 +45,20 @@ $isCollapsed = isset($_COOKIE['sidebarCollapsed']) && $_COOKIE['sidebarCollapsed
                 <span class="text">Template Management</span>
             </a>
         </li>
-        @if(Auth::user()->isHod())
-        <li class="{{ $activeItem == 'pending-approvals' ? 'active' : '' }}">
-            <a href="{{ route('users.pending-approvals') }}">
-                <i class="fas fa-user-clock"></i>
-                <span>Pending Approvals</span>
-                @php
-                $pendingCount = \App\Models\User::where('is_approved', false)->count();
-                @endphp
-                @if($pendingCount > 0)
-                <span class="badge">{{ $pendingCount }}</span>
-                @endif
-            </a>
-        </li>
-        @endif
         <li>
             <a href="{{ route('clients.index') }}" class="{{ $activeItem == 'clients' ? 'active' : '' }}">
                 <i class="fas fa-users icon"></i>
                 <span class="text">Client Management</span>
             </a>
         </li>
+        @if(auth()->check() && auth()->user()->role === 'hod')
+        <li>
+            <a href="{{ route('users.index') }}" class="{{ $activeItem == 'users' ? 'active' : '' }}">
+                <i class="fas fa-user-cog icon"></i>
+                <span class="text">User Management</span>
+            </a>
+        </li>
+        @endif
     </ul>
 </div>
 

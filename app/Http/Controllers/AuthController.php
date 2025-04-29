@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 
 class AuthController extends Controller
 {
@@ -33,6 +34,18 @@ class AuthController extends Controller
 
         // Hash the password
         $validated['password'] = bcrypt($validated['password']);
+        
+        // Check if the email is the designated HOD email
+        $hodEmail = Config::get('app.hod_email', 'hod@example.com'); // Default value as fallback
+        
+        // Set the role based on email
+        if ($validated['email'] === $hodEmail) {
+            $validated['role'] = 'hod';
+            $validated['is_approved'] = true; // Auto-approve HOD
+        } else {
+            $validated['role'] = 'staff'; // Default role for other users
+            $validated['is_approved'] = false; // Other users need approval
+        }
 
         $user = User::create($validated);
 

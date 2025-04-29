@@ -40,8 +40,15 @@
                 <select name="role" required>
                     <option value="staff" {{ $user->role == 'staff' ? 'selected' : '' }}>Staff</option>
                     <option value="manager" {{ $user->role == 'manager' ? 'selected' : '' }}>Manager</option>
-                    <option value="hod" {{ $user->role == 'hod' ? 'selected' : '' }}>Head of Department</option>
+                    <option value="hod" 
+                            {{ $user->role == 'hod' ? 'selected' : '' }}
+                            {{ isset($hodExists) && $hodExists && $user->role !== 'hod' ? 'disabled' : '' }}>
+                        Head of Department
+                    </option>
                 </select>
+                @if(isset($hodExists) && $hodExists && $user->role !== 'hod')
+                <small class="form-text text-muted">HOD role is already assigned to another user.</small>
+                @endif
             </div>
 
             <div class="form-group">
@@ -63,8 +70,8 @@
             </div>
 
             <div class="button-group">
-                <a href="{{ route('users.index') }}" class="btn-cancel">Cancel</a>
-                <button type="submit" class="btn-submit">Update User</button>
+                <a href="{{ route('users.index') }}" class="btn-back">Cancel</a>
+                <input type="submit" value="Update" />
             </div>
         </form>
     </div>

@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Config;
 
 class User extends Authenticatable
 {
@@ -75,5 +76,16 @@ class User extends Authenticatable
     public function isApproved()
     {
         return $this->is_approved;
+    }
+    
+    /**
+     * Check if email is the designated HOD email
+     *
+     * @param string $email
+     * @return bool
+     */
+    public static function isHodEmail($email)
+    {
+        return $email === Config::get('roles.hod_email', 'hod@example.com');
     }
 }

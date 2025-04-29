@@ -139,6 +139,7 @@ h1 {
     border-radius: 10px;
     padding: 8px 16px;
     cursor: pointer;
+    text-decoration: none;
 }
 
 .reset-filter-btn:hover {
@@ -158,6 +159,7 @@ h1 {
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    margin-bottom: 30px;
 }
 
 .create-btn:hover {
