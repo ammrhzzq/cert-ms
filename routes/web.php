@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TemplateController;
 
 // Redirect root to login page
 Route::get('/', function () {
@@ -66,4 +67,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/user/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/user/{user}/update', [UserController::class, 'update'])->name('users.update');
     Route::delete('/user/{user}/destroy', [UserController::class, 'destroy'])->name('users.destroy');
+
+    Route::prefix('templates')->group(function() {
+        Route::get('/', [TemplateController::class, 'index'])->name('templates.index');
+        Route::get('/create', [TemplateController::class, 'create'])->name('templates.create');
+        Route::post('/', [TemplateController::class, 'store'])->name('templates.store');
+        Route::get('/{template}', [TemplateController::class, 'show'])->name('templates.show');
+        Route::get('/{template}/edit', [TemplateController::class, 'edit'])->name('templates.edit');
+        Route::put('/{template}', [TemplateController::class, 'update'])->name('templates.update');
+        Route::delete('/{template}', [TemplateController::class, 'destroy'])->name('templates.destroy');
+        Route::post('/{template}/set-active', [TemplateController::class, 'setActive'])->name('templates.set-active');
+        Route::get('/{template}/download', [TemplateController::class, 'download'])->name('templates.download');
+        Route::get('/templates/{template}/preview', [TemplateController::class, 'preview'])->name('templates.preview');
+        Route::get('/templates/{id}/thumbnail', [TemplateController::class, 'generateThumbnail'])->name('templates.thumbnail');
+    });
 });
