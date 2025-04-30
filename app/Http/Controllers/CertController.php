@@ -10,6 +10,11 @@ class CertController extends Controller
     public function index(Request $request) {
         $query = Cert::query();
         
+        // Apply status filter
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+        
         // Apply certificate type filter
         if ($request->filled('cert_type') && $request->cert_type !== 'all') {
             $query->where('cert_type', $request->cert_type);
@@ -56,6 +61,15 @@ class CertController extends Controller
         $issueDates = Cert::select('issue_date')->distinct()->pluck('issue_date');
         $expDates = Cert::select('exp_date')->distinct()->pluck('exp_date');
         
+        // Get status count for tabs
+        $statusCounts = [
+            'all' => Cert::count(),
+            'pending_review' => Cert::where('status', 'pending_review')->count(),
+            'client_verified' => Cert::where('status', 'client_verified')->count(),
+            'need_revision' => Cert::where('status', 'need_revision')->count(),
+            'pending_hod_approval' => Cert::where('status', 'pending_hod_approval')->count()
+        ];
+        
         return view('certificates.index', [
             'certs' => $cert,
             'certTypes' => $certTypes,
@@ -63,7 +77,8 @@ class CertController extends Controller
             'companyNames' => $companyNames,
             'regDates' => $regDates,
             'issueDates' => $issueDates,
-            'expDates' => $expDates
+            'expDates' => $expDates,
+            'statusCounts' => $statusCounts
         ]);
     }
     
@@ -131,6 +146,11 @@ class CertController extends Controller
     public function view(Request $request) {
         $query = Cert::query();
         
+        // Apply status filter
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+        
         // Apply certificate type filter
         if ($request->filled('cert_type') && $request->cert_type !== 'all') {
             $query->where('cert_type', $request->cert_type);
@@ -177,6 +197,15 @@ class CertController extends Controller
         $issueDates = Cert::select('issue_date')->distinct()->pluck('issue_date');
         $expDates = Cert::select('exp_date')->distinct()->pluck('exp_date');
         
+        // Get status count for tabs
+        $statusCounts = [
+            'all' => Cert::count(),
+            'pending_review' => Cert::where('status', 'pending_review')->count(),
+            'client_verified' => Cert::where('status', 'client_verified')->count(),
+            'need_revision' => Cert::where('status', 'need_revision')->count(),
+            'pending_hod_approval' => Cert::where('status', 'pending_hod_approval')->count()
+        ];
+        
         return view('certificates.view', [
             'certs' => $cert,
             'certTypes' => $certTypes,
@@ -184,8 +213,8 @@ class CertController extends Controller
             'companyNames' => $companyNames,
             'regDates' => $regDates,
             'issueDates' => $issueDates,
-            'expDates' => $expDates
+            'expDates' => $expDates,
+            'statusCounts' => $statusCounts
         ]);
     }
-
 }
