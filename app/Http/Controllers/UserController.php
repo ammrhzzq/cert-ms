@@ -28,7 +28,7 @@ class UserController extends Controller
         
         return view('users.create', [
             'hodExists' => $hodExists,
-            'hodEmail' => Config::get('roles.hod_email', 'hod@example.com')
+            'hodEmail' => Config::get('roles.hod_email', 'hod@cybersecurity.my')
         ]);
     }
 
@@ -49,7 +49,7 @@ class UserController extends Controller
         ]);
 
         // Check if trying to create HOD but it's not the designated email
-        $hodEmail = Config::get('roles.hod_email', 'hod@example.com');
+        $hodEmail = Config::get('roles.hod_email', 'hod@cybersecurity.my');
         if ($data['role'] === 'hod' && $data['email'] !== $hodEmail) {
             return redirect()->back()->withErrors([
                 'email' => "Only the designated email ({$hodEmail}) can be assigned the HOD role."
@@ -86,7 +86,7 @@ class UserController extends Controller
         return view('users.edit', [
             'user' => $user,
             'hodExists' => $hodExists,
-            'hodEmail' => Config::get('roles.hod_email', 'hod@example.com')
+            'hodEmail' => Config::get('roles.hod_email', 'hod@cybersecurity.my')
         ]);
     }
 
@@ -107,7 +107,7 @@ class UserController extends Controller
         ]);
 
         // Check if trying to change to HOD but it's not the designated email
-        $hodEmail = Config::get('roles.hod_email', 'hod@example.com');
+        $hodEmail = Config::get('roles.hod_email', 'hod@cybersecurity.my');
         if ($data['role'] === 'hod' && $data['email'] !== $hodEmail) {
             return redirect()->back()->withErrors([
                 'role' => "Only the designated email ({$hodEmail}) can be assigned the HOD role."

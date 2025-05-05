@@ -150,7 +150,7 @@ input[type="submit"] {
     color: var(--sidebar-bg);
     border: none;
     padding: 10px 20px;
-    border-radius: 4px;
+    border-radius: 16px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
@@ -166,7 +166,7 @@ input[type="submit"]:hover {
     color: var(--text-color);
     border: none;
     padding: 10px 20px;
-    border-radius: 4px;
+    border-radius: 16px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;

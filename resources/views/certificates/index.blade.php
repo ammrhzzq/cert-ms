@@ -16,99 +16,28 @@
 </div>
 @endif
 
-<div class="actions-bar">
-    <div class="search-container">
-        <form action="{{ route('certificates.index') }}" method="GET" class="search-form">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" name="search" class="search-input" placeholder="Search for certificate" value="{{ request('search') }}">
-            <button type="submit" class="search-submit" style="display: none;">Search</button>
-        </form>
-        <button class="filter-btn" id="filterToggle">
-            <i class="fas fa-filter"></i> Filter
-        </button>
-    </div>
-
-    <div class="action-button">
-        <a href="{{ route('certificates.create') }}" class="create-btn">
-            <i class="fas fa-plus"></i> Create Certificate
-        </a>
-    </div>
-</div>
-
-<!-- Filter panel (hidden by default) -->
-<div class="filter-panel" id="filterPanel" style="display: none;">
-    <form action="{{ route('certificates.index') }}" method="GET">
-        <div class="filter-row">
-            <div class="filter-group">
-                <label for="cert_type">Certificate Type:</label>
-                <select name="cert_type" id="cert_type">
-                    <option value="all">All Types</option>
-                    @foreach($certTypes as $type)
-                    <option value="{{ $type }}" {{ request('cert_type') == $type ? 'selected' : '' }}>{{ $type }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label for="iso_num">ISO Number:</label>
-                <select name="iso_num" id="iso_num">
-                    <option value="all">All ISO Numbers</option>
-                    @foreach($isoNumbers as $iso)
-                    <option value="{{ $iso }}" {{ request('iso_num') == $iso ? 'selected' : '' }}>{{ $iso }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
-
-        <div class="filter-row">
-            <div class="filter-group">
-                <label for="comp_name">Company Name:</label>
-                <select name="comp_name" id="comp_name">
-                    <option value="all">All Companies</option>
-                    @foreach($companyNames as $name)
-                    <option value="{{ $name }}" {{ request('comp_name') == $name ? 'selected' : '' }}>{{ $name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label for="date_type">Date Field:</label>
-                <select name="date_type" id="date_type">
-                    <option value="reg_date" {{ request('date_type') == 'reg_date' ? 'selected' : '' }}>Registration Date</option>
-                    <option value="issue_date" {{ request('date_type') == 'issue_date' ? 'selected' : '' }}>Issue Date</option>
-                    <option value="exp_date" {{ request('date_type') == 'exp_date' ? 'selected' : '' }}>Expiry Date</option>
-                </select>
-
-                <select name="date_value" id="date_value">
-                    <option value="all">All Dates</option>
-                    @if(request('date_type') == 'issue_date' || request('date_type') == '')
-                    @foreach($issueDates as $date)
-                    <option value="{{ $date }}" {{ request('date_value') == $date ? 'selected' : '' }}>
-                        {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}
-                    </option>
-                    @endforeach
-                    @elseif(request('date_type') == 'exp_date')
-                    @foreach($expDates as $date)
-                    <option value="{{ $date }}" {{ request('date_value') == $date ? 'selected' : '' }}>
-                        {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}
-                    </option>
-                    @endforeach
-                    @else
-                    @foreach($regDates as $date)
-                    <option value="{{ $date }}" {{ request('date_value') == $date ? 'selected' : '' }}>
-                        {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}
-                    </option>
-                    @endforeach
-                    @endif
-                </select>
-            </div>
-        </div>
-
-        <div class="filter-actions">
-            <button type="submit" class="apply-filter-btn">Apply Filters</button>
-            <a href="{{ route('certificates.index') }}" class="reset-filter-btn">Reset</a>
-        </div>
-    </form>
+<!-- Status tabs -->
+<div class="status-tabs">
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'all'])) }}" 
+       class="status-tab {{ request('status', 'all') == 'all' ? 'active' : '' }}">
+        All
+    </a>
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'pending_review'])) }}" 
+       class="status-tab {{ request('status') == 'pending_review' ? 'active' : '' }}">
+        Pending Review
+    </a>
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'client_verified'])) }}" 
+       class="status-tab {{ request('status') == 'client_verified' ? 'active' : '' }}">
+        Client Verified
+    </a>
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'need_revision'])) }}" 
+       class="status-tab {{ request('status') == 'need_revision' ? 'active' : '' }}">
+        Need Revision
+    </a>
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'pending_hod_approval'])) }}" 
+       class="status-tab {{ request('status') == 'pending_hod_approval' ? 'active' : '' }}">
+        Pending HoD Approval
+    </a>
 </div>
 
 <!-- Certificate table -->

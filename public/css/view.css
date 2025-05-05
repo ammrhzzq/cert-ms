@@ -50,11 +50,11 @@ h1 {
     border: 1px solid var(--border-color);
     padding: 8px 16px;
     border-radius: 10px;
-    margin-right: 8px;
+    margin: 0 10px;
 }
 
 .filter-btn {
-    background: none;
+    background: var(--bg-color);
     border: none;
     color: var(--text-color);
     cursor: pointer;
@@ -67,8 +67,8 @@ h1 {
 }
 
 .filter-btn:hover {
-    background-color: #f0f0f0;
-    color: #333;
+    background-color: var(--hover-color);
+    color: var(--primary-color);
 }
 
 /* Filter panel styles */

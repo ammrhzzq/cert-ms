@@ -36,7 +36,7 @@ class AuthController extends Controller
         $validated['password'] = bcrypt($validated['password']);
         
         // Check if the email is the designated HOD email
-        $hodEmail = Config::get('app.hod_email', 'hod@example.com'); // Default value as fallback
+        $hodEmail = Config::get('app.hod_email', 'hod@cybersecurity.my'); // Default value as fallback
         
         // Set the role based on email
         if ($validated['email'] === $hodEmail) {

@@ -11,14 +11,6 @@
     min-height: 100vh;
 }
 
-/* Main Content Styles */
-.main-content {
-    flex: 1;
-    padding: 0;
-    transition: all 0.3s ease;
-    overflow-x: hidden;
-}
-
 /* Dashboard content styles */
 .dashboard-content {
     padding: 30px;
@@ -38,12 +30,25 @@
     gap: 25px;
 }
 
+/* Dashboard cards */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
 .card {
-    background-color: white;
+    background-color: var(--card-bg);
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s;
     overflow: hidden;
+    text-decoration: none;
+}
+
+.card:hover {
+    transform: translateY(-5px);
 }
 
 .card h3 {
@@ -54,6 +59,8 @@
 }
 
 .count {
+    color: var(--text-color);
+    text-decoration: none;
     font-size: 40px;
     font-weight: 700;
 }
@@ -164,6 +171,9 @@
     flex-grow: 1;
     margin-left: var(--sidebar-width);
     transition: margin-left var(--transition-speed);
+    padding: 0;
+    transition: all 0.3s ease;
+    overflow-x: hidden;
 }
 
 .sidebar.collapsed ~ .main-content {
@@ -180,55 +190,24 @@
     font-weight: 600;
 }
 
-/* Dashboard cards */
-.cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.card {
-    background-color: var(--card-bg);
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: var(--card-shadow);
-    transition: transform 0.2s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.card-title {
-    font-size: 16px;
-    color: var(--text-color);
-    margin-bottom: 15px;
-}
-
-.card-value {
-    font-size: 30px;
-    font-weight: 600;
-    color: var(--text-color);
-}
-
 .blue-border {
-    border-top: 3px solid #4285F4;
+    border-top: 3px solid var(--blue-border);
 }
 
 .yellow-border {
-    border-top: 3px solid #FBBC05;
+    border-top: 3px solid var(--yellow-border);
 }
 
 .red-border {
-    border-top: 3px solid #EA4335;
+    border-top: 3px solid var(--red-border);
 }
 
 .green-border {
-    border-top: 3px solid #34A853;
+    border-top: 3px solid var(--green-border);
 }
 
 .orange-border {
-    border-top: 3px solid #FF9900;
+    border-top: 3px solid var(--orange-border);
 }
 
 /* Responsive design */
