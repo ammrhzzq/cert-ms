@@ -10,12 +10,24 @@ use Illuminate\Support\Str;
 use Spatie\PdfToImage\Pdf;
 
 class TemplateController extends Controller{
-    public function index(){
+    public function index(Request $request){
 
-        // Get all templates
-        $templates = Template::orderBy('cert_type')->orderBy('created_at', 'desc')->get();
-        $activeTemplates = Template::where('is_active', true)->get()->keyBY('cert_type');
-        $inactiveTemplates = Template::where('is_active', false)->get();
+        $certTypeFilter = $request->input('cert_type');
+
+        $query = Template::query();
+        if ($certTypeFilter) {
+            $query->where('cert_type', $certTypeFilter);
+        }
+        $templates = $query->orderBy('cert_type')->orderBy('created_at', 'desc')->get();
+        
+        $activeTemplates = Template::where('is_active', true)->when($certTypeFilter, function ($q) use ($certTypeFilter) {
+            return $q->where('cert_type', $certTypeFilter);
+        })->get()->keyBy('cert_type');
+        
+        $inactiveTemplates = Template::where('is_active', false)->when($certTypeFilter, function ($q) use ($certTypeFilter) {
+            return $q->where('cert_type', $certTypeFilter);
+        })->get();
+
         $certTypes = Cert::select('cert_type')->distinct()->pluck('cert_type');
 
         return view('templates.index', [
@@ -23,6 +35,8 @@ class TemplateController extends Controller{
             'activeTemplates' => $activeTemplates,
             'inactiveTemplates' => $inactiveTemplates,
             'certTypes' => $certTypes,
+            'certTypeFilter' => $certTypeFilter,  
+            'activeItem' => 'templates',
         ]);
     }
 
@@ -34,11 +48,11 @@ class TemplateController extends Controller{
     public function store(Request $request){
         $request->validate([
             'cert_type' => 'required|string|in:ISMS,PIMS,BCMS,MyCC',
-            'template_file' => 'required|file|mimes:pdf|max:2048'
+            'template_file' => 'required|file|mimes:pdf|max:10240'
         ]);
 
         // Handle file upload
-        $path = $request->file('template_file')->store('templates');
+        $path = $request->file('template_file')->store('public/templates');
 
         // Generate preview image from PDF (first page)
         $previewPath = $this->generatePdfPreview($path);
@@ -47,10 +61,10 @@ class TemplateController extends Controller{
         $latestTemplate = Template::where('cert_type', $request->cert_type)
             ->orderBy('version', 'desc')->first();
 
-        $version = '1.0';
+        $version = '1';
         if ($latestTemplate){
             $currentVersion = (float) $latestTemplate->version;
-            $version = number_format($currentVersion + 0.1, 1);
+            $version = number_format($currentVersion + 1);
         }
 
         // Create new template
@@ -74,24 +88,12 @@ class TemplateController extends Controller{
             ->with('success', 'Template uploaded successfully.');
     }
 
-    public function show(Template $template){
-        return view('templates.show', ['template' => $template]);
-    }
-
-    public function edit(Template $template){
-        $certTypes = Cert::select('cert_type')->distinct()->pluck('cert_type');
-        return view('templates.edit', [
-            'template' => $template,
-            'certTypes' => $certTypes
-        ]);
-    }
-
     public function update(Request $request, Template $template){
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'cert_type' => 'required|string|max:255',
-            'template_file' => 'nullable|file|mimes:pdf|max:2048'
+            'template_file' => 'nullable|file|mimes:pdf|max:10240'
         ]);
 
         $data = [
@@ -113,7 +115,7 @@ class TemplateController extends Controller{
             }
 
             //Store new file
-            $path = $request->file('template_file')->store('templates');
+            $path = $request->file('template_file')->store('public/templates');
             $data['file_path'] = $path;
 
             // Generate new preview
@@ -182,9 +184,14 @@ class TemplateController extends Controller{
 
         $path = storage_path('app/' . $template->file_path);
 
+        if (!file_exists($path)){
+            abort(404, 'Template file not found.');
+        }
+
         if (file_exists($path)){
             return response()->file($path, [
                 'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="' . $template->name . '.pdf"',
             ]);
         }
 
@@ -193,29 +200,23 @@ class TemplateController extends Controller{
 
     private function generatePdfPreview($pdfPath){
         try {
-            // In a real implementation, you would use a library like Imagick or a service
-            // to convert the first page of the PDF to an image
-            // For this example, we'll just assume it works and return a path
-
-            $previewPath = 'previews/' . Str::random(40) . '.png';    
-
-            // Here you would actually generate the preview and save it to storage
-                // Example with Imagick (would require the Imagick PHP extension):
-                /*
-                $imagick = new \Imagick();
-                $imagick->readImage(Storage::path($pdfPath) . '[0]'); // [0] means first page
-                $imagick->setImageFormat('png');
-                $imagick->setResolution(300, 300);
-                $imagick->setCompressionQuality(90);
-                Storage::put($previewPath, $imagick->getImageBlob());
-                */
-
-            return $previewPath;
+            $pdfFullPath = storage_path('app/' . $pdfPath);
+    
+            $filename = 'template_' . Str::random(10) . '.jpg';
+            $previewRelativePath = 'public/previews/' . $filename;
+            $previewFullPath = storage_path('app/' . $previewRelativePath);
+    
+            // Convert PDF to image using Spatie\PdfToImage
+            $pdf = new Pdf($pdfFullPath);
+            $pdf->setPage(1)->saveImage($previewFullPath);
+    
+            return $previewRelativePath;
+    
         } catch (\Exception $e){
-            // Handle error (log it, return a default image, etc.)
             \Log::error('Error generating PDF preview: ' . $e->getMessage());
             return null;
         }
+    
     }
 
     public function generateThumbnail($templateId){

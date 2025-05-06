@@ -108,7 +108,7 @@ h1 {
 
 .filter-btn:hover {
     background-color: var(--hover-color);
-    color: var(--hover-color);
+    color: var(--text-color);
 }
 
 /* Filter panel styles */

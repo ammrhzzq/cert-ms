@@ -14,36 +14,6 @@ body {
     padding: 0 20px;
 }
 
-/* Card styles */
-.card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    overflow: hidden;
-    margin-bottom: 30px;
-}
-
-.card-header {
-    background-color: var(--card-bg);
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.card-header h4 {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 0;
-}
-
-.card-body {
-    padding: 20px;
-}
-
 /* Alert messages */
 .alert {
     padding: 12px 16px;
@@ -82,12 +52,12 @@ h6 {
 /* Table styles */
 .table {
     width: 100%;
-    background-color: var(--card-bg);
     border-collapse: collapse;
-    border-radius: 10px;
+    background-color: var(--card-bg);
+    border-radius: 8px;
     overflow: hidden;
-    margin-bottom: 30px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
 }
 
 .table thead {
@@ -95,20 +65,20 @@ h6 {
 }
 
 .table th {
-    padding: 16px 24px;
-    text-align: left;
-    font-weight: 600;
+    background-color: var(--card-bg);
     color: var(--text-color);
+    font-weight: 600;
+    text-align: left;
+    padding: 16px 32px;
     border-bottom: 3px solid var(--primary-color);
-    font-size: 14px;
 }
 
 .table td {
-    padding: 16px 24px;
+    padding: 16px 32px;
     font-size: 14px;
     border-top: 1px solid var(--border-color);
     color: var(--text-color);
-    vertical-align: middle;
+    vertical-align: top;
 }
 
 .table tr:hover {
@@ -164,11 +134,22 @@ h6 {
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--primary-color); 
+    color: var(--bg-color);
+    border: none;
+    border-radius: 16px;
+    padding: 8px 16px;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 30px;
 }
 
 .btn-primary:hover {
+    background-color: var(--primary-color);
     opacity: 0.9;
 }
 
@@ -188,6 +169,93 @@ h6 {
 
 .btn-danger:hover {
     background-color: #c82333;
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 5px;
+    position: relative;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+}
+
+/* Different colors for each button type */
+.btn-icon.btn-download {
+    background-color: #17a2b8;  /* Info blue color */
+}
+
+.btn-icon.btn-edit {
+    background-color: #007bff;  /* Primary blue color */
+}
+
+.btn-icon.btn-active {
+    background-color: #28a745;  /* Success green color */
+}
+
+.btn-icon.btn-delete {
+    background-color: #dc3545;  /* Danger red color */
+}
+
+.btn-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+.btn-icon .fa {
+    font-size: 14px;
+    margin: 0;
+}
+
+.btn-icon .btn-text {
+    position: absolute;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    visibility: hidden;
+    opacity: 0;
+    width: max-content;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 10;
+}
+
+/* Show tooltip on hover */
+.btn-icon:hover .btn-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Add tooltip arrow */
+.btn-icon .btn-text::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+/* Button group container */
+.action-btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
 }
 
 /* Form inside table buttons */
@@ -421,4 +489,32 @@ pdf-preview img{
 
 .fancybox-caption {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+.status-tab {
+    padding: 7px 25px;
+    background-color: var(--hover-color);
+    border-radius: 16px;
+    margin-right: 15px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.status-tab.active {
+    background-color: var(--primary-color);
+    color: var(--bg-color);
+}
+
+.status-tab:hover:not(.active) {
+    background-color: var(--border-color);
+}
+
+.status-tab .count {
+    font-size: 0.9em;
+    color: inherit;
+    margin-left: 5px;
 }

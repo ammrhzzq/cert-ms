@@ -1,4 +1,9 @@
 @extends('layouts.app')
+
+@section('styles')
+<link rel="stylesheet" href="{{ asset('css/template-management.css') }}">
+@endsection
+
 @section('content')
 <div class="container py-5 template-management">
     <div class="row justify-content-center">

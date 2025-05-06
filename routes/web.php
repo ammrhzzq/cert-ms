@@ -72,8 +72,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [TemplateController::class, 'index'])->name('templates.index');
         Route::get('/create', [TemplateController::class, 'create'])->name('templates.create');
         Route::post('/', [TemplateController::class, 'store'])->name('templates.store');
-        Route::get('/{template}', [TemplateController::class, 'show'])->name('templates.show');
-        Route::get('/{template}/edit', [TemplateController::class, 'edit'])->name('templates.edit');
         Route::put('/{template}', [TemplateController::class, 'update'])->name('templates.update');
         Route::delete('/{template}', [TemplateController::class, 'destroy'])->name('templates.destroy');
         Route::post('/{template}/set-active', [TemplateController::class, 'setActive'])->name('templates.set-active');
