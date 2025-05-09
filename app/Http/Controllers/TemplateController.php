@@ -52,10 +52,7 @@ class TemplateController extends Controller{
         ]);
 
         // Handle file upload
-        $path = $request->file('template_file')->store('public/templates');
-
-        // Generate preview image from PDF (first page)
-        $previewPath = $this->generatePdfPreview($path);
+        $path = $request->file('template_file')->store('templates', 'public');
 
         // Get latest version number for this template type
         $latestTemplate = Template::where('cert_type', $request->cert_type)
@@ -71,7 +68,7 @@ class TemplateController extends Controller{
         $template = Template::create([
             'name' => $request->cert_type . '_template_v' . $version,
             'cert_type' => $request->cert_type,
-            'file_path' => $path,
+            'file_path' => 'public/' . $path,
             'uploaded_by' => auth()->id(),
             'version' => $version,
             'is_active' => $request->has('set_active')
@@ -115,12 +112,8 @@ class TemplateController extends Controller{
             }
 
             //Store new file
-            $path = $request->file('template_file')->store('public/templates');
-            $data['file_path'] = $path;
-
-            // Generate new preview
-            $previewPath = $this->generatePdfPreview($path);
-            $data['preview_path'] = $previewPath;
+            $path = $request->file('template_file')->store('templates', 'public');
+            $data['file_path'] = 'public/' . $path;
         }
 
         // Handle active status
@@ -128,7 +121,7 @@ class TemplateController extends Controller{
             $data['is_active'] = true;
 
             // Deactivate other templates of the same type
-            Template::where('cert_type')
+            Template::where('cert_type', $request->cert_type)
                 ->where('id', '!=', $template->id)
                 ->update(['is_active' => false]);
         }
@@ -197,40 +190,4 @@ class TemplateController extends Controller{
 
         abort(404);
     }
-
-    private function generatePdfPreview($pdfPath){
-        try {
-            $pdfFullPath = storage_path('app/' . $pdfPath);
-    
-            $filename = 'template_' . Str::random(10) . '.jpg';
-            $previewRelativePath = 'public/previews/' . $filename;
-            $previewFullPath = storage_path('app/' . $previewRelativePath);
-    
-            // Convert PDF to image using Spatie\PdfToImage
-            $pdf = new Pdf($pdfFullPath);
-            $pdf->setPage(1)->saveImage($previewFullPath);
-    
-            return $previewRelativePath;
-    
-        } catch (\Exception $e){
-            \Log::error('Error generating PDF preview: ' . $e->getMessage());
-            return null;
-        }
-    
-    }
-
-    public function generateThumbnail($templateId){
-        $template = Template::findOrFail($templateId);
-        $pdfPath = storage_path('app/' . $template->file_path);
-
-        $thumbnailPath = storage_path('app/public/thumbnails/template_' . $template->id . '.jpg');
-
-        if (!file_exists($thumbnailPath)){
-            $pdf = new Pdf($pdfPath);
-            $pdf->setPage(1)->saveImage($thumbnailPath);
-        }
-
-        return response()->file($thumbnailPath);
-    }
-
 }

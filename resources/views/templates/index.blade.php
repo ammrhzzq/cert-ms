@@ -1,6 +1,5 @@
 @extends('layouts.app')
 
-
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/template-management.css') }}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" />
@@ -50,7 +49,7 @@
         </thead>
         <tbody>
             @forelse ($activeTemplates as $certType => $template)
-                <tr class="clickable-row" data-fancybox="pdfs" data-type="pdf"
+                <tr class="clickable-row" data-fancybox data-type="iframe"
                     data-src="{{ route('templates.preview', $template->id) }}" style="cursor: pointer;">
                     <td>{{ $template->name }}</td>
                     <td>{{ $certType }}</td>
@@ -149,6 +148,8 @@
 
 @push('scripts')
 @section('scripts')
+<!-- Include Fancybox JS -->
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script>
 <!-- Include PDF.js for better PDF viewing experience -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script>
@@ -159,6 +160,25 @@
         // Prevent nested button clicks from triggering row clickable-row
         $('.clickable-row .btn-icon, .clickable-row button').on('click', function(e){
             e.stopPropagation();
+        });
+
+        // Initialize Fancybox
+        Fancybox.bind("[data-fancybox]", {
+            groupAll: true,
+            animated: false,
+            dragToClose: false,
+            showClass: false,
+            hideClass: false,
+            Toolbar: {
+                display: ["zoom", "fullscreen", "download", "close"],
+            },
+            iframe: {
+                preload: false,
+                css: {
+                    width: '90%',
+                    height: '90%'
+                }
+            }
         });
 
         // Handle row clicks for PDF preview

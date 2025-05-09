@@ -60,7 +60,7 @@
                         </div>
                         
                         <div class="form-group row mb-0">
-                            <div c;ass="col-md-6 offset-md-4">
+                            <div class="col-md-6 offset-md-4">
                                 <a href="{{ route('templates.index') }}" class="btn btn-cancel me-2">Cancel</a>
                                 <button type="submit" class="btn btn-primary">
                                     Upload Template
@@ -91,31 +91,12 @@
             // For this demo, we'll just show a placeholder
             document.getElementById('previewImage').src = '/images/pdf-preview-placeholder.png';
             
-            /* Real implementation with PDF.js would look like:
-            const fileReader = new FileReader();
-            fileReader.onload = function() {
-                const typedarray = new Uint8Array(this.result);
-                
-                // Using PDF.js to render the first page
-                pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
-                    pdf.getPage(1).then(function(page) {
-                        const viewport = page.getViewport({ scale: 0.5 });
-                        const canvas = document.createElement('canvas');
-                        const context = canvas.getContext('2d');
-                        canvas.height = viewport.height;
-                        canvas.width = viewport.width;
-                        
-                        page.render({
-                            canvasContext: context,
-                            viewport: viewport
-                        }).promise.then(function() {
-                            document.getElementById('previewImage').src = canvas.toDataURL();
-                        });
-                    });
-                });
-            };
-            fileReader.readAsArrayBuffer(file);
-            */
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            alert('File size exceeds 2MB limit.');
+            e.target.value = ''; // Clear the file input
+            return;
         }
     });
 </script>

@@ -443,7 +443,7 @@ small {
     background-color: var(--bg-color);
 }
 
-pdf-preview img{
+.pdf-preview img{
     max-height: 230px;
     object-fit: contain;
 }
