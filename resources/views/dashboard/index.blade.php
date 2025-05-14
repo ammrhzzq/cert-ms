@@ -26,9 +26,9 @@
         <h3>Certificate Issued</h3>
         <p class="count">{{ $certificateIssued }}</p>
     </a>
-    <div class="card gray-border">
+    <a href="{{ route('clients.index')}}" class="card gray-border">
         <h3>Number of Client</h3>
         <p class="count">{{ $clientCount }}</p>
-    </div>
+    </a>
 </div>
 @endsection

@@ -210,6 +210,10 @@
     border-top: 3px solid var(--orange-border);
 }
 
+.gray-border {
+    border-top: 3px solid var(--text-color);
+}
+
 /* Responsive design */
 @media (max-width: 992px) {
     .cards-grid {

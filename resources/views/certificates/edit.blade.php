@@ -31,9 +31,9 @@
                 <div class="select-container">
                     <select name="cert_type" required>
                         <option value="" disabled>Select Certificate Type</option>
-                        <option value="ISMS" {{ $cert->cert_type == 'isms' ? 'selected' : '' }}>ISMS</option>
-                        <option value="BCMS" {{ $cert->cert_type == 'bcms' ? 'selected' : '' }}>BCMS</option>
-                        <option value="PIMS" {{ $cert->cert_type == 'pims' ? 'selected' : '' }}>PIMS</option>
+                        <option value="ISMS" {{ $cert->cert_type == 'ISMS' ? 'selected' : '' }}>ISMS</option>
+                        <option value="BCMS" {{ $cert->cert_type == 'BCMS' ? 'selected' : '' }}>BCMS</option>
+                        <option value="PIMS" {{ $cert->cert_type == 'PIMS' ? 'selected' : '' }}>PIMS</option>
                     </select>
                 </div>
             </div>
@@ -43,9 +43,9 @@
                 <div class="select-container">
                     <select name="iso_num" required>
                         <option value="" disabled>Select ISO Number</option>
-                        <option value="iso27001" {{ $cert->iso_num == 'iso27001' ? 'selected' : '' }}>ISO 27001</option>
-                        <option value="iso22301" {{ $cert->iso_num == 'iso22301' ? 'selected' : '' }}>ISO 22301</option>
-                        <option value="iso27701" {{ $cert->iso_num == 'iso27701' ? 'selected' : '' }}>ISO 27701</option>
+                        <option value="ISO/IEC 27001:2022" {{ $cert->iso_num == 'ISO/IEC 27001:2022' ? 'selected' : '' }}>ISO/IEC 27001:2022</option>
+                        <option value="ISO 22301:2019" {{ $cert->iso_num == 'ISO 22301:2019' ? 'selected' : '' }}>ISO 22301:2019</option>
+                        <option value="ISO/IEC 27701:2019" {{ $cert->iso_num == 'ISO/IEC 27701:2019' ? 'selected' : '' }}>ISO/IEC 27701:2019</option>
                     </select>
                 </div>
             </div>
@@ -74,11 +74,19 @@
                         <label>Contact Number 1</label>
                         <input type="text" name="comp_phone1" placeholder="Contact Number 1" value="{{ $cert->comp_phone1 }}">
                     </div>
+                    <div class="form-group">
+                        <label>Contact Name 1</label>
+                        <input type="text" name="phone1_name" placeholder="Contact Name" value="{{ $cert->phone1_name }}">
+                    </div>
                 </div>
                 <div class="form-column">
                     <div class="form-group">
                         <label>Contact Number 2</label>
                         <input type="text" name="comp_phone2" placeholder="Contact Number 2" value="{{ $cert->comp_phone2 }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Name 2</label>
+                        <input type="text" name="phone2_name" placeholder="Contact Name" value="{{ $cert->phone2_name }}">
                     </div>
                 </div>
             </div>

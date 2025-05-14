@@ -23,8 +23,9 @@ class ClientController extends Controller
             'comp_address2' => 'nullable|string|max:255',
             'comp_address3' => 'nullable|string|max:255',
             'comp_phone1' => 'nullable|string|max:15',
+            'phone1_name' => 'nullable|string|max:255',
             'comp_phone2' => 'nullable|string|max:15',
-            'reg_date' => 'required|date',
+            'phone2_name' => 'nullable|string|max:255',
         ]);
 
         $newClient = Client::create($data);
@@ -42,8 +43,9 @@ class ClientController extends Controller
             'comp_address2' => 'nullable|string|max:255',
             'comp_address3' => 'nullable|string|max:255',
             'comp_phone1' => 'nullable|string|max:15',
+            'phone1_name' => 'nullable|string|max:255',
             'comp_phone2' => 'nullable|string|max:15',
-            'reg_date' => 'required|date',
+            'phone2_name' => 'nullable|string|max:255',
         ]);
 
         $client->update($data);

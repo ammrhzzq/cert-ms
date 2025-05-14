@@ -31,45 +31,48 @@
                     <label>Company Name</label>
                     <input type="text" name="comp_name" placeholder="Company Name" value="{{ $client->comp_name }}" required>
                 </div>
-
+                
                 <div class="form-group">
-                    <label>Address1</label>
+                    <label>Address Line 1</label>
                     <input type="text" name="comp_address1" placeholder="Address" value="{{ $client->comp_address1 }}" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Address2</label>
-                    <input type="text" name="comp_address2" placeholder="Address" value="{{ $client->comp_address2 }}" required>
+                    <label>Address Line 2</label>
+                    <input type="text" name="comp_address2" placeholder="Address" value="{{ $client->comp_address2 }}">
                 </div>
 
                 <div class="form-group">
-                    <label>Address3</label>
-                    <input type="text" name="comp_address3" placeholder="Address" value="{{ $client->comp_address3 }}" required>
+                    <label>Address Line 3</label>
+                    <input type="text" name="comp_address3" placeholder="Address" value="{{ $client->comp_address3 }}">
                 </div>
 
                 <div class="form-row">
-                    <div class="form-cloumn">
+                    <div class="form-column">
                         <div class="form-group">
                             <label>Contact Number 1</label>
-                            <input type="text" name="comp_phone1" placeholder="Contact Number 1" value="{{ $client->comp_phone1 }}" required>
+                            <input type="text" name="comp_phone1" placeholder="Contact Number 1" value="{{ $client->comp_phone1 }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Person Name</label>
+                            <input type="text" name="phone1_name" placeholder="Contact Person Name" value="{{ $client->phone1_name }}">
                         </div>
                     </div>
                     <div class="form-column">
                         <div class="form-group">
                             <label>Contact Number 2</label>
-                            <input type="text" name="comp_phone2" placeholder="Contact Number 2" value="{{ $client->comp_phone2 }}" required>
+                            <input type="text" name="comp_phone2" placeholder="Contact Number 2" value="{{ $client->comp_phone2 }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Person Name</label>
+                            <input type="text" name="phone2_name" placeholder="Contact Person Name" value="{{ $client->phone2_name }}">
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Registration Date</label>
-                    <input type="date" name="reg_date" required value="{{ $client->reg_date }}">
-                </div>
-
                 <div class="button-group">
                 <button type="button" class="btn-cancel">Cancel</button>
-                <input type="submit" value="Edit Client" />
+                <input type="submit" value="Update Client" />
                 </div>
             </form>
         </div>

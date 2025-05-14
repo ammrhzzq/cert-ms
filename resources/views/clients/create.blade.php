@@ -36,31 +36,34 @@
                 </div>
                 
                 <div class="form-group">
-                    <input type="text" name="comp_address2" placeholder="Address Line 2" required>
+                    <input type="text" name="comp_address2" placeholder="Address Line 2">
                 </div>
                 
                 <div class="form-group">
-                    <input type="text" name="comp_address3" placeholder="Address Line 3" required>
+                    <input type="text" name="comp_address3" placeholder="Address Line 3">
                 </div>
                 
                 <div class="form-row">
                     <div class="form-column">
                         <div class="form-group">
                             <label>Contact Number 1</label>
-                            <input type="text" name="comp_phone1" placeholder="Contact Number 1" required>
+                            <input type="text" name="comp_phone1" placeholder="Contact Number 1">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Person Name</label>
+                            <input type="text" name="phone1_name" placeholder="Contact Person Name">
                         </div>
                     </div>
                     <div class="form-column">
                         <div class="form-group">
                             <label>Contact Number 2</label>
-                            <input type="text" name="comp_phone2" placeholder="Contact Number 2" required>
+                            <input type="text" name="comp_phone2" placeholder="Contact Number 2">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Person Name</label>
+                            <input type="text" name="phone2_name" placeholder="Contact Person Name">
                         </div>
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Registration Date</label>
-                    <input type="date" name="reg_date" required>
                 </div>
                 
                 <div class="button-group">
