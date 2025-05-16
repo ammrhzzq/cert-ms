@@ -3,7 +3,7 @@
 .sidebar {
     width: var(--sidebar-width);
     height: 100vh;
-    background-color: var(--card-bg);
+    background-color: var(--sidebar-bg);
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     transition: width var(--transition-speed);
     position: fixed;

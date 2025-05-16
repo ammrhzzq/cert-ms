@@ -244,7 +244,7 @@
         top: 10px;
         left: 10px;
         z-index: 1001;
-        background-color: var(--card-bg);
+        background-color: var(--sidebar-bg);
         border-radius: 50%;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }

@@ -6,7 +6,7 @@
 <h1>Overview</h1>
 
 <div class="dashboard-cards">
-    <a href="{{ route('certificates.index', ['status' => 'pending_review']) }}" class="card blue-border">
+    <a href="{{ route('certificates.index', ['status' => 'pending_review']) }}" class="card orange-border">
         <h3>Pending Review</h3>
         <p class="count">{{ $pendingReview }}</p>
     </a>
@@ -22,7 +22,7 @@
         <h3>Pending HoD Approval</h3>
         <p class="count">{{ $pendingHodApproval }}</p>
     </a>
-    <a href="{{ route('certificates.view')}}" class="card orange-border">
+    <a href="{{ route('certificates.view')}}" class="card blue-border">
         <h3>Certificate Issued</h3>
         <p class="count">{{ $certificateIssued }}</p>
     </a>
