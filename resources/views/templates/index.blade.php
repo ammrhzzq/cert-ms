@@ -59,7 +59,7 @@
                     <td>{{  $template->created_at->format('d/m/Y') }}</td>
                     <td>
                         <div class="action-btn-group">
-                            <a href="{{  route('templates.download', $activeTemplates[$certType]->id) }}" class="btn-icon btn-download">
+                            <a href="{{  route('templates.download', $activeTemplates[$certType]->id) }}" class="btn-icon btn-download" onclick="event.stopPropagation();">
                                 <i class="fa fa-download"></i>
                                 <span class="btn-text">Download</span>
                             </a>
@@ -91,7 +91,7 @@
         </thead>
         <tbody>
             @forelse ($inactiveTemplates as $template)
-            <tr class="clickable-row" data-fancybox="pdfs" data-type="pdf"
+            <tr class="clickable-row" data-fancybox="pdfs" data-type="iframe"
                 data-src="{{ route('templates.preview', $template->id) }}" style="cursor: pointer;">
                     <td>{{  $template->name }}</td>
                     <td>{{  $template->cert_type }}</td>
@@ -107,7 +107,7 @@
                     <td>{{  $template->created_at->format('d/m/Y') }}</td>
                     <td>
                         <div class="action-btn-group">
-                            <a href="{{  route('templates.download', $template->id) }}" class="btn-icon btn-download">
+                            <a href="{{  route('templates.download', $template->id) }}" class="btn-icon btn-download" onclick="event.stopPropagation();">
                                 <i class="fa fa-download"></i>
                                 <span class="btn-text">Download</span>
                             </a>
@@ -115,7 +115,7 @@
                             @if (!$template->is_active)
                                 <form action="{{ route('templates.set-active', $template->id) }}" method="POST" class="d-inline">
                                     @csrf
-                                    <button type="submit" class="btn-icon btn-active">
+                                    <button type="submit" class="btn-icon btn-active" onclick="event.stopPropagation();">
                                         <i class="fa fa-check-circle"></i>
                                         <span class="btn-text">Set Active</span>
                                     </button>
@@ -125,7 +125,7 @@
                             <form action="{{ route('templates.destroy', $template->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this template?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn-icon btn-delete">
+                                <button type="submit" class="btn-icon btn-delete" onclick="event.stopPropagation();">
                                     <i class="fa fa-trash"></i>
                                     <span class="btn-text">Delete</span>
                                 </button>
@@ -157,10 +157,6 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
     
     $(document).ready(function(){
-        // Prevent nested button clicks from triggering row clickable-row
-        $('.clickable-row .btn-icon, .clickable-row button').on('click', function(e){
-            e.stopPropagation();
-        });
 
         // Initialize Fancybox
         Fancybox.bind("[data-fancybox]", {
@@ -175,14 +171,20 @@
             iframe: {
                 preload: false,
                 css: {
-                    width: '90%',
-                    height: '90%'
+                    width: '100%',
+                    height: '90vh',
+                    transform: 'scale(0.95)',
+                    transformOrigin: 'top center'
                 }
             }
         });
 
         // Handle row clicks for PDF preview
-        $('.clickable-row').on('click', function() {
+        $('.clickable-row').on('click', function(e) {
+            // Prevent default action if the target is a link or button
+            if ($(e.target).closest('.action-btn-group, a, button, form').length > 0){
+                return;
+            }
             const pdfUrl = $(this).data('src');
             
             Fancybox.show([{ src: pdfUrl, type: "iframe" }], {
@@ -197,8 +199,10 @@
                 iframe: {
                     preload: false,
                     css: {
-                        width: '90%',
-                        height: '90%'
+                        width: '100%',
+                        height: '90vh',
+                        transform: 'scale(0.95)',
+                        transformOrigin: 'top center'   
                     }
                 }
             });

@@ -59,6 +59,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/certificate/{cert}/update', [CertController::class, 'update'])->name('certificates.update');
     Route::delete('/certificate/{cert}/destroy', [CertController::class, 'destroy'])->name('certificates.destroy');
     Route::get('/certificate/{cert}', [CertController::class, 'show'])->name('certificates.show');
+    Route::post('/certificates/{cert}/confirm', [CertController::class, 'confirm'])->name('certificates.confirm');
 
     // User management routes
     Route::get('/user', [UserController::class, 'index'])->name('users.index');

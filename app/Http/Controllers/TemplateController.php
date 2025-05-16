@@ -68,7 +68,7 @@ class TemplateController extends Controller{
         $template = Template::create([
             'name' => $request->cert_type . '_template_v' . $version,
             'cert_type' => $request->cert_type,
-            'file_path' => 'public/' . $path,
+            'file_path' => $path,
             'uploaded_by' => auth()->id(),
             'version' => $version,
             'is_active' => $request->has('set_active')
@@ -113,7 +113,7 @@ class TemplateController extends Controller{
 
             //Store new file
             $path = $request->file('template_file')->store('templates', 'public');
-            $data['file_path'] = 'public/' . $path;
+            $data['file_path'] = $path;
         }
 
         // Handle active status
@@ -168,7 +168,7 @@ class TemplateController extends Controller{
     }
 
     public function download(Template $template){
-        return Storage::download($template->file_path, $template->name . '.pdf');
+        return Storage::disk('public')->download($template->file_path, $template->name . '.pdf');
     }
 
     public function preview($id){
@@ -187,6 +187,9 @@ class TemplateController extends Controller{
                 'Content-Disposition' => 'inline; filename="' . $template->name . '.pdf"',
             ]);
         }
+
+        $pdf = new Pdf(storage_path('app/public/templates/template.pdf'));
+        $pdf->setPage(1)->saveImage(storage_path('app/public/previews/template-preview.png'));
 
         abort(404);
     }

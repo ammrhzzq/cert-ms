@@ -491,7 +491,19 @@ small {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+.fancybox__iframe {
+    max-width: 595px;
+    max-height: 842px;
+    aspect-ratio: 595 / 842;
+}
 
+/* Custom styles for Fancybox iframe */
+.fancybox__content > .fancybox__iframe {
+    width: 100% !important;
+    height: 100vh !important;
+    max-height: 80vh !important;
+}
+    
 .status-tab {
     padding: 7px 25px;
     background-color: var(--hover-color);
