@@ -66,8 +66,8 @@
             </div>
 
             <div class="button-group">
-                <a href="{{ route('users.index') }}" class="btn-cancel">Cancel</a>
-                <button type="submit" class="btn-submit">Create User</button>
+                <a href="{{ route('users.index') }}" class="btn-back">Cancel</a>
+                <input type="submit" value="Create User" />
             </div>
         </form>
     </div>

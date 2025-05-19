@@ -8,7 +8,6 @@
 @endsection
 
 @section('content')
-<div class="container">
     <h1>Certificate Details</h1>
 
     <div class="detail-container">
@@ -30,24 +29,13 @@
         <div class="detail-group">
             <div class="detail-label">Address</div>
             <div class="detail-value">
-                {{ $cert->comp_address1 }}<br>
-                {{ $cert->comp_address2 }}<br>
+                {{ $cert->comp_address1 }}
+            </div>
+            <div class="detail-value">
+                {{ $cert->comp_address2 }}
+            </div>
+            <div class="detail-value">
                 {{ $cert->comp_address3 }}
-            </div>
-        </div>
-
-        <div class="detail-row">
-            <div class="detail-column">
-                <div class="detail-group">
-                    <div class="detail-label">Contact Number 1</div>
-                    <div class="detail-value">{{ $cert->comp_phone1 }}</div>
-                </div>
-            </div>
-            <div class="detail-column">
-                <div class="detail-group">
-                    <div class="detail-label">Contact Number 2</div>
-                    <div class="detail-value">{{ $cert->comp_phone2 }}</div>
-                </div>
             </div>
         </div>
 

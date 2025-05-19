@@ -49,6 +49,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/client/{client}/edit', [ClientController::class, 'edit'])->name('clients.edit');
     Route::put('/client/{client}/update', [ClientController::class, 'update'])->name('clients.update');
     Route::delete('/client/{client}/destroy', [ClientController::class, 'destroy'])->name('clients.destroy');
+    Route::get('/client/{id}/data', [CertController::class, 'getClientData'])->name('client.data');
+
 
     // Certificate routes
     Route::get('/certificate', [CertController::class, 'index'])->name('certificates.index');

@@ -30,7 +30,7 @@
         <tr>
             <th>Name</th>
             <th>Address</th>
-            <th>Registration Date</th>
+            <th>Contact Person</th>
             <th>Contact Number</th>
             <th>Action</th>
         </tr>
@@ -44,7 +44,10 @@
                 {{ $client->comp_address2 }}<br>
                 {{ $client->comp_address3 }}
             </td>
-            <td>{{ \Carbon\Carbon::parse($client->reg_date)->format('d/m/Y') }}</td>
+            <td>
+                {{ $client->phone1_name }}<br>
+                {{ $client->phone2_name }}
+            </td>
             <td>
                 {{ $client->comp_phone1 }}<br>
                 {{ $client->comp_phone2 }}
