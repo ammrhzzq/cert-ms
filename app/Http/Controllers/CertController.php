@@ -7,6 +7,8 @@ use App\Models\Cert;
 use setasign\Fpdi\Fpdi;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\CertVerification;
+use App\Models\CertComment;
 
 class CertController extends Controller
 {
@@ -149,7 +151,15 @@ class CertController extends Controller
     }
 
     public function show(Cert $cert) {
-        return view('certificates.show', ['cert' => $cert]);
+        // Get verification details if they exist
+        $verification = CertVerfication::where('cert_id', $cert->id)->latest()->first();
+        $comments = CertComment::where('cert_id', $cert->id)->orderBy('created_at', 'desc')->get();
+
+        return view('certificates.show', [
+            'cert' => $cert,
+            'verification' => $verification,
+            'comments' => $comments
+        ]);
     }
 
     public function view(Request $request) {
@@ -342,6 +352,14 @@ class CertController extends Controller
         $cert->draft_path = $pdfPath;
         $cert->save();
 
+        // Create a new verification record
+        $verification = CertVerification::create([
+            'cert_id' => $cert->id,
+            'verified_by' => auth()->user()->id,
+            'verification_date' => now(),
+            'status' => 'verified'
+        ]);
+
         return redirect()->route('certificates.show', $cert->id)->with('success', 'Certificate has been verified and draft generated.');
     }
 
@@ -374,5 +392,86 @@ class CertController extends Controller
         }
 
         abort(404, 'Certificate not found.');
+    }
+
+    public function getVerificationLink (Cert $cert) {
+        $verification = CertVerification::where('cert_id', $cert->id)->orderBy('created_at', 'desc')->first();
+        if (!$verification) {
+            $verification = CertVerification::create([
+                'cert_id' => $cert->id,
+                'token' => Str::random(64),
+                'expires_at' => now()->addDays(7),
+                'is_verified' => false
+            ]);
+        }
+
+        $verificationUrl = route('certificates.verify', ['token' => $verification->token]);
+
+        return view('certificates.verification-link', [
+            'verificationUrl' => $verificationUrl,
+            'cert' => $cert,
+            'verification' => $verification
+        ]);
+    }
+
+    public function verify($token) {
+        $verification = CertVerification::where('token', $token)->where('expires_at', '>', now())->firstOrFail();
+
+        $cert = Cert::findOrFail($verification->cert_id);
+
+        $comments = CertComment::where('cert_id', $cert->id)->orderBy('created_at', 'desc')->get();
+        return view('certificates.verify', [
+            'cert' => $cert,
+            'verification' => $verification,
+            'comments' => $comments
+        ]);
+    }
+
+    public function processVerification(Request $request, $token) {
+        $verification = CertVerification::where('token', $token)->where('expires_at', '>', now())->firstOrFail();
+        $cert = Cert::findOrFail($verification->cert_id);
+        $action = $request->input('action');
+
+        if ($action == 'verify') {
+            $verification->is_verified = true;
+            $verification->verified_ar = now();
+            $verification->save();
+
+            $cert->status = 'client_verified';
+            $cert->save();
+
+            if ($request->filled('comment')) {
+                CertComment::create([
+                    'cert_id' => $cert->id,
+                    'comment' => $request->input('comment'),
+                    'commented_by' => $request->input ('name', 'Client'),
+                    'comment_type' => 'verification'
+                ]);
+            }
+            return redirect()->route('certificates.verify', ['token' => $token])->with('success', 'Certificate verified successfully.');
+        }
+
+        elseif ($action == 'reject') {
+            $request->validate([
+                'comment' => 'required|string|max:255',
+                'name' => 'required|string|max:255'
+            ], [
+                'comment.required' => 'Please provide a comment for rejection.',
+                'name.required' => 'Please provide your name.'
+            ]);
+
+            $verification->is_verified = false;
+            $verification->save();
+
+            $cert->status = 'need_revision';
+            $cert->save();
+
+            CertComment::create([
+                'cert_id' => $cert->id,
+                'comment' => $request->input('comment'),
+                'commented_by' => $request->input ('name'),
+                'comment_type' => 'revision_request'
+            ]);
+        }
     }
 }

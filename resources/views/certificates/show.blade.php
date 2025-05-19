@@ -94,7 +94,7 @@
 
         <div class="button-group">
             <a href="{{ route('certificates.index') }}" class="btn-back">Back</a>
-            @if (in_array(auth()->user()->role, ['manager', 'hod']))
+            @if (in_array(auth()->user()->role, ['manager', 'hod']) && $cert->status == 'pending_review')
                 <button class="confirm-btn" onclick="openConfirmModal()">Confirm Data</button>  
             @endif 
         </div>

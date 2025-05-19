@@ -188,9 +188,6 @@ class TemplateController extends Controller{
             ]);
         }
 
-        $pdf = new Pdf(storage_path('app/public/templates/template.pdf'));
-        $pdf->setPage(1)->saveImage(storage_path('app/public/previews/template-preview.png'));
-
         abort(404);
     }
 }
