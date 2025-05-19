@@ -184,6 +184,24 @@ input[type="submit"]:hover {
     background-color: var(--cancel-hover);
 }
 
+.confirm-btn {
+    background-color: var(--primary-color);
+    color: var(--sidebar-bg);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-align: center;
+}
+
+.confirm-btn:hover {
+    background-color: var(--primary-color);
+    opacity: 0.9;
+}
+
 /* Alert styling */
 .alert {
     padding: 15px;
@@ -314,4 +332,41 @@ input[type="submit"]:hover {
     color: #7f8c8d;
     text-align: right;
     margin-top: 20px;
+}
+
+.modal { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+.modal-content { 
+    background-color: var(--card-bg,#fff); 
+    color: var(--text-color, #333);
+    padding: 30px; 
+    border-radius: 10px; 
+    max-width: 500px; 
+    width: 90%; 
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: fadeIn 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px; 
+    justify-content: center; 
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px);}
+    to { opacity: 1; transform: translateY(0);}
 }

@@ -40,7 +40,7 @@ $isCollapsed = isset($_COOKIE['sidebarCollapsed']) && $_COOKIE['sidebarCollapsed
             </a>
         </li>
         <li>
-            <a href="#" class="{{ $activeItem == 'templates' ? 'active' : '' }}">
+            <a href="{{  route('templates.index') }}" class="{{ $activeItem == 'templates' ? 'active' : '' }}">
                 <i class="fas fa-file-pdf icon"></i>
                 <span class="text">Template Management</span>
             </a>

@@ -82,8 +82,45 @@
 
         <div class="button-group">
             <a href="{{ route('certificates.index') }}" class="btn-back">Back</a>
-            
+            @if (in_array(auth()->user()->role, ['manager', 'hod']) && $cert->status == 'pending_review')
+                <button class="confirm-btn" onclick="openConfirmModal()">Confirm Data</button>  
+            @endif 
         </div>
     </div>
 </div>
+
+@php
+    $canVerify = in_array(auth()->user()->role, ['manager', 'hod']);
+@endphp
+
+@if($canVerify && $cert->status !== 'client_verified')
+    <div class="review-section">
+        <button class="btn btn-warning" onclick="doucment.getElementById('confirmModal').style.display='block'">Review & Confirm</button>
+    </div>
+
+    <div id="confirmModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>Review and Confirm</h3>
+            <p>Are you sure you want to confirm the data? Please type <strong>CONFIRM</strong> to proceed.</p>
+            <form id='confirmForm' method="POST" action="{{ route('certificates.confirm', $cert->id) }}">
+                @csrf
+                <input type="text" id="confirmationInput" name="confirmation_text" placeholder="Type CONFIRM to continue" required>
+                <div class="modal-actions">
+                    <button type="submit" class="confirm-btn">Confirm</button>
+                    <button type="button" class="btn-back" onclick="closeConfirmModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endif
+
+<script>
+    function openConfirmModal(){
+        document.getElementById('confirmModal').style.display = 'flex';
+    }
+
+    function closeConfirmModal(){
+        document.getElementById('confirmModal').style.display = 'none';
+    }
+</script>
 @endsection
