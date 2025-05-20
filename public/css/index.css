@@ -13,13 +13,13 @@ h1 {
     color: var(--text-color);
 }
 
-.status-tabs {
+.tabs {
     display: flex;
     margin-bottom: 30px;
     overflow-x: auto;
 }
 
-.status-tab {
+.tab {
     padding: 7px 25px;
     background-color: var(--hover-color);
     border-radius: 16px;
@@ -33,17 +33,17 @@ h1 {
     color: var(--text-color);
 }
 
-.status-tab.active {
+.tab.active {
     background-color: var(--primary-color);
     color: var(--bg-color);
     font-weight: 700;
 }
 
-.status-tab:hover:not(.active) {
+.tab:hover:not(.active) {
     background-color: var(--border-color);
 }
 
-.status-tab .count {
+.tab .count {
     font-size: 0.9em;
     color: inherit;
     margin-left: 5px;

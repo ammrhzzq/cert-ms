@@ -1,0 +1,21 @@
+[33m6f4db87[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Merge branch 'feature-name' of https://github.com/ammrhzzq/cert-ms
+[33mb3a29a4[m[33m ([m[1;31morigin/feature-name[m[33m)[m Not completely done
+[33m7e7c98f[m minor css changes
+[33m49321b9[m Change Status
+[33m033e6ea[m minor changes on css
+[33mb33859d[m change on data entry where when user create cer auto create client
+[33m16e9bc7[m Preview PDF
+[33mefa0a0a[m Upload Template
+[33mb4bf29f[m Merge branch 'main' of https://github.com/ammrhzzq/cert-ms into feature-name
+[33m5979922[m template
+[33m69e23bb[m some major changes on ui and dashboard now can go to status
+[33m6b27a0c[m add role access based on role
+[33m35b3e4d[m add user view
+[33m9e220f6[m changes on css and add view and search
+[33mfc335e0[m changes on css and add authentication some major changes on route
+[33m286d096[m change on data entry certificate
+[33mca489b7[m add view cert and adjust scss
+[33mcc74f35[m dashboard now display real status
+[33mb9f3395[m add clients file
+[33m4173b3c[m changes on logo
+[33ma7389ac[m first commit

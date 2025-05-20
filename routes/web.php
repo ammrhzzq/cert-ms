@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TemplateController;
 
 // Redirect root to login page
 Route::get('/', function () {
@@ -68,4 +69,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/user/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/user/{user}/update', [UserController::class, 'update'])->name('users.update');
     Route::delete('/user/{user}/destroy', [UserController::class, 'destroy'])->name('users.destroy');
+
+    Route::get('/template-management', [TemplateController::class, 'index'])->name('templates.index');
+Route::post('/template-management', [TemplateController::class, 'store'])->name('templates.store');
+Route::get('/template-management/{template}/preview', [TemplateController::class, 'preview'])->name('templates.preview');
+Route::delete('/template-management/{template}', [TemplateController::class, 'destroy'])->name('templates.destroy');
 });

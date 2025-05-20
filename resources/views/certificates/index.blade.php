@@ -17,25 +17,25 @@
 @endif
 
 <!-- Status tabs -->
-<div class="status-tabs">
+<div class="tabs">
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'all'])) }}" 
-       class="status-tab {{ request('status', 'all') == 'all' ? 'active' : '' }}">
+       class="tab {{ request('status', 'all') == 'all' ? 'active' : '' }}">
         All
     </a>
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'pending_review'])) }}" 
-       class="status-tab {{ request('status') == 'pending_review' ? 'active' : '' }}">
+       class="tab {{ request('status') == 'pending_review' ? 'active' : '' }}">
         Pending Review
     </a>
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'client_verified'])) }}" 
-       class="status-tab {{ request('status') == 'client_verified' ? 'active' : '' }}">
+       class="tab {{ request('status') == 'client_verified' ? 'active' : '' }}">
         Client Verified
     </a>
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'need_revision'])) }}" 
-       class="status-tab {{ request('status') == 'need_revision' ? 'active' : '' }}">
+       class="tab {{ request('status') == 'need_revision' ? 'active' : '' }}">
         Need Revision
     </a>
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'pending_hod_approval'])) }}" 
-       class="status-tab {{ request('status') == 'pending_hod_approval' ? 'active' : '' }}">
+       class="tab {{ request('status') == 'pending_hod_approval' ? 'active' : '' }}">
         Pending HoD Approval
     </a>
 </div>
