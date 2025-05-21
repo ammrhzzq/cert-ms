@@ -20,7 +20,9 @@ return new class extends Migration
             $table->string('comp_address2')->nullable();
             $table->string('comp_address3')->nullable();
             $table->string('comp_phone1')->nullable();
+            $table->string('phone1_name')->nullable();
             $table->string('comp_phone2')->nullable();
+            $table->string('phone1_name')->nullable();
             $table->date('reg_date');
             $table->date('issue_date');
             $table->date('exp_date');

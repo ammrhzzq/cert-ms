@@ -26,9 +26,9 @@
        class="status-tab {{ request('status') == 'pending_review' ? 'active' : '' }}">
         Pending Review
     </a>
-    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'client_verified'])) }}" 
-       class="status-tab {{ request('status') == 'client_verified' ? 'active' : '' }}">
-        Client Verified
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'pending_client_verification'])) }}" 
+       class="status-tab {{ request('status') == 'pending_client_verification' ? 'active' : '' }}">
+        Pending Client Verification
     </a>
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'need_revision'])) }}" 
        class="status-tab {{ request('status') == 'need_revision' ? 'active' : '' }}">

@@ -62,6 +62,15 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/certificate/{cert}/destroy', [CertController::class, 'destroy'])->name('certificates.destroy');
     Route::get('/certificate/{cert}', [CertController::class, 'show'])->name('certificates.show');
     Route::post('/certificates/{cert}/confirm', [CertController::class, 'confirm'])->name('certificates.confirm');
+    Route::get('certificates/{cert}/verification-link', [CertController::class, 'getVerificationLink'])->name('certificates.verification-link');
+    Route::get('certificates/verify/{token}', [CertController::class, 'verify'])->name('certificates.verify');
+    Route::post('certificates/verify/{token}', [CertController::class, 'processVerification'])->name('certificates.process-verification');
+    Route::post('certificates/{cert}/renew-verification', [CertController::class, 'renewVerificationLink'])->name('certificates.renew-verification');
+    Route::get('certificates/{cert}/preview-draft', [CertController::class, 'previewDraft'])->name('certificates.preview-draft');
+    Route::get('certificates/{cert}/preview-final', [CertController::class, 'previewFinal'])->name('certificates.preview-final');
+    Route::get('certificates/{cert}/download', [CertController::class, 'downloadCertificate'])->name('certificates.download');
+    Route::post('certificates/{cert}/approve-hod', [CertController::class, 'approveByHod'])->name('certificates.approve-hod');
+    Route::post('certificates/{cert}/confirm', [CertController::class, 'confirm'])->name('certificates.confirm');
 
     // User management routes
     Route::get('/user', [UserController::class, 'index'])->name('users.index');

@@ -175,7 +175,7 @@ class TemplateController extends Controller{
 
         $template = Template::findOrFail($id);
 
-        $path = storage_path('app/' . $template->file_path);
+        $path = storage_path('app/public/' . $template->file_path);
 
         if (!file_exists($path)){
             abort(404, 'Template file not found.');

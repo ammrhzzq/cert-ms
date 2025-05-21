@@ -27,4 +27,49 @@ class Cert extends Model
         'last_edited_at',
         'last_edited_by'
     ];
+
+    protected $casts = [
+        'reg_date' => 'datetime',
+        'issue_date' => 'datetime',
+        'exp_date' => 'datetime',
+        'last_edited_at' => 'datetime'
+    ];
+
+    // Get all verifications for the certificate
+    public function verifications()
+    {
+        return $this->hasMany(CertVerification::class, 'cert_id');
+    }
+
+    // Get latest verification for the certificate
+    public function latestVerification()
+    {
+        return $this->hasOne(CertVerification::class, 'cert_id')->latest();
+    }
+
+    // Get all comments for the certificate
+    public function comments()
+    {
+        return $this->hasMany(CertComment::class, 'cert_id');
+    }
+
+    // Check if the certificate has a valid verification link
+    public function hasValidVerificationLink()
+    {
+        return $this->latestVerification && !$this->latestVerification->isExpired();
+    }
+
+    // Get status label
+    public function getStatusLabelAttribute()
+    {
+        $statusMap = [
+            'pending_review' => 'Pending Review',
+            'pending_verification' => 'Pending Client Verification',
+            'client_verified' => 'Client Verified',
+            'needs_revision' => 'Needs Revision',
+            'pending_hod_approval' => 'Pending HOD Approval',
+        ];
+
+        return $statusMap[$this->status] ?? ucfirst(str_replace('_', ' ', $this->status));
+    }
 }

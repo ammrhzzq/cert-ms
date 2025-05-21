@@ -290,7 +290,7 @@ input[type="submit"]:hover {
     background-color: var(--orange-border);
 }
 
-.status-client_verified {
+.status-pending_client_verification {
     background-color: var(--yellow-border);
     color: #000000;
 }
@@ -300,6 +300,10 @@ input[type="submit"]:hover {
 }
 
 .status-pending_hod_approval {
+    background-color: var(--green-border);
+}
+
+.status-approved {
     background-color: var(--green-border);
 }
 
@@ -369,4 +373,90 @@ input[type="submit"]:hover {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-20px);}
     to { opacity: 1; transform: translateY(0);}
+}
+
+.btn-action {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-block;
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-action:hover {
+    background-color: #e75e1f; /* or use a darker --primary-color variant */
+}
+
+/* Custom Primary Button Style (for general use) */
+.btn-custom-primary {
+    background-color: var(--primary-color);
+    color: var(--sidebar-bg); /* Assuming sidebar-bg is a light color for text */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 16px; /* Consistent with submit/back buttons */
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: inline-flex; /* For icon alignment */
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Space between icon and text */
+    text-decoration: none; /* Ensure links styled as buttons don't have underlines */
+}
+
+.btn-custom-primary:hover {
+    background-color: var(--primary-color); /* You might want a slightly darker shade here */
+    opacity: 0.9; /* Subtle hover effect */
+}
+
+/* Custom Primary Button Style (smaller variant) */
+.btn-custom-primary-sm {
+    background-color: var(--primary-color);
+    color: var(--sidebar-bg);
+    border: none;
+    padding: 8px 16px; /* Smaller padding */
+    border-radius: 16px; /* Keep consistent radius */
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+}
+
+.btn-custom-primary-sm:hover {
+    background-color: var(--primary-color);
+    opacity: 0.9;
+}
+
+/* Ensure existing .btn-back is consistent with other buttons */
+.btn-back {
+    background-color: var(--border-color);
+    color: var(--text-color);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 16px; /* Ensure this is 16px as per other buttons */
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    display: inline-flex; /* For icon alignment */
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Space between icon and text */
+}
+
+.btn-back:hover {
+    background-color: var(--cancel-hover);
 }
