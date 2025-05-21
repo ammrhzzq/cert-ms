@@ -303,10 +303,6 @@ input[type="submit"]:hover {
     background-color: var(--green-border);
 }
 
-.status-approved {
-    background-color: var(--green-border);
-}
-
 .status-certificate_issued {
     background-color: var(--blue-border);
 }
