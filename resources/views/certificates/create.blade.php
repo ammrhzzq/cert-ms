@@ -8,8 +8,8 @@
 @endsection
 
 @section('content')
-<h1>Create Certificate</h1>
 <div class="container">
+    <h1>Create Certificate</h1>
     <div class="form-container">
         @if($errors->any())
         <div class="alert alert-danger">
@@ -25,21 +25,24 @@
             @csrf
             @method('POST')
 
-            <div class="form-group">
-                <label>Certificate Type</label>
-                <div class="select-container">
-                    <select name="cert_type" required>
-                        <option value="" selected disabled>Select Certificate Type</option>
-                        <option value="ISMS">ISMS</option>
-                        <option value="BCMS">BCMS</option>
-                        <option value="PIMS">PIMS</option>
-                    </select>
-                </div>
-            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Certificate Type</label>
 
-            <div class="form-group">
-                <label>ISO Number</label>
-                <input type="text" name="iso_num" placeholder="ISO Number" required>
+                    <div class="select-container">
+                        <select name="cert_type" required>
+                            <option value="" selected disabled>Select Certificate Type</option>
+                            <option value="ISMS">ISMS</option>
+                            <option value="BCMS">BCMS</option>
+                            <option value="PIMS">PIMS</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>ISO Number</label>
+                    <input type="text" name="iso_num" placeholder="ISO Number" required>
+                </div>
             </div>
 
             <!-- Client Selection -->
@@ -49,7 +52,7 @@
                     <select id="client_id" name="client_id">
                         <option value="" selected disabled>Select a client</option>
                         @foreach($clients as $client)
-                            <option value="{{ $client->id }}">{{ $client->comp_name }}</option>
+                        <option value="{{ $client->id }}">{{ $client->comp_name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -80,20 +83,20 @@
                 <div class="form-column">
                     <div class="form-group">
                         <label>Contact Number 1</label>
-                        <input type="text" id="comp_phone1" name="comp_phone1" placeholder="Contact Number 1">
+                        <input type="text" id="comp_phone1" name="comp_phone1" placeholder="Contact Number">
                     </div>
                     <div class="form-group">
-                        <label>Contact Name</label>
+                        <label>Contact Name 1</label>
                         <input type="text" id="phone1_name" name="phone1_name" placeholder="Contact Name">
                     </div>
                 </div>
                 <div class="form-column">
                     <div class="form-group">
                         <label>Contact Number 2</label>
-                        <input type="text" id="comp_phone2" name="comp_phone2" placeholder="Contact Number 2">
+                        <input type="text" id="comp_phone2" name="comp_phone2" placeholder="Contact Number">
                     </div>
                     <div class="form-group">
-                        <label>Contact Name</label>
+                        <label>Contact Name 2</label>
                         <input type="text" id="phone2_name" name="phone2_name" placeholder="Contact Name">
                     </div>
                 </div>
@@ -135,10 +138,10 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const clientSelect = document.getElementById('client_id');
-        
+
         clientSelect.addEventListener('change', function() {
             const clientId = this.value;
-            
+
             if (clientId) {
                 // Fetch client data via AJAX
                 fetch(`/client/${clientId}/data`)

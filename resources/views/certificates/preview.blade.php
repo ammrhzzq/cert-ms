@@ -8,9 +8,8 @@
 @endsection
 
 @section('content')
-    <h1>Certificate Details</h1>
-
     <div class="detail-container">
+        <h1>Certificate Details</h1>
         <div class="detail-group">
             <div class="detail-label">Certificate Type</div>
             <div class="detail-value">{{ ucfirst($cert->cert_type) }}</div>

@@ -8,18 +8,15 @@ body {
 /* Main container styling */
 .container {
     width: 100%;
-    /* Keeps it responsive */
-    max-width: 100%;
-    /* Prevents excessive stretching */
-    margin: 20px auto;
-    /* Centers it properly */
+    max-width: 1000px;
+    margin: 0 auto;
     margin-top: 0px;
     background-color: var(--card-bg);
     border-radius: 8px;
     border-bottom: 3px solid var(--primary-color);
     border-left: 3px solid var(--primary-color);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
-    padding: 30px;
+    padding: 32px;
     display: flex;
     /* Helps maintain structure */
     flex-direction: column;
@@ -43,6 +40,7 @@ h1 {
 
 /* Form group styling */
 .form-group {
+    width: 100%;
     margin-bottom: 20px;
     display: flex;
     flex-direction: column;
@@ -215,9 +213,11 @@ input[type="submit"]:hover {
 
 /* View Certificate styling */
 .detail-container {
+    position: relative;
     max-width: 600px;
     width: 100%;
     margin: 0 auto;
+    margin-top: 0;
     padding: 32px 50px;
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
