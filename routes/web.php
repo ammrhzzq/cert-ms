@@ -60,7 +60,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/certificate/{cert}/edit', [CertController::class, 'edit'])->name('certificates.edit');
     Route::put('/certificate/{cert}/update', [CertController::class, 'update'])->name('certificates.update');
     Route::delete('/certificate/{cert}/destroy', [CertController::class, 'destroy'])->name('certificates.destroy');
-    Route::get('/certificate/{cert}', [CertController::class, 'show'])->name('certificates.show');
+    Route::get('/certificate/{cert}', [CertController::class, 'preview'])->name('certificates.preview');
 
     // User management routes
     Route::get('/user', [UserController::class, 'index'])->name('users.index');

@@ -49,27 +49,30 @@
     
     <!-- Template Cards -->
     @foreach($templates as $template)
-    <div class="template-card">
+    <div class="template-card" data-id="{{ $template->id }}" data-file-type="{{ $template->file_type }}" data-file-path="{{ Storage::url($template->file_path) }}" data-name="{{ $template->name }}" data-cert-type="{{ $template->cert_type }}">
         <div class="template-preview">
             @if($template->file_type == 'pdf')
-                <div class="pdf-icon">
-                    <i class="far fa-file-pdf"></i>
-                </div>
+            <iframe src="{{ Storage::url($template->file_path) }}#page=1" title="{{ $template->name }}" loading="lazy"></iframe>
             @elseif($template->file_type == 'docx')
-                <div class="docx-icon">
-                    <i class="far fa-file-word"></i>
-                </div>
+            <div class="docx-preview">
+                <i class="far fa-file-word"></i>
+                <div class="file-name">{{ $template->original_name }}</div>
+            </div>
+            @else
+            <div class="preview-not-available">
+                <i class="fas fa-file-alt" style="font-size: 48px; margin-bottom: 8px;"></i>
+                <span>Preview not available</span>
+            </div>
             @endif
         </div>
         <div class="template-info">
-            <div class="template-name">{{ $template->cert_type }} - {{ $template->name }}</div>
-
+            <div class="template-name" title="{{ $template->name }}">{{ $template->name }} - {{ $template->cert_type }}</div>
             <div class="template-actions">
                 <div>
-                    <a href="{{ route('templates.preview', $template) }}" class="preview-icon" title="Preview" target="_blank">
-                        <i class="fa-regular fa-eye"></i>
+                    <a href="#" class="preview-btn" data-file-type="{{ $template->file_type }}" data-template-id="{{ $template->id }}" title="Preview">
+                        <i class="far fa-eye"></i>
                     </a>
-                    <a href="{{ Storage::url($template->file_path) }}" class="download-icon" title="Download" download>
+                    <a href="{{ Storage::url($template->file_path) }}" title="Download" download>
                         <i class="fas fa-download"></i>
                     </a>
                 </div>
@@ -77,7 +80,7 @@
                     <form action="{{ route('templates.destroy', $template) }}" method="POST" class="delete-form">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="delete-icon" title="Delete">
+                        <button type="submit" class="delete-icon" title="Delete" style="border: none; background: none; cursor: pointer;">
                             <i class="fas fa-trash"></i>
                         </button>
                     </form>
@@ -98,9 +101,9 @@
             @csrf
             
             <div class="form-group">
-                <label>Certificate Type</label>
+                <label for="cert_type">Certificate Type</label>
                 <div class="select-container">
-                    <select name="cert_type" required>
+                    <select name="cert_type" id="cert_type" required>
                         <option value="" selected disabled>Select Certificate Type</option>
                         <option value="ISMS">ISMS</option>
                         <option value="BCMS">BCMS</option>
@@ -110,8 +113,8 @@
             </div>
             
             <div class="form-group">
-                <label>Template Version</label>
-                <input type="text" name="template_name" placeholder="Enter template name" required>
+                <label for="template_name">Template Name</label>
+                <input type="text" name="template_name" id="template_name" placeholder="Enter template name" required>
             </div>
             
             <div class="form-group">
@@ -133,6 +136,23 @@
         </form>
     </div>
 </div>
+
+<!-- DOCX Preview Modal -->
+<div id="docxPreviewModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" id="closeDocxModal">&times;</span>
+        <div class="docx-preview-content">
+            <i class="far fa-file-word"></i>
+            <h3>Microsoft Word Document</h3>
+            <p>Preview is not available for Word documents. Please use the download button below to view this file.</p>
+            <div class="modal-actions">
+                <a href="#" id="downloadDocxLink" class="btn-download">
+                    <i class="fas fa-download"></i> Download File
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -145,9 +165,47 @@
         const fileInput = document.getElementById('template_file');
         const fileNameDisplay = document.getElementById('fileName');
         
+        // DOCX Preview Modal elements
+        const docxPreviewModal = document.getElementById('docxPreviewModal');
+        const closeDocxModal = document.getElementById('closeDocxModal');
+        const downloadDocxLink = document.getElementById('downloadDocxLink');
+        const previewBtns = document.querySelectorAll('.preview-btn');
+        
         // Open modal
         uploadTrigger.addEventListener('click', function() {
             uploadModal.style.display = 'block';
+        });
+        
+        // Handle preview button clicks
+        previewBtns.forEach(btn => {
+            btn.addEventListener('click', function(event) {
+                event.preventDefault();
+                const fileType = this.getAttribute('data-file-type');
+                const templateCard = this.closest('.template-card');
+                
+                if (fileType === 'docx') {
+                    // Show DOCX preview modal
+                    const filePath = templateCard.getAttribute('data-file-path');
+                    downloadDocxLink.href = filePath;
+                    docxPreviewModal.style.display = 'block';
+                } else if (fileType === 'pdf') {
+                    // For PDF files, open in new tab
+                    const templateId = this.getAttribute('data-template-id');
+                    window.open('{{ route("templates.preview", ":id") }}'.replace(':id', templateId), '_blank');
+                }
+            });
+        });
+        
+        // Close DOCX preview modal
+        closeDocxModal.addEventListener('click', function() {
+            docxPreviewModal.style.display = 'none';
+        });
+        
+        // Close DOCX modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === docxPreviewModal) {
+                docxPreviewModal.style.display = 'none';
+            }
         });
         
         // Close modal

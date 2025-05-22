@@ -69,7 +69,7 @@
             <td>{{ ucfirst(str_replace('_', ' ', $cert->status)) }}</td>
             <td>
                 <div class="action-icons">
-                    <a href="{{ route('certificates.show', ['cert' => $cert]) }}" class="view-icon" title="View">
+                    <a href="{{ route('certificates.preview', ['cert' => $cert]) }}" class="view-icon" title="View">
                         <i class="fa-regular fa-eye"></i>
                     </a>
 

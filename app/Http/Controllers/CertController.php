@@ -189,9 +189,9 @@ class CertController extends Controller
         return redirect()->route('certificates.index')->with('success', 'Certificate deleted successfully.');
     }
 
-    public function show(Cert $cert)
+    public function preview(Cert $cert)
     {
-        return view('certificates.show', ['cert' => $cert]);
+        return view('certificates.preview', ['cert' => $cert]);
     }
 
     public function view(Request $request)
