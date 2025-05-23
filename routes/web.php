@@ -69,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('certificates/{cert}/preview-draft', [CertController::class, 'previewDraft'])->name('certificates.preview-draft');
     Route::get('certificates/{cert}/preview-final', [CertController::class, 'previewFinal'])->name('certificates.preview-final');
     Route::get('certificates/{cert}/download', [CertController::class, 'downloadCertificate'])->name('certificates.download');
-    Route::post('certificates/{cert}/approve-hod', [CertController::class, 'approveByHod'])->name('certificates.approve-hod');
+    Route::post('/certificates/{cert}/hod-approval', [CertController::class, 'hodApproval'])->name('certificates.hod-approval');
     Route::post('certificates/{cert}/confirm', [CertController::class, 'confirm'])->name('certificates.confirm');
 
     // User management routes

@@ -28,7 +28,6 @@
         </button>
     </div>
 
-
 <!-- Filter panel (hidden by default) -->
 <div class="filter-panel" id="filterPanel" style="display: none;">
     <form action="{{ route('certificates.view') }}" method="GET">
@@ -117,6 +116,7 @@
     </thead>
     <tbody>
         @foreach($certs as $cert)
+        @if ($cert->status == 'certificate_issued')
         <tr>
             <td>{{ $cert->cert_type }}-{{ $cert->comp_name }}</td>
 
@@ -145,6 +145,7 @@
                 </div>
             </td>
         </tr>
+        @endif
         @endforeach
     </tbody>
 </table>

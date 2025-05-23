@@ -42,22 +42,22 @@
                                 <div class="form-group">
                                     <textarea class="form-control" rows="10" id="email-template" readonly>Subject: Certificate Verification Required - {{ $cert->comp_name }}
 
-Dear Client,
+                                    Dear Client,
 
-We have prepared the draft certificate for your {{ $cert->cert_type }} ({{ $cert->iso_num }}) certification. Please review the certificate details and confirm their accuracy.
+                                    We have prepared the draft certificate for your {{ $cert->cert_type }} ({{ $cert->iso_num }}) certification. Please review the certificate details and confirm their accuracy.
 
-To verify the certificate, please click the link below:
-{{ $verificationUrl }}
+                                    To verify the certificate, please click the link below:
+                                    {{ $verificationUrl }}
 
-This link will expire on {{ $verification->expires_at ? $verification->expires_at->format('d M Y, H:i') : 'N/A' }}.
+                                    This link will expire on {{ $verification->expires_at ? $verification->expires_at->format('d M Y, H:i') : 'N/A' }}.
 
-If you notice any discrepancies or require changes, please indicate so using the "Request Revision" option on the verification page.
+                                    If you notice any discrepancies or require changes, please indicate so using the "Request Revision" option on the verification page.
 
-Thank you for your cooperation.
+                                    Thank you for your cooperation.
 
-Best regards,
-[Your Name]
-{{ config('app.name') }}</textarea>
+                                    Best regards,
+                                    [Your Name]
+                                    {{ config('app.name') }}</textarea>
                                 </div>
                                 {{-- Applied custom primary button style (smaller variant) --}}
                                 <button class="btn-custom-primary-sm" onclick="copyEmailTemplate()">

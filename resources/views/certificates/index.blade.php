@@ -38,6 +38,10 @@
        class="status-tab {{ request('status') == 'pending_hod_approval' ? 'active' : '' }}">
         Pending HoD Approval
     </a>
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'issued'])) }}" 
+       class="status-tab {{ request('status') == 'issued' ? 'active' : '' }}">
+        Issued
+    </a>
 </div>
 
 <!-- Certificate table -->
@@ -72,11 +76,11 @@
                     <a href="{{ route('certificates.show', ['cert' => $cert]) }}" class="view-icon" title="View">
                         <i class="fa-regular fa-eye"></i>
                     </a>
-
-                    <a href="{{ route('certificates.edit', ['cert' => $cert]) }}" class="edit-icon" title="Edit">
-                        <i class="fas fa-pencil-alt"></i>
-                    </a>
-
+                    @if ($cert->status == 'pending_review')
+                        <a href="{{ route('certificates.edit', ['cert' => $cert]) }}" class="edit-icon" title="Edit">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                    @endif
                     <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form">
                         @csrf
                         @method('DELETE')

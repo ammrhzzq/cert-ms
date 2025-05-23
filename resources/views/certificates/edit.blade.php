@@ -113,7 +113,7 @@
                     </div>
                 </div>
             </div>
-
+{{-- 
             <div class="form-group">
                 <label>Status</label>
                 <div class="select-container">
@@ -125,7 +125,7 @@
                         <option value="certificate_issued" {{ $cert->status == 'certificate_issued' ? 'selected' : '' }}>Certificate Issued</option>
                     </select>
                 </div>
-            </div>
+            </div> --}}
 
             <div class="button-group">
                 <a href="{{ route('certificates.index') }}" class="btn-back">Cancel</a>

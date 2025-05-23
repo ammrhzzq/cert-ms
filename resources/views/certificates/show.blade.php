@@ -144,8 +144,10 @@
                     @endif
                 </div>
             </div>
+        @endif
 
-            <!-- Comments Section -->
+        @if ($cert->status === 'need_revision')
+        <!-- Comments Section -->
             @if(isset($comments) && count($comments) > 0)
                 <div class="detail-group">
                     <div class="detail-label">Comments History</div>
@@ -170,7 +172,7 @@
                                                 @if($comment->comment_type == 'verification')
                                                     <span class="status-badge status-success">Verification</span>
                                                 @elseif($comment->comment_type == 'revision_request')
-                                                    <span class="status-badge status-warning">Revision Request</span>
+                                                    <span class="status-badge status-warning" style="color: red">Revision Request</span>
                                                 @else
                                                     <span class="status-badge status-secondary">Internal</span>
                                                 @endif
@@ -182,6 +184,9 @@
                         </div>
                     </div>
                 </div>
+            @endif
+            @if(in_array(auth()->user()->role, ['manager', 'hod']))
+                <a href="{{ route('certificates.edit', $cert->id) }}" class="btn-action btn-warning">Edit Certificate</a>
             @endif
         @endif
 
@@ -201,6 +206,10 @@
             @if (in_array(auth()->user()->role, ['manager', 'hod']) && $cert->status == 'pending_review')
                 <button class="confirm-btn" onclick="openConfirmModal()">Confirm Data</button>  
             @endif 
+            @if (in_array(auth()->user()->role, ['hod']) && $cert->status == 'pending_hod_approval')
+                <button class="confirm-btn" onclick="openApproveModal()">Approve</button>  
+                <button class="confirm-btn" onclick="openRejectModal()">Reject</button>
+            @endif
         </div>
     </div>
 </div>
@@ -209,11 +218,7 @@
     $canVerify = in_array(auth()->user()->role, ['manager', 'hod']);
 @endphp
 
-@if($canVerify && $cert->status !== 'client_verified')
-    <div class="review-section">
-        <button class="btn btn-warning" onclick="doucment.getElementById('confirmModal').style.display='block'">Review & Confirm</button>
-    </div>
-
+@if($canVerify && $cert->status == 'pending_review')
     <div id="confirmModal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>Review and Confirm</h3>
@@ -231,6 +236,42 @@
     </div>
 @endif
 
+@if(auth()->user()->role === 'hod' && $cert->status === 'pending_hod_approval')
+    <div id="approveModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>Review and Approve</h3>
+            <p>Are you sure you want to approve the certificate? Please type <strong>APPROVE</strong> to proceed.</p>
+            
+            <form method="POST" action="{{ route('certificates.hod-approval', $cert->id) }}" style="display:inline;">
+                @csrf
+                <input type="hidden" name="action" value="approve">
+                <input type="text" id="hodConfirmationInput" name="hod_confirmation_text" placeholder="Type APPROVE to continue" required>
+                <div class="modal-actions">
+                    <button type="submit" class="confirm-btn" onclick="document.getElementById('hodAction').value='approve'">Approve</button>
+                    <button type="button" class="btn-back" onclick="closeApproveModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="rejectModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>Review and Reject</h3>
+            <p>Are you sure you want to reject the certificate? Please type <strong>REJECT</strong> to proceed.</p>
+            
+            <form method="POST" action="{{ route('certificates.hod-approval', $cert->id) }}" style="display:inline;">
+                @csrf
+                <input type="hidden" name="action" value="reject">
+                <input type="text" id="hodRejectInput" name="hod_reject_text" placeholder="Type REJECT to continue" required>
+                <div class="modal-actions">
+                    <button type="submit" class="confirm-btn">Reject</button>
+                    <button type="button" class="btn-back" onclick="closeRejectModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endif
+
 <script>
     function openConfirmModal(){
         document.getElementById('confirmModal').style.display = 'flex';
@@ -238,6 +279,22 @@
 
     function closeConfirmModal(){
         document.getElementById('confirmModal').style.display = 'none';
+    }
+
+    function openApproveModal(){
+    document.getElementById('approveModal').style.display = 'flex';
+    }
+
+    function closeApproveModal(){
+        document.getElementById('approveModal').style.display = 'none';
+    }
+
+    function openRejectModal(){
+        document.getElementById('rejectModal').style.display = 'flex';
+    }
+
+    function closeRejectModal(){
+        document.getElementById('rejectModal').style.display = 'none';
     }
 </script>
 @endsection
