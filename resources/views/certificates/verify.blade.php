@@ -513,10 +513,10 @@ textarea.form-control {
                                 <h5>Certificate Preview</h5>
                             </div>
                             <div class="embed-responsive embed-responsive-1by1">
-                                <iframe class="embed-responsive-item" src="{{ route('certificates.preview-draft', $cert->id) }}" allowfullscreen></iframe>
+                                <iframe class="embed-responsive-item" src="{{ route('certificates.previewDraft', $cert->id) }}" allowfullscreen></iframe>
                             </div>
                             <div class="text-center mt-3">
-                                <a href="{{ route('certificates.preview-draft', $cert->id) }}" class="btn-action" target="_blank">Open PDF in New Tab</a>
+                                <a href="{{ route('certificates.previewDraft', $cert->id) }}" class="btn-action" target="_blank">Open PDF in New Tab</a>
                             </div>
                         </div>
                     </div>

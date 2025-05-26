@@ -66,7 +66,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('certificates/verify/{token}', [CertController::class, 'verify'])->name('certificates.verify');
     Route::post('certificates/verify/{token}', [CertController::class, 'processVerification'])->name('certificates.process-verification');
     Route::post('certificates/{cert}/renew-verification', [CertController::class, 'renewVerificationLink'])->name('certificates.renew-verification');
-    Route::get('certificates/{cert}/preview-draft', [CertController::class, 'previewDraft'])->name('certificates.preview-draft');
+    Route::get('/certificates/{cert}/preview-draft', [CertController::class, 'previewDraft'])->name('certificates.previewDraft');
     Route::get('certificates/{cert}/preview-final', [CertController::class, 'previewFinal'])->name('certificates.preview-final');
     Route::get('certificates/{cert}/download', [CertController::class, 'downloadCertificate'])->name('certificates.download');
     Route::post('/certificates/{cert}/hod-approval', [CertController::class, 'hodApproval'])->name('certificates.hod-approval');

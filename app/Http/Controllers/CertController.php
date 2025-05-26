@@ -479,8 +479,8 @@ class CertController extends Controller
         $outputPath = Storage::disk('public')->path($fileName);
 
         // 4. Use FPDI to import the template and overlay data
-        $pdf = new \setasign\Fpdi\Fpdi();
-        $pageCount = $pdf->setSourceFile($templatePath);
+        $pdf = new Fpdi();
+        $pdf->setSourceFile($templatePath);
         $tplIdx = $pdf->importPage(1);
         $pdf->AddPage();
         $pdf->useTemplate($tplIdx);
@@ -514,4 +514,56 @@ class CertController extends Controller
 
         return $fileName;
     }
+
+    public function previewDraft(Cert $cert)
+    {
+        // 1. Get the active template for this cert type
+        $template = Template::where('cert_type', $cert->cert_type)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$template || !Storage::disk('public')->exists($template->file_path)) {
+            abort(404, 'No active template found for this certificate type.');
+        }
+
+        // 2. Get full path of template
+        $templatePath = Storage::disk('public')->path($template->file_path);
+
+        // 3. Create PDF using FPDI
+        $pdf = new Fpdi('P', 'mm', 'A4');
+        $pageCount = $pdf->setSourceFile($templatePath);
+        $tplIdx = $pdf->importPage(1);
+        $pdf->AddPage();
+        $pdf->useTemplate($tplIdx);
+
+        // 4. Add cert data overlay
+        $pdf->SetTextColor(0, 0, 0);
+
+        $pdf->SetFont('Helvetica', 'B', 18);
+        $pdf->SetXY(69, 85);
+        $pdf->Write(8, $cert->comp_name);
+
+        $pdf->SetFont('Helvetica', 'B', 24);
+        $pdf->SetXY(69, 100);
+        $pdf->Write(8, $cert->iso_num);
+
+        $pdf->SetFont('Helvetica', '', 12);
+        $pdf->SetXY(78, 160.5);
+        $pdf->Write(8, 'Available for Final Approval');
+
+        $pdf->SetXY(81, 167.5);
+        $pdf->Write(8, $cert->reg_date->format('d M Y'));
+
+        $pdf->SetXY(66, 174.5);
+        $pdf->Write(8, $cert->issue_date->format('d M Y'));
+
+        $pdf->SetXY(68, 181.5);
+        $pdf->Write(8, $cert->exp_date->format('d M Y'));
+
+        // 5. Output inline (no download)
+        return response($pdf->Output('S'), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="certificate_draft.pdf"');
+    }
+
 }
