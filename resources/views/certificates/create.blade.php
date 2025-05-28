@@ -33,8 +33,6 @@
                         <select name="cert_type" required>
                             <option value="" selected disabled>Select Certificate Type</option>
                             <option value="ISMS">ISMS</option>
-                            <option value="BCMS">BCMS</option>
-                            <option value="PIMS">PIMS</option>
                         </select>
                     </div>
                 </div>

@@ -58,6 +58,10 @@
                     <a href="{{ route('users.edit', ['user' => $user]) }}" class="edit-icon" title="Edit">
                         <i class="fas fa-pencil-alt"></i>
                     </a>
+
+                    <a href="{{ route('users.reset-password', ['user' => $user]) }}" class="reset-password-icon" title="Reset Password">
+                        <i class="fas fa-key"></i>
+                    </a>
                 </div>
             </td>
         </tr>

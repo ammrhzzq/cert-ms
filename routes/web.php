@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CertController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TemplateController;
@@ -23,25 +22,18 @@ Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('show.login');
     Route::post('/register', [AuthController::class, 'register'])->name('register');
     Route::post('/login', [AuthController::class, 'login'])->name('login');
-    
-    Route::get('/forgot-password', [ForgotPasswordController::class, 'showEmailForm'])->name('password.request');
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendOtp'])->name('password.email');
-    Route::get('/verify-otp', [ForgotPasswordController::class, 'showOTPForm'])->name('password.otp');
-    Route::post('/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('password.otp.verify');
-    Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset.form');
-    Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.reset');
 });
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
     // Home redirection
-    Route::get('/home', function() {
+    Route::get('/home', function () {
         return redirect()->route('dashboard');
     })->name('home');
-    
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Client routes
     Route::get('/client', [ClientController::class, 'index'])->name('clients.index');
     Route::get('/client/create', [ClientController::class, 'create'])->name('clients.create');
@@ -50,7 +42,6 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/client/{client}/update', [ClientController::class, 'update'])->name('clients.update');
     Route::delete('/client/{client}/destroy', [ClientController::class, 'destroy'])->name('clients.destroy');
     Route::get('/client/{id}/data', [CertController::class, 'getClientData'])->name('client.data');
-
 
     // Certificate routes
     Route::get('/certificate', [CertController::class, 'index'])->name('certificates.index');
@@ -69,9 +60,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/user/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/user/{user}/update', [UserController::class, 'update'])->name('users.update');
     Route::delete('/user/{user}/destroy', [UserController::class, 'destroy'])->name('users.destroy');
+    
+    // Password reset routes - only accessible through user management
+    Route::get('/user/{user}/reset-password', [UserController::class, 'showResetPasswordForm'])->name('users.reset-password');
+    Route::post('/user/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password.update');
 
+    // Template management routes
     Route::get('/template-management', [TemplateController::class, 'index'])->name('templates.index');
-Route::post('/template-management', [TemplateController::class, 'store'])->name('templates.store');
-Route::get('/template-management/{template}/preview', [TemplateController::class, 'preview'])->name('templates.preview');
-Route::delete('/template-management/{template}', [TemplateController::class, 'destroy'])->name('templates.destroy');
+    Route::post('/template-management', [TemplateController::class, 'store'])->name('templates.store');
+    Route::get('/template-management/{template}/preview', [TemplateController::class, 'preview'])->name('templates.preview');
+    Route::delete('/template-management/{template}', [TemplateController::class, 'destroy'])->name('templates.destroy');
 });

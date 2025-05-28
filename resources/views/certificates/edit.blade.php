@@ -33,8 +33,6 @@
                         <select name="cert_type" required>
                             <option value="" disabled>Select Certificate Type</option>
                             <option value="ISMS" {{ $cert->cert_type == 'ISMS' ? 'selected' : '' }}>ISMS</option>
-                            <option value="BCMS" {{ $cert->cert_type == 'BCMS' ? 'selected' : '' }}>BCMS</option>
-                            <option value="PIMS" {{ $cert->cert_type == 'PIMS' ? 'selected' : '' }}>PIMS</option>
                         </select>
                     </div>
                 </div>
@@ -45,8 +43,6 @@
                         <select name="iso_num" required>
                             <option value="" disabled>Select ISO Number</option>
                             <option value="ISO/IEC 27001:2022" {{ $cert->iso_num == 'ISO/IEC 27001:2022' ? 'selected' : '' }}>ISO/IEC 27001:2022</option>
-                            <option value="ISO 22301:2019" {{ $cert->iso_num == 'ISO 22301:2019' ? 'selected' : '' }}>ISO 22301:2019</option>
-                            <option value="ISO/IEC 27701:2019" {{ $cert->iso_num == 'ISO/IEC 27701:2019' ? 'selected' : '' }}>ISO/IEC 27701:2019</option>
                         </select>
                     </div>
                 </div>
