@@ -120,7 +120,7 @@ Best regards,
         <!-- Instructions -->
         <div class="detail-container" style="max-width: 100%; background-color: var(--hover-color); border-left: 4px solid var(--primary-color);">
             <h3 style="margin-top: 0; font-size: 16px; color: var(--text-color);">
-                <i class="fas fa-info-circle"></i> How to Use
+                <i class="fas fa-info-circle" style="margin-bottom: 8px;"></i> How to Use
             </h3>
             <ol style="margin: 0; padding-left: 20px; color: var(--text-color);">
                 <li style="margin-bottom: 8px;">Copy the verification link using the "Copy" button above</li>

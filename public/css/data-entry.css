@@ -299,6 +299,10 @@ input[type="submit"]:hover {
     background-color: var(--red-border);
 }
 
+.status-client_verified {
+    background-color: green;
+}
+
 .status-pending_hod_approval {
     background-color: var(--green-border);
 }

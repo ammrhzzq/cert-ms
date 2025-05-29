@@ -39,7 +39,14 @@
 
             <div class="form-group">
                 <label>ISO Number</label>
-                <input type="text" name="iso_num" placeholder="ISO Number" required>
+                <div class="select-container">
+                    <select name="iso_num" required>
+                        <option value="" disabled selected>Select ISO Number</option>
+                        <option value="ISO/IEC 27001:2022">ISO/IEC 27001:2022</option>
+                        <option value="ISO 22301:2019">ISO 22301:2019</option>
+                        <option value="ISO/IEC 27701:2019">ISO/IEC 27701:2019</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Client Selection -->

@@ -67,10 +67,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('certificates/verify/{token}', [CertController::class, 'processVerification'])->name('certificates.process-verification');
     Route::post('certificates/{cert}/renew-verification', [CertController::class, 'renewVerificationLink'])->name('certificates.renew-verification');
     Route::get('/certificates/{cert}/preview-draft', [CertController::class, 'previewDraft'])->name('certificates.previewDraft');
-    Route::get('certificates/{cert}/preview-final', [CertController::class, 'previewFinal'])->name('certificates.preview-final');
-    Route::get('certificates/{cert}/download', [CertController::class, 'downloadCertificate'])->name('certificates.download');
     Route::post('/certificates/{cert}/hod-approval', [CertController::class, 'hodApproval'])->name('certificates.hod-approval');
     Route::post('certificates/{cert}/confirm', [CertController::class, 'confirm'])->name('certificates.confirm');
+    Route::get('/certificates/{cert}/assign-number', [CertController::class, 'showAssignNumberForm'])->name('certificates.assign-number.form');
+    Route::post('/certificates/{cert}/assign-number', [CertController::class, 'assignNumber'])->name('certificates.assign-number');
+    Route::get('/certificates/{cert}/preview-final', [CertController::class, 'previewFinal'])->name('certificates.preview-final');
 
     // User management routes
     Route::get('/user', [UserController::class, 'index'])->name('users.index');

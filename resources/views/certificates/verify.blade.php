@@ -433,6 +433,24 @@ textarea.form-control {
         margin: 20px;
         width: calc(100% - 40px);
     }
+
+    .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 12px;
+    font-weight: 500;
+    }
+
+    .badge-warning {
+        background-color: #ffeeba;
+        color: #856404;
+    }
+
+    .badge-success {
+        background-color: #c3e6cb;
+        color: #155724;
+    }
 }
 </style>
 @endsection
@@ -465,7 +483,7 @@ textarea.form-control {
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5>{{ $cert->comp_name }} - {{ $cert->cert_type }}</h5>
+                        <h3>{{ $cert->comp_name }} - {{ $cert->cert_type }}</h3>
                         <span class="status-badge status-{{ $verification->is_verified ? 'client_verified' : 'pending_review' }}">
                             {{ $verification->is_verified ? 'Verified' : 'Pending Verification' }}
                         </span>
@@ -524,10 +542,10 @@ textarea.form-control {
                     @if(!$verification->is_verified)
                     <div class="mt-4">
                         <hr>
-                        <h5>Please verify this certificate</h5>
+                        <h3 style="margin-top: 8px;">Please verify this certificate</h3>
                         <p>Review the certificate details above and verify that they are correct.</p>
                         
-                        <div class="button-group mt-3">
+                        <div class="button-group mt-3" style="display: flex; justify-content: left;">
                             <button type="button" class="confirm-btn" id="showVerifyModal">
                                 <i class="fas fa-check-circle"></i> Verify Certificate
                             </button>
@@ -538,9 +556,16 @@ textarea.form-control {
                     </div>
                     @else
                     <div class="mt-4 text-center">
+                        @php
+                            $verifier = $comments->firstWhere('comment_type', 'verification');
+                        @endphp
                         <div class="alert alert-success">
                             <i class="fas fa-check-circle fa-2x"></i>
-                            <h5 class="mt-2">This certificate has been verified on {{ $verification->verified_at->format('d M Y') }}</h5>
+                            <h5 class="mt-2">This certificate has been verified on {{ $verification->verified_at->format('d M Y') }}
+                                @if($verifier)
+                                    by {{ $verifier->commented_by }}
+                                @endif
+                            </h5>
                         </div>
                     </div>
                     @endif
@@ -550,17 +575,32 @@ textarea.form-control {
             @if($comments->count() > 0)
             <div class="card">
                 <div class="card-header">
-                    <h5>Comments History</h5>
+                    <h5>Comments</h5>
                 </div>
                 <div class="card-body">
                     <ul class="list-group">
                         @foreach($comments as $comment)
                         <li class="list-group-item {{ $comment->comment_type == 'revision_request' ? 'list-group-item-warning' : 'list-group-item-light' }}">
-                            <div class="d-flex justify-content-between">
-                                <strong>{{ $comment->commented_by }}</strong>
-                                <small>{{ $comment->created_at->format('d M Y H:i') }}</small>
+                            <div style="display: flex; align-items: flex-start; gap: 10p;">
+                                <div style="flex-grow: 1;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="font-weight: 600; color: #333;">{{ $comment->commented_by }}</span>
+                                        <small style="color: #888;">{{ $comment->created_at->diffForHumans() }} ({{ $comment->created_at->format('d M Y H:i') }})</small>
+                                    </div>
+                                    <div style="margin-top: 8px; color: #444; line-height: 1.5;">
+                                        {{ $comment->comment }}
+                                    </div>
+                                    @if ($comment->comment_type == 'revision_request')
+                                        <div style="margin-top: 5px;">
+                                            <span class="badge badge-warning" style="font-size: 12px;">[Request Change]</span>
+                                        </div>
+                                    @elseif($comment->comment_type === 'verification')
+                                        <div style="margin-top: 5px;">
+                                            <span class="badge badge-success" style="font-size: 12px;">[Verified]</span>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
-                            <p class="mt-2 mb-0">{{ $comment->comment }}</p>
                         </li>
                         @endforeach
                     </ul>
@@ -578,7 +618,7 @@ textarea.form-control {
             @csrf
             <input type="hidden" name="action" value="verify">
             
-            <h5>Verify Certificate</h5>
+            <h3>Verify Certificate</h3>
             <p>Are you sure you want to verify this certificate?</p>
             <p>By verifying, you confirm that all details are correct and the certificate can be issued in its current form.</p>
             
@@ -602,7 +642,7 @@ textarea.form-control {
             @csrf
             <input type="hidden" name="action" value="reject">
             
-            <h5>Request Changes</h5>
+            <h3>Request Changes</h3>
             <p class="text-danger">You are requesting changes to this certificate.</p>
             
             <div class="form-group">

@@ -73,6 +73,13 @@
             </div>
         </div>
 
+        @if ($cert->cert_number)
+            <div class="detail-group">
+                <div class="detail-label">Certificate Number</div>
+                <div class="detail-value">{{ $cert->cert_number }}</div>
+            </div>
+        @endif
+
         <div class="detail-group">
             <div class="detail-label">Status</div>
             <div class="detail-value">
@@ -96,7 +103,7 @@
                                     <span class="status-badge status-warning" style="background-color: red">Awaiting Verification</span>
                                 @endif
                             </p>
-                            <p><strong>Link Expires:</strong> {{ \Carbon\Carbon::parse($verification->expires_at)->format('d M Y H:i') }}</p>
+                            <p style="margin-top: 15px; margin-bottom: 15px;"><strong>Link Expires:</strong> {{ \Carbon\Carbon::parse($verification->expires_at)->format('d M Y H:i') }}</p>
                         </div>
                         <div class="verification-actions">
                             <a href="{{ route('certificates.verification-link', $cert->id) }}" class="btn-action">View Verification Link</a>
@@ -114,35 +121,11 @@
                     @endif
                 </div>
             </div>
-            
-            <!-- Added Certificate Documents Section -->
-            <div class="detail-group">
-                <div class="detail-label">Certificate Documents</div>
-                <div class="detail-value">
-                    @if($cert->draft_path)
-                        <div class="document-actions">
-                            <a href="{{ route('certificates.preview-draft', $cert->id) }}" class="btn-action" target="_blank">Preview Draft</a>
-                            <a href="{{ route('certificates.download', $cert->id) }}" class="btn-action">Download Draft</a>
-                        </div>
-                    @endif
+        @endif
 
-                    @if($cert->generate_pdf_path)
-                        <div class="document-actions">
-                            <a href="{{ route('certificates.preview-final', $cert->id) }}" class="btn-action" target="_blank">Preview Final Certificate</a>
-                            <a href="{{ route('certificates.download', $cert->id) }}" class="btn-action">Download Final Certificate</a>
-                        </div>
-                    @endif
-                    
-                    @if(!$cert->draft_path && !$cert->generate_pdf_path)
-                        <p>No certificate documents have been generated yet.</p>
-                        
-                        @if($cert->status == 'pending_review')
-                            <button type="button" class="btn-action" onclick="openConfirmModal()">
-                                Generate Draft Certificate
-                            </button>
-                        @endif
-                    @endif
-                </div>
+        @if(isset($verification) && $verification->is_verified && $cert->status === 'client_verified' && auth()->user()->role === 'manager' && 'hod')
+            <div class="assign-number-section mt-3">
+                <a href="{{ route('certificates.assign-number.form', $cert->id) }}" class="btn-action">Assign Certificate Number</a>
             </div>
         @endif
 
@@ -152,36 +135,32 @@
                 <div class="detail-group">
                     <div class="detail-label">Comments History</div>
                     <div class="detail-value">
-                        <div class="comments-table">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Comment</th>
-                                        <th>From</th>
-                                        <th>Type</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($comments as $comment)
-                                        <tr class="{{ $comment->comment_type == 'revision_request' ? 'warning-row' : '' }}">
-                                            <td>{{ \Carbon\Carbon::parse($comment->created_at)->format('d M Y H:i') }}</td>
-                                            <td>{{ $comment->comment }}</td>
-                                            <td>{{ $comment->commented_by }}</td>
-                                            <td>
-                                                @if($comment->comment_type == 'verification')
-                                                    <span class="status-badge status-success">Verification</span>
-                                                @elseif($comment->comment_type == 'revision_request')
-                                                    <span class="status-badge status-warning" style="color: red">Revision Request</span>
-                                                @else
-                                                    <span class="status-badge status-secondary">Internal</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                        <ul style="list-style: none; padding-left: 0;">
+                            @foreach($comments as $comment)
+                                <li 
+                                    {{ $comment->comment_type == 'revision_request' ? '#dc3545' : 
+                                    ($comment->comment_type == 'verification' ? '#28a745' : '#6c757d') }}
+                                    padding: 16px; border-radius: 6px; margin-bottom: 12px;">
+
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <p style="font-size: 15px;">{{  $comment->commented_by }}</p>
+                                        <small style="color: #888;">{{ \Carbon\Carbon::parse($comment->created_at)->format('d M Y H:i') }}</small>
+                                    </div>
+
+                                    <p style="margin-top: 10px; color: #333; line-height: 1.5;">{{ $comment->comment }}</p>
+
+                                    <div style="margin-top: 8px;">
+                                        @if($comment->comment_type == 'verification')
+                                            <span class="status-badge status-success">Verification</span>
+                                        @elseif($comment->comment_type == 'revision_request')
+                                            <span class="status-badge status-warning" style="background-color: #dc3545; color: white;">Revision Request</span>
+                                        @else
+                                            <span class="status-badge status-secondary" style="background-color: #6c757d; color: white;">Internal</span>
+                                        @endif
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
             @endif
@@ -226,7 +205,7 @@
             <p>Are you sure you want to confirm the data? Please type <strong>CONFIRM</strong> to proceed.</p>
             <form id='confirmForm' method="POST" action="{{ route('certificates.confirm', $cert->id) }}">
                 @csrf
-                <input type="text" id="confirmationInput" name="confirmation_text" placeholder="Type CONFIRM to continue" required>
+                <input type="text" id="confirmationInput" name="confirmation_text" placeholder="Type CONFIRM to continue" required style="margin-bottom: 15px;">
                 <div class="modal-actions">
                     <button type="submit" class="confirm-btn">Confirm</button>
                     <button type="button" class="btn-back" onclick="closeConfirmModal()">Cancel</button>
@@ -246,7 +225,7 @@
                 @csrf
                 <input type="hidden" name="action" value="approve">
                 <input type="text" id="hodConfirmationInput" name="hod_confirmation_text" placeholder="Type APPROVE to continue" required>
-                <div class="modal-actions">
+                <div class="modal-actions" style="margin-top: 15px;">
                     <button type="submit" class="confirm-btn" onclick="document.getElementById('hodAction').value='approve'">Approve</button>
                     <button type="button" class="btn-back" onclick="closeApproveModal()">Cancel</button>
                 </div>
@@ -263,7 +242,7 @@
                 @csrf
                 <input type="hidden" name="action" value="reject">
                 <input type="text" id="hodRejectInput" name="hod_reject_text" placeholder="Type REJECT to continue" required>
-                <div class="modal-actions">
+                <div class="modal-actions" style="margin-top: 15px;">
                     <button type="submit" class="confirm-btn">Reject</button>
                     <button type="button" class="btn-back" onclick="closeRejectModal()">Cancel</button>
                 </div>

@@ -74,6 +74,7 @@ class CertController extends Controller
             'all' => Cert::count(),
             'pending_review' => Cert::where('status', 'pending_review')->count(),
             'pending_client_verification' => Cert::where('status', 'pending_client_verification')->count(),
+            'client_verified' => Cert::where('status', 'client_verified')->count(),
             'need_revision' => Cert::where('status', 'need_revision')->count(),
             'pending_hod_approval' => Cert::where('status', 'pending_hod_approval')->count(),
             'certificate_issued' => Cert::where('status', 'certificate_issued')->count()
@@ -238,6 +239,7 @@ class CertController extends Controller
             'all' => Cert::count(),
             'pending_review' => Cert::where('status', 'pending_review')->count(),
             'pending_client_verification' => Cert::where('status', 'pending_client_verification')->count(),
+            'client_verified' => Cert::where('status', 'client_verified')->count(),
             'need_revision' => Cert::where('status', 'need_revision')->count(),
             'pending_hod_approval' => Cert::where('status', 'pending_hod_approval')->count(),
             'certificate_issued' => Cert::where('status', 'certificate_issued')->count()
@@ -388,13 +390,13 @@ class CertController extends Controller
             $verification->verified_at = now();
             $verification->save();
 
-            $cert->status = 'pending_hod_approval';
+            $cert->status = 'client_verified';
             $cert->save();
 
             if ($request->filled('comment')) {
                 CertComment::create([
                     'cert_id' => $cert->id,
-                    'comment' => $request->input('comment'),
+                    'comment' => 'Client has verified the cetificate',
                     'commented_by' => $request->input('name', 'Client'),
                     'comment_type' => 'verification'
                 ]);
@@ -479,31 +481,57 @@ class CertController extends Controller
         $outputPath = Storage::disk('public')->path($fileName);
 
         // 4. Use FPDI to import the template and overlay data
-        $pdf = new Fpdi();
-        $pdf->setSourceFile($templatePath);
+        $pdf = new Fpdi('P', 'mm', 'A4');
+        $pageCount = $pdf->setSourceFile($templatePath);
         $tplIdx = $pdf->importPage(1);
         $pdf->AddPage();
         $pdf->useTemplate($tplIdx);
 
-        // Set font and overlay your data (adjust positions as needed)
-        $pdf->SetFont('Helvetica', '', 16);
+        // 4. Add cert data overlay
         $pdf->SetTextColor(0, 0, 0);
+        $pageWidth = $pdf->GetPageWidth();
 
-        // Example: Place company name at (x=60, y=80)
-        $pdf->SetXY(60, 80);
-        $pdf->Cell(0, 10, $cert->comp_name, 0, 1);
+        $pdf->SetFont('Helvetica', 'B', 32);
+        $textWidth = $pdf->GetStringWidth($cert->comp_name);
+        $pdf->SetXY(($pageWidth - $textWidth) / 2, 90);
+        $pdf->Write(8, $cert->comp_name);
 
-        // Example: Place certificate type at (x=60, y=90)
-        $pdf->SetXY(60, 90);
-        $pdf->Cell(0, 10, $cert->cert_type . ' (' . $cert->iso_num . ')', 0, 1);
+        $pdf->SetFont('Helvetica', '', 20);
+        $address = $cert->comp_address1;
+        if ($cert->comp_address2) {
+            $address .= ', ' . $cert->comp_address2;
+        }
+        if ($cert->comp_address3) {
+            $address .= ', ' . $cert->comp_address3;
+        }
 
-        // Example: Place issue date at (x=60, y=100)
-        $pdf->SetXY(60, 100);
-        $pdf->Cell(0, 10, 'Issued: ' . \Carbon\Carbon::parse($cert->issue_date)->format('d M Y'), 0, 1);
+        // Center-align using MultiCell
+        $pdf->SetXY(10, 105); // X = margin, Y = vertical position
+        $pdf->MultiCell(
+            $pageWidth - 20, // width with 10mm left/right margins
+            10,              // height per line
+            $address,
+            0,               // no border
+            'C'              // center align
+        );
 
-        // Example: Place expiry date at (x=60, y=110)
-        $pdf->SetXY(60, 110);
-        $pdf->Cell(0, 10, 'Expires: ' . \Carbon\Carbon::parse($cert->exp_date)->format('d M Y'), 0, 1);
+        $pdf->SetFont('Helvetica', 'B', 24);
+        $textWidth = $pdf->GetStringWidth($cert->iso_num);
+        $pdf->SetXY(($pageWidth - $textWidth) / 2, 145);
+        $pdf->Write(8, $cert->iso_num);
+
+        $pdf->SetFont('Helvetica', '', 12);
+        $pdf->SetXY(78, 160.5);
+        $pdf->Write(8, $cert->cert_number);
+
+        $pdf->SetXY(81, 167.5);
+        $pdf->Write(8, $cert->reg_date->format('d M Y'));
+
+        $pdf->SetXY(66, 174.5);
+        $pdf->Write(8, $cert->issue_date->format('d M Y'));
+
+        $pdf->SetXY(68, 181.5);
+        $pdf->Write(8, $cert->exp_date->format('d M Y'));
 
         // Save the PDF to storage
         $pdf->Output($outputPath, 'F');
@@ -538,13 +566,35 @@ class CertController extends Controller
 
         // 4. Add cert data overlay
         $pdf->SetTextColor(0, 0, 0);
+        $pageWidth = $pdf->GetPageWidth();
 
-        $pdf->SetFont('Helvetica', 'B', 18);
-        $pdf->SetXY(69, 85);
+        $pdf->SetFont('Helvetica', 'B', 32);
+        $textWidth = $pdf->GetStringWidth($cert->comp_name);
+        $pdf->SetXY(($pageWidth - $textWidth) / 2, 90);
         $pdf->Write(8, $cert->comp_name);
 
+        $pdf->SetFont('Helvetica', '', 20);
+        $address = $cert->comp_address1;
+        if ($cert->comp_address2) {
+            $address .= ', ' . $cert->comp_address2;
+        }
+        if ($cert->comp_address3) {
+            $address .= ', ' . $cert->comp_address3;
+        }
+
+        // Center-align using MultiCell
+        $pdf->SetXY(10, 105); // X = margin, Y = vertical position
+        $pdf->MultiCell(
+            $pageWidth - 20, // width with 10mm left/right margins
+            10,              // height per line
+            $address,
+            0,               // no border
+            'C'              // center align
+        );
+
         $pdf->SetFont('Helvetica', 'B', 24);
-        $pdf->SetXY(69, 100);
+        $textWidth = $pdf->GetStringWidth($cert->iso_num);
+        $pdf->SetXY(($pageWidth - $textWidth) / 2, 145);
         $pdf->Write(8, $cert->iso_num);
 
         $pdf->SetFont('Helvetica', '', 12);
@@ -566,4 +616,40 @@ class CertController extends Controller
             ->header('Content-Disposition', 'inline; filename="certificate_draft.pdf"');
     }
 
+    public function assignNumber(Request $request, Cert $cert)
+    {
+        $request->validate([
+            'cert_number' => 'required|string|max:255',
+        ]);
+
+        $cert->cert_number = $request->input('cert_number');
+
+        if ($cert->status === 'client_verified') {
+            $cert->status = 'pending_hod_approval';
+        }
+
+        $cert->save();
+
+        return redirect()->route('certificates.show', $cert->id)
+            ->with('success', 'Certificate number assigned successfully.');
+    }
+
+    public function showAssignNumberForm(Cert $cert)
+    {
+        return view('certificates.assign-number', compact('cert'));
+    }
+
+    public function previewFinal(Cert $cert)
+    {
+        $path = storage_path('app/public/' . $cert->pdf_path);
+
+        if (!file_exists($path)) {
+            abort(404, 'Certificate file not found.');
+        }
+
+        return response()->file($path, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="final_certificate.pdf"',
+        ]);
+    }
 }

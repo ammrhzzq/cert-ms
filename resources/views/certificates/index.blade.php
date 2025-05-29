@@ -30,6 +30,10 @@
        class="status-tab {{ request('status') == 'pending_client_verification' ? 'active' : '' }}">
         Pending Client Verification
     </a>
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'client_verified'])) }}" 
+       class="status-tab {{ request('status') == 'client_verified' ? 'active' : '' }}">
+        Client Verified
+    </a>
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'need_revision'])) }}" 
        class="status-tab {{ request('status') == 'need_revision' ? 'active' : '' }}">
         Need Revision
@@ -38,8 +42,8 @@
        class="status-tab {{ request('status') == 'pending_hod_approval' ? 'active' : '' }}">
         Pending HoD Approval
     </a>
-    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'issued'])) }}" 
-       class="status-tab {{ request('status') == 'issued' ? 'active' : '' }}">
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'certificate_issued'])) }}" 
+       class="status-tab {{ request('status') == 'certificate_issued' ? 'active' : '' }}">
         Issued
     </a>
 </div>
@@ -81,14 +85,28 @@
                             <i class="fas fa-pencil-alt"></i>
                         </a>
                     @endif
-                    <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="delete-icon" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </form>
+                    @php
+                        $user = auth()->user();
+                        $canDelete = false;
 
+                        if ($user->role === 'hod') {
+                            $canDelete = true;
+                        } elseif ($user->role === 'manager' && $cert->status !== 'certificate_issued') {
+                            $canDelete = true;
+                        } elseif ($user->role === 'staff' && $cert->status === 'pending_review') {
+                            $canDelete = true;
+                        }
+                    @endphp
+
+                    @if($canDelete)
+                        <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="delete-icon" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </td>
         </tr>

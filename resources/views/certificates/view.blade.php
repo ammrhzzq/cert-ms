@@ -4,6 +4,8 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/view.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" />
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script>
 @endsection
 
 @section('content')
@@ -134,6 +136,11 @@
             <td>{{ ucfirst(str_replace('_', ' ', $cert->status)) }}</td>
             <td>
                 <div class="action-icons">
+                    <a href="{{ route('certificates.preview-final', $cert->id) }}"
+                        class = "view-icon" data-fancybox data-type="iframe" data-src="{{ route('certificates.preview-final', $cert->id) }}"
+                        style="cursor: pointer;">
+                        <i class="fa-regular fa-eye"></i>
+                    </a>
                     <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form">
                         @csrf
                         @method('DELETE')
