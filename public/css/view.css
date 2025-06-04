@@ -242,35 +242,25 @@ h1 {
     color: #c0392b;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-    .actions-bar {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .search-container {
-        width: 100%;
-    }
-    
-    .client-table {
-        display: block;
-        overflow-x: auto;
-    }
-    
-    .pagination-controls ul {
-        flex-wrap: wrap;
-    }
-    .fancybox__iframe {
+.fancybox__iframe {
         max-width: 595px;
         max-height: 842px;
         aspect-ratio: 595 / 842;
+        height: auto;
+        border: none;
     }
-    
-    /* Custom styles for Fancybox iframe */
+
     .fancybox__content > .fancybox__iframe {
         width: 100% !important;
         height: 100vh !important;
         max-height: 80vh !important;
+    }
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .fancybox__iframe {
+        max-width: 90vw;
+        max-height: 80vh;
+        height: auto;
     }
 }

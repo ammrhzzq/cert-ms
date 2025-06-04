@@ -99,7 +99,7 @@
                     @endphp
 
                     @if($canDelete)
-                        <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form">
+                        <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form" onsubmit="return confirmDelete(event);">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="delete-icon" title="Delete">
@@ -138,5 +138,13 @@
             this.form.submit();
         });
     });
+
+    function confirmDelete(event) {
+        if (!confirm('Are you sure you want to delete this certificate? This action cannot be undone.')) {
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    }
 </script>
 @endsection

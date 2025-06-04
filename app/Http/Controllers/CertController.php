@@ -173,10 +173,15 @@ class CertController extends Controller
         $verification = CertVerification::where('cert_id', $cert->id)->latest()->first();
         $comments = CertComment::where('cert_id', $cert->id)->orderBy('created_at', 'desc')->get();
 
+        $verificationUrl = $verification
+        ? route('certificates.verify', ['token' => $verification->token])
+        : null;
+
         return view('certificates.show', [
             'cert' => $cert,
             'verification' => $verification,
-            'comments' => $comments
+            'comments' => $comments,
+            'verificationUrl' => $verificationUrl
         ]);
     }
 
@@ -274,10 +279,22 @@ class CertController extends Controller
                 ->with('success', 'Certificate approved and final PDF generated.');
 
         } elseif ($action === 'reject') {
+            $request->validate([
+                'hod_reject_comment' => 'required|string|max:255',
+            ]);
+
             $cert->status = 'need_revision';
             $cert->revision_source = 'hod';
             $cert->hod_approved = false;
             $cert->save();
+
+            CertComment::create([
+                'cert_id' => $cert->id,
+                'comment' => $request->input('hod_reject_comment'),
+                'commented_by' => auth()->user()->name ?? 'HOD',
+                'comment_type' => 'revision_request',
+                'revision_source' => 'hod'
+            ]);
 
             return redirect()->route('certificates.show', $cert->id)
                 ->with('error', 'Certificate sent back for revision.');
@@ -426,7 +443,8 @@ class CertController extends Controller
                 'cert_id' => $cert->id,
                 'comment' => $request->input('comment'),
                 'commented_by' => $request->input('name'),
-                'comment_type' => 'revision_request'
+                'comment_type' => 'revision_request',
+                'revision_source' => 'client'
             ]);
         }
 
@@ -599,7 +617,11 @@ class CertController extends Controller
 
         $pdf->SetFont('Helvetica', '', 12);
         $pdf->SetXY(78, 160.5);
-        $pdf->Write(8, 'Available for Final Approval');
+        if ($cert->status === 'pending_hod_approval' && $cert->cert_number) {
+            $pdf->Write(8, $cert->cert_number);
+        } else {
+            $pdf->Write(8, 'Available for Final Approval');
+        }
 
         $pdf->SetXY(81, 167.5);
         $pdf->Write(8, $cert->reg_date->format('d M Y'));

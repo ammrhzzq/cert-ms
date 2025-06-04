@@ -8,7 +8,50 @@
 @endsection
 
 @section('content')
+
+@php
+    // Default to 'certificate_created' as the initial status
+    $defaultStatus = 'certificate_created';
+    $statusSteps = [
+        'certificate_created' => 'Create Certificate',
+        'pending_review' => 'Pending Review',
+        'pending_client_verification' => 'Pending Client Verification',
+        'client_verified' => 'Client Verified',
+        'pending_hod_approval' => 'Pending HOD Approval',
+        'certificate_issued' => 'Certificate Issued',
+    ];
+    $statusOrder = array_keys($statusSteps);
+    $currentStatusIndex = array_search($defaultStatus, $statusOrder);
+@endphp
+
+<div class="card mb-4" style="margin-bottom: 20px; border-bottom: 3px solid var(--primary-color); border-left: 3px solid var(--primary-color);">
+    <div class="card-header">
+        <h2>Certificate Progress</h2>
+    </div>
+    <div class="card-body" style="display: flex; justify-content: center; align-items: center; padding-top: 20px;">
+        <div class="cert-progress-wrapper">
+            <div class="cert-progress-bar">
+                @foreach ($statusSteps as $statusKey => $label)
+                    @php
+                        $stepIndex = array_search($statusKey, $statusOrder);
+                        $isCompleted = $stepIndex <= $currentStatusIndex;
+                        $isCurrent = $stepIndex === $currentStatusIndex;
+                    @endphp
+                    <div class="cert-step {{ $isCompleted ? 'completed' : '' }} {{ $isCurrent ? 'current' : '' }}">
+                        <div class="circle">{{ $loop->index + 1 }}</div>
+                        <div class="label">{{ $label }}</div>
+                    </div>
+                    @if (!$loop->last)
+                        <div class="connector {{ $stepIndex < $currentStatusIndex ? 'completed' : '' }}"></div>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+    </div>
+</div>
+
 <h1>Create Certificate</h1>
+
 <div class="container">
     <div class="form-container">
         @if($errors->any())

@@ -113,20 +113,7 @@
                     </div>
                 </div>
             </div>
-{{-- 
-            <div class="form-group">
-                <label>Status</label>
-                <div class="select-container">
-                    <select name="status" required>
-                        <option value="pending_review" {{ $cert->status == 'pending_review' ? 'selected' : '' }}>Pending Review</option>
-                        <option value="client_verified" {{ $cert->status == 'client_verified' ? 'selected' : '' }}>Client Verified</option>
-                        <option value="need_revision" {{ $cert->status == 'need_revision' ? 'selected' : '' }}>Need Revision</option>
-                        <option value="pending_hod_approval" {{ $cert->status == 'pending_hod_approval' ? 'selected' : '' }}>Pending HoD Approval</option>
-                        <option value="certificate_issued" {{ $cert->status == 'certificate_issued' ? 'selected' : '' }}>Certificate Issued</option>
-                    </select>
-                </div>
-            </div> --}}
-
+            
             <div class="button-group">
                 <a href="{{ route('certificates.index') }}" class="btn-back">Cancel</a>
                 <input type="submit" value="Update" />

@@ -1,3 +1,4 @@
+{{-- filepath: /Applications/XAMPP/xamppfiles/htdocs/cert-ms/resources/views/certificates/view.blade.php --}}
 @extends('layouts.app', ['activeItem' => 'view'])
 
 @section('title', 'Certificates List')
@@ -29,6 +30,7 @@
             <i class="fas fa-filter"></i> Filter
         </button>
     </div>
+</div>
 
 <!-- Filter panel (hidden by default) -->
 <div class="filter-panel" id="filterPanel" style="display: none;">
@@ -119,9 +121,8 @@
     <tbody>
         @foreach($certs as $cert)
         @if ($cert->status == 'certificate_issued')
-        <tr>
+        <tr class="cert-row" data-preview-url="{{ route('certificates.preview-final', $cert->id) }}" style="cursor: pointer;">
             <td>{{ $cert->cert_type }}-{{ $cert->comp_name }}</td>
-
             <td>
                 @if($cert->last_edited_at)
                 {{ \Carbon\Carbon::parse($cert->last_edited_at)->format('d/m/Y H:i') }}<br>
@@ -132,23 +133,16 @@
                 Not edited
                 @endif
             </td>
-
             <td>{{ ucfirst(str_replace('_', ' ', $cert->status)) }}</td>
             <td>
                 <div class="action-icons">
-                    <a href="{{ route('certificates.preview-final', $cert->id) }}"
-                        class = "view-icon" data-fancybox data-type="iframe" data-src="{{ route('certificates.preview-final', $cert->id) }}"
-                        style="cursor: pointer;">
-                        <i class="fa-regular fa-eye"></i>
-                    </a>
-                    <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form">
+                    <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form" onclick="event.stopPropagation(); return confirmDelete(event);">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="delete-icon" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
                     </form>
-
                 </div>
             </td>
         </tr>
@@ -174,12 +168,47 @@
 
         // Add event listener for date field change
         const dateTypeSelect = document.getElementById('date_type');
-        const dateValueSelect = document.getElementById('date_value');
-
         dateTypeSelect.addEventListener('change', function() {
-            // Submit the form to refresh the page with the new date type
             this.form.submit();
         });
+
+        // Make table row clickable for preview
+        document.querySelectorAll('.cert-row').forEach(function(row) {
+            row.addEventListener('click', function(e) {
+                // Prevent if clicking on a button or inside the action-icons
+                if (e.target.closest('.delete-form') || e.target.closest('.delete-icon')) return;
+                const pdfUrl = this.getAttribute('data-preview-url');
+                if (pdfUrl) {
+                    Fancybox.show([{ src: pdfUrl, type: "iframe" }], {
+                        groupAll: true,
+                        animated: false,
+                        dragToClose: false,
+                        showClass: false,
+                        hideClass: false,
+                        Toolbar: {
+                            display: ["zoom", "fullscreen", "download", "close"],
+                        },
+                        iframe: {
+                            preload: false,
+                            css: {
+                                width: '100%',
+                                height: '90vh',
+                                transform: 'scale(0.95)',
+                                transformOrigin: 'top center'
+                            }
+                        }
+                    });
+                }
+            });
+        });
     });
+
+    function confirmDelete(event) {
+    if (!confirm('Are you sure you want to delete this certificate? This action cannot be undone.')) {
+        event.preventDefault();
+        return false;
+    }
+    return true;
+}
 </script>
 @endsection
