@@ -60,9 +60,10 @@
     </thead>
     <tbody>
         @foreach($certs as $cert)
-        <tr>
+        <tr class="cert-row"
+            data-href="{{ route('certificates.show', ['cert' => $cert]) }}"
+            style="cursor: pointer; transition: background-color 0.2s;">
             <td>{{ $cert->cert_type }}-{{ $cert->comp_name }}</td>
-
             <td>
                 @if($cert->last_edited_at)
                 {{ \Carbon\Carbon::parse($cert->last_edited_at)->format('d/m/Y H:i') }}<br>
@@ -73,22 +74,17 @@
                 Not edited
                 @endif
             </td>
-
             <td>{{ ucfirst(str_replace('_', ' ', $cert->status)) }}</td>
             <td>
                 <div class="action-icons">
-                    <a href="{{ route('certificates.show', ['cert' => $cert]) }}" class="view-icon" title="View">
-                        <i class="fa-regular fa-eye"></i>
-                    </a>
                     @if ($cert->status == 'pending_review')
-                        <a href="{{ route('certificates.edit', ['cert' => $cert]) }}" class="edit-icon" title="Edit">
+                        <a href="{{ route('certificates.edit', ['cert' => $cert]) }}" class="edit-icon" title="Edit" onclick="event.stopPropagation();">
                             <i class="fas fa-pencil-alt"></i>
                         </a>
                     @endif
                     @php
                         $user = auth()->user();
                         $canDelete = false;
-
                         if ($user->role === 'hod') {
                             $canDelete = true;
                         } elseif ($user->role === 'manager' && $cert->status !== 'certificate_issued') {
@@ -97,9 +93,8 @@
                             $canDelete = true;
                         }
                     @endphp
-
                     @if($canDelete)
-                        <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form" onsubmit="return confirmDelete(event);">
+                        <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form" onsubmit="return confirmDelete(event);" onclick="event.stopPropagation();">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="delete-icon" title="Delete">
@@ -136,6 +131,20 @@
         dateTypeSelect.addEventListener('change', function() {
             // Submit the form to refresh the page with the new date type
             this.form.submit();
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Make table row clickable for preview
+        document.querySelectorAll('.cert-row').forEach(function(row) {
+            row.addEventListener('click', function(e) {
+                // Prevent if clicking on a button or inside the action-icons
+                if (e.target.closest('.edit-icon') || e.target.closest('.delete-form') || e.target.closest('.delete-icon')) return;
+                const url = this.getAttribute('data-href');
+                if (url) {
+                    window.location.href = url;
+                }
+            });
         });
     });
 

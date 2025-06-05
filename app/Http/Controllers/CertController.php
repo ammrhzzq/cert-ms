@@ -141,8 +141,30 @@ class CertController extends Controller
             'exp_date' => 'required|date'
         ]);
 
-        $data['last_edited_at'] = now();
-        //$data['last_edited_by'] = auth()->id();
+        $fieldsToCheck = [
+            'cert_type', 'iso_num', 'comp_name', 'comp_address1', 'comp_address2', 'comp_address3',
+            'comp_phone1', 'phone1_name', 'comp_phone2', 'phone2_name',
+            'reg_date', 'issue_date', 'exp_date'
+        ];
+
+        $hasChanges = false;
+        foreach ($fieldsToCheck as $field) {
+            // Use loose comparison to handle null vs empty string
+            if (($cert->$field ?? null) != ($data[$field] ?? null)) {
+                $hasChanges = true;
+                break;
+            }
+        }
+
+        if ($hasChanges) {
+            $data['last_edited_at'] = now();
+            // $data['last_edited_by'] = auth()->id(); // if you track editor
+            $cert->update($data);
+            return redirect()->route('certificates.index')->with('success', 'Certificate updated successfully.');
+        } else {
+            // No changes, do not update last_edited_at
+            return redirect()->route('certificates.index')->with('info', 'No changes detected.');
+        }
 
         if ($cert->status === 'need_revision') {
             if ($cert->revision_source === 'hod') {
@@ -150,8 +172,8 @@ class CertController extends Controller
             }  else {
             $data['status'] = 'pending_client_verification';
         }
-    $data['revision_source'] = null;
-}
+            $data['revision_source'] = null;
+        }
 
         $cert->update($data);
 

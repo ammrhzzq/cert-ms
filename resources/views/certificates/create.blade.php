@@ -184,6 +184,22 @@
 @section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const certTypeSelect = document.querySelector('select[name="cert_type"]');
+        const isoNumSelect = document.querySelector('select[name="iso_num"]');
+
+        certTypeSelect.addEventListener('change', function() {
+            if (this.value === 'ISMS') {
+                isoNumSelect.value = 'ISO/IEC 27001:2022';
+            }
+            else if (this.value === 'BCMS') {
+                isoNumSelect.value = 'ISO 22301:2019';
+            } else if (this.value === 'PIMS') {
+                isoNumSelect.value = 'ISO/IEC 27701:2019';
+            }
+        });
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
         const clientSelect = document.getElementById('client_id');
         
         clientSelect.addEventListener('change', function() {
