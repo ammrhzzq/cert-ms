@@ -4,13 +4,22 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Cert;
+use setasign\Fpdi\Fpdi;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\CertVerification;
+use App\Models\CertComment;
 use App\Models\Client;
+use App\Models\User;
+use Illuminate\Support\Str;
+use App\Models\Template;
 
 class CertController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Cert::query();
+        $query = Cert::with('creator');
 
         // Apply status filter
         if ($request->filled('status') && $request->status !== 'all') {
@@ -67,9 +76,11 @@ class CertController extends Controller
         $statusCounts = [
             'all' => Cert::count(),
             'pending_review' => Cert::where('status', 'pending_review')->count(),
+            'pending_client_verification' => Cert::where('status', 'pending_client_verification')->count(),
             'client_verified' => Cert::where('status', 'client_verified')->count(),
             'need_revision' => Cert::where('status', 'need_revision')->count(),
-            'pending_hod_approval' => Cert::where('status', 'pending_hod_approval')->count()
+            'pending_hod_approval' => Cert::where('status', 'pending_hod_approval')->count(),
+            'certificate_issued' => Cert::where('status', 'certificate_issued')->count()
         ];
 
         return view('certificates.index', [
@@ -86,8 +97,7 @@ class CertController extends Controller
 
     public function create()
     {
-        // Get all clients for the dropdown
-        $clients = Client::orderBy('comp_name')->get();
+        $clients = Client::all();
         return view('certificates.create', compact('clients'));
     }
 
@@ -108,19 +118,17 @@ class CertController extends Controller
             'issue_date' => 'required|date',
             'exp_date' => 'required|date',
             'client_id' => 'nullable|exists:clients,id',
+
         ]);
 
-        // Set default empty values for phone name fields if not provided
-        if (!isset($data['phone1_name'])) {
-            $data['phone1_name'] = '';
-        }
-        
-        if (!isset($data['phone2_name'])) {
-            $data['phone2_name'] = '';
+        // Ensure the issue date is before the expiration date
+        if ($data['issue_date'] >= $data['exp_date']) {
+            return redirect()->back()->withErrors(['issue_date' => 'Issue date must be before expiration date.']);
         }
 
         $data['status'] = 'pending_review'; // Default status
-
+        $data['created_by'] = Auth::id(); // Set the creator of the certificate
+        
         $newCert = Cert::create($data);
 
         // Create or update client information if client_id is empty or not selected
@@ -158,28 +166,33 @@ class CertController extends Controller
             'comp_address2' => 'nullable|string|max:255',
             'comp_address3' => 'nullable|string|max:255',
             'comp_phone1' => 'nullable|string|max:15',
-            'phone1_name' => 'nullable|string|max:255',
             'comp_phone2' => 'nullable|string|max:15',
+            'phone1_name' => 'required|string|max:255',
             'phone2_name' => 'nullable|string|max:255',
             'reg_date' => 'required|date',
             'issue_date' => 'required|date',
-            'exp_date' => 'required|date',
-            'status' => 'required|string',
+            'exp_date' => 'required|date'
         ]);
 
-        // Set default empty values for phone name fields if not provided
-        if (!isset($data['phone1_name'])) {
-            $data['phone1_name'] = '';
-        }
-        
-        if (!isset($data['phone2_name'])) {
-            $data['phone2_name'] = '';
-        }
-
         $data['last_edited_at'] = now();
-        //$data['last_edited_by'] = auth()->id();
+        $data['last_edited_by'] = Auth::id();
+
+        if ($cert->status === 'need_revision') {
+            if ($cert->revision_source === 'hod') {
+                $data['status'] = 'pending_hod_approval';
+            } else {
+                $data['status'] = 'pending_client_verification';
+            }
+            $data['revision_source'] = null;
+        }
 
         $cert->update($data);
+
+        // Automatically generate the certificate PDF if status is final approved
+        if ($cert->status === 'certificate_issued') {
+            // Generate the PDF
+            $this->generateCertificatePDF($cert); // Directly pass the Cert instance
+        }
         return redirect()->route('certificates.index')->with('success', 'Certificate updated successfully.');
     }
 
@@ -191,7 +204,15 @@ class CertController extends Controller
 
     public function preview(Cert $cert)
     {
-        return view('certificates.preview', ['cert' => $cert]);
+        // Get verification details if they exist
+        $verification = CertVerification::where('cert_id', $cert->id)->latest()->first();
+        $comments = CertComment::where('cert_id', $cert->id)->orderBy('created_at', 'desc')->get();
+
+        return view('certificates.preview', [
+            'cert' => $cert,
+            'verification' => $verification,
+            'comments' => $comments
+        ]);
     }
 
     public function view(Request $request)
@@ -253,9 +274,11 @@ class CertController extends Controller
         $statusCounts = [
             'all' => Cert::count(),
             'pending_review' => Cert::where('status', 'pending_review')->count(),
+            'pending_client_verification' => Cert::where('status', 'pending_client_verification')->count(),
             'client_verified' => Cert::where('status', 'client_verified')->count(),
             'need_revision' => Cert::where('status', 'need_revision')->count(),
-            'pending_hod_approval' => Cert::where('status', 'pending_hod_approval')->count()
+            'pending_hod_approval' => Cert::where('status', 'pending_hod_approval')->count(),
+            'certificate_issued' => Cert::where('status', 'certificate_issued')->count()
         ];
 
         return view('certificates.view', [
@@ -270,10 +293,397 @@ class CertController extends Controller
         ]);
     }
 
+    public function hodApproval(Request $request, Cert $cert)
+    {
+
+        $action = $request->input('action');
+
+        if ($action === 'approve') {
+            $cert->status = 'certificate_issued';
+            $cert->hod_approved = true;
+            $cert->save();
+
+            // Generate the final certificate PDF
+            $this->generateCertificatePDF($cert);
+
+            return redirect()->route('certificates.preview', $cert->id)
+                ->with('success', 'Certificate approved and final PDF generated.');
+        } elseif ($action === 'reject') {
+            $cert->status = 'need_revision';
+            $cert->revision_source = 'hod';
+            $cert->hod_approved = false;
+            $cert->save();
+
+            return redirect()->route('certificates.preview', $cert->id)
+                ->with('error', 'Certificate sent back for revision.');
+        }
+
+        return redirect()->back()->with('error', 'Invalid action.');
+    }
+
+    /**
+     * Generate a verification link for a certificate
+     *
+     * @param Cert $cert
+     * @return \Illuminate\View\View
+     */
+    public function getVerificationLink(Cert $cert)
+    {
+        $verification = CertVerification::where('cert_id', $cert->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$verification) {
+            $verification = CertVerification::create([
+                'cert_id' => $cert->id,
+                'token' => Str::random(64),
+                'expires_at' => now()->addDays(7),
+                'is_verified' => false
+            ]);
+        }
+
+        $verificationUrl = route('certificates.verify', ['token' => $verification->token]);
+
+        return view('certificates.verification-link', [
+            'verificationUrl' => $verificationUrl,
+            'cert' => $cert,
+            'verification' => $verification
+        ]);
+    }
+
+    /**
+     * Renew the verification link for a certificate
+     *
+     * @param Cert $cert
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function renewVerificationLink(Cert $cert)
+    {
+        $verification = CertVerification::where('cert_id', $cert->id)->latest()->first();
+
+        if ($verification) {
+            $verification->token = Str::random(64);
+            $verification->expires_at = now()->addDays(7);
+            $verification->is_verified = false;
+            $verification->verified_at = null;
+            $verification->save();
+        } else {
+            $verification = CertVerification::create([
+                'cert_id' => $cert->id,
+                'token' => Str::random(64),
+                'expires_at' => now()->addDays(7),
+                'is_verified' => false
+            ]);
+        }
+
+        return redirect()->route('certificates.preview', $cert->id)->with('success', 'Verification link renewed successfully.');
+    }
+
+    /**
+     * Show verification page for a certificate
+     *
+     * @param string $token
+     * @return \Illuminate\View\View
+     */
+    public function verify($token)
+    {
+        $verification = CertVerification::where('token', $token)
+            ->where('expires_at', '>', now())
+            ->firstOrFail();
+
+        $cert = Cert::findOrFail($verification->cert_id);
+
+        $comments = CertComment::where('cert_id', $cert->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('certificates.verify', [
+            'cert' => $cert,
+            'verification' => $verification,
+            'comments' => $comments
+        ]);
+    }
+
+    /**
+     * Process the verification response
+     *
+     * @param Request $request
+     * @param string $token
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function processVerification(Request $request, $token)
+    {
+        $verification = CertVerification::where('token', $token)
+            ->where('expires_at', '>', now())
+            ->firstOrFail();
+
+        $cert = Cert::findOrFail($verification->cert_id);
+        $action = $request->input('action');
+
+        if ($action == 'verify') {
+            $verification->is_verified = true;
+            $verification->verified_at = now();
+            $verification->save();
+
+            $cert->status = 'client_verified';
+            $cert->save();
+
+            if ($request->filled('comment')) {
+                CertComment::create([
+                    'cert_id' => $cert->id,
+                    'comment' => 'Client has verified the cetificate',
+                    'commented_by' => $request->input('name', 'Client'),
+                    'comment_type' => 'verification'
+                ]);
+            }
+
+            return redirect()->route('certificates.verify', ['token' => $token])
+                ->with('success', 'Certificate verified successfully.');
+        } elseif ($action == 'reject') {
+
+            $request->validate([
+                'comment' => 'required|string|max:255',
+                'name' => 'required|string|max:255'
+            ], [
+                'comment.required' => 'Please provide a comment for rejection.',
+                'name.required' => 'Please provide your name.'
+            ]);
+
+            $verification->is_verified = false;
+            $verification->save();
+
+            $cert->status = 'need_revision';
+            $cert->revision_source = 'client';
+            $cert->save();
+
+            CertComment::create([
+                'cert_id' => $cert->id,
+                'comment' => $request->input('comment'),
+                'commented_by' => $request->input('name'),
+                'comment_type' => 'revision_request'
+            ]);
+        }
+
+        return redirect()->route('certificates.verify', ['token' => $token])
+            ->with('success', 'Certificate verification status updated successfully.');
+    }
     // New method to fetch client data for Ajax requests
     public function getClientData($id)
     {
         $client = Client::findOrFail($id);
         return response()->json($client);
+    }
+
+    public function confirm(Request $request, $id)
+    {
+        $cert = Cert::findOrFail($id);
+
+        // Example: set status to pending_review or any logic you want
+        $cert->status = 'pending_client_verification';
+        $cert->save();
+
+        $verification = CertVerification::where('cert_id', $cert->id)->latest()->first();
+        if (!$verification) {
+            $verification = CertVerification::create([
+                'cert_id' => $cert->id,
+                'token' => Str::random(64),
+                'expires_at' => now()->addDays(7),
+                'is_verified' => false
+            ]);
+        }
+
+        return redirect()->route('certificates.index', $cert->id)
+            ->with('success', 'Certificate draft confirmed successfully.');
+    }
+
+    protected function generateCertificatePDF(Cert $cert)
+    {
+        // 1. Get the active template for this cert type
+        $template = Template::where('cert_type', $cert->cert_type)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$template || !Storage::disk('public')->exists($template->file_path)) {
+            throw new \Exception('No active template file found for this certificate type.');
+        }
+
+        // 2. Get the full path to the template PDF
+        $templatePath = Storage::disk('public')->path($template->file_path);
+
+        // 3. Prepare output file path
+        $fileName = 'certificates/' . $cert->id . '_' . now()->format('YmdHis') . '.pdf';
+        $outputPath = Storage::disk('public')->path($fileName);
+
+        // 4. Use FPDI to import the template and overlay data
+        $pdf = new Fpdi('P', 'mm', 'A4');
+        $pageCount = $pdf->setSourceFile($templatePath);
+        $tplIdx = $pdf->importPage(1);
+        $pdf->AddPage();
+        $pdf->useTemplate($tplIdx);
+
+        // 4. Add cert data overlay
+        $pdf->SetTextColor(0, 0, 0);
+        $pageWidth = $pdf->GetPageWidth();
+
+        $pdf->SetFont('Helvetica', 'B', 32);
+        $textWidth = $pdf->GetStringWidth($cert->comp_name);
+        $pdf->SetXY(($pageWidth - $textWidth) / 2, 90);
+        $pdf->Write(8, $cert->comp_name);
+
+        $pdf->SetFont('Helvetica', '', 16);
+        $address = $cert->comp_address1;
+        if ($cert->comp_address2) {
+            $address .= ', ' . $cert->comp_address2;
+        }
+        if ($cert->comp_address3) {
+            $address .= ', ' . $cert->comp_address3;
+        }
+
+        // Center-align using MultiCell
+        $pdf->SetXY(10, 105); // X = margin, Y = vertical position
+        $pdf->MultiCell(
+            $pageWidth - 20, // width with 10mm left/right margins
+            10,              // height per line
+            $address,
+            0,               // no border
+            'C'              // center align
+        );
+
+        $pdf->SetFont('Helvetica', 'B', 28);
+        $textWidth = $pdf->GetStringWidth($cert->iso_num);
+        $pdf->SetXY(($pageWidth - $textWidth) / 2, 145);
+        $pdf->Write(8, $cert->iso_num);
+
+        $pdf->SetFont('Helvetica', '', 14);
+        $pdf->SetXY(87, 160.5);
+        $pdf->Write(8, $cert->cert_number);
+
+        $pdf->SetXY(88, 167.5);
+        $pdf->Write(8, $cert->reg_date->format('d M Y'));
+
+        $pdf->SetXY(74, 174.5);
+        $pdf->Write(8, $cert->issue_date->format('d M Y'));
+
+        $pdf->SetXY(76, 181.5);
+        $pdf->Write(8, $cert->exp_date->format('d M Y'));
+
+        // Save the PDF to storage
+        $pdf->Output($outputPath, 'F');
+
+        // Save the path to the cert for preview/download
+        $cert->pdf_path = $fileName;
+        $cert->save();
+
+        return $fileName;
+    }
+
+    public function previewDraft(Cert $cert)
+    {
+        // 1. Get the active template for this cert type
+        $template = Template::where('cert_type', $cert->cert_type)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$template || !Storage::disk('public')->exists($template->file_path)) {
+            abort(404, 'No active template found for this certificate type.');
+        }
+
+        // 2. Get full path of template
+        $templatePath = Storage::disk('public')->path($template->file_path);
+
+        // 3. Create PDF using FPDI
+        $pdf = new Fpdi('P', 'mm', 'A4');
+        $pageCount = $pdf->setSourceFile($templatePath);
+        $tplIdx = $pdf->importPage(1);
+        $pdf->AddPage();
+        $pdf->useTemplate($tplIdx);
+
+        // 4. Add cert data overlay
+        $pdf->SetTextColor(0, 0, 0);
+        $pageWidth = $pdf->GetPageWidth();
+
+        $pdf->SetFont('Helvetica', 'B', 32);
+        $textWidth = $pdf->GetStringWidth($cert->comp_name);
+        $pdf->SetXY(($pageWidth - $textWidth) / 2, 90);
+        $pdf->Write(8, $cert->comp_name);
+
+        $pdf->SetFont('Helvetica', '', 16);
+        $address = $cert->comp_address1;
+        if ($cert->comp_address2) {
+            $address .= ', ' . $cert->comp_address2;
+        }
+        if ($cert->comp_address3) {
+            $address .= ', ' . $cert->comp_address3;
+        }
+
+        // Center-align using MultiCell
+        $pdf->SetXY(10, 105); // X = margin, Y = vertical position
+        $pdf->MultiCell(
+            $pageWidth - 20, // width with 10mm left/right margins
+            10,              // height per line
+            $address,
+            0,               // no border
+            'C'              // center align
+        );
+
+        $pdf->SetFont('Helvetica', 'B', 24);
+        $textWidth = $pdf->GetStringWidth($cert->iso_num);
+        $pdf->SetXY(($pageWidth - $textWidth) / 2, 145);
+        $pdf->Write(8, $cert->iso_num);
+
+        $pdf->SetFont('Helvetica', '', 12);
+        $pdf->SetXY(85, 160.5);
+        $pdf->Write(8, '-');
+
+        $pdf->SetXY(87, 168.5);
+        $pdf->Write(8, $cert->reg_date->format('d M Y'));
+
+        $pdf->SetXY(70, 176.5);
+        $pdf->Write(8, $cert->issue_date->format('d M Y'));
+
+        $pdf->SetXY(72, 184);
+        $pdf->Write(8, $cert->exp_date->format('d M Y'));
+
+        // 5. Output inline (no download)
+        return response($pdf->Output('S'), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="certificate_draft.pdf"');
+    }
+
+    public function assignNumber(Request $request, Cert $cert)
+    {
+        $request->validate([
+            'cert_number' => 'required|string|max:255',
+        ]);
+
+        $cert->cert_number = $request->input('cert_number');
+
+        if ($cert->status === 'client_verified') {
+            $cert->status = 'pending_hod_approval';
+        }
+
+        $cert->save();
+
+        return redirect()->route('certificates.preview', $cert->id)
+            ->with('success', 'Certificate number assigned successfully.');
+    }
+
+    public function showAssignNumberForm(Cert $cert)
+    {
+        return view('certificates.assign-number', compact('cert'));
+    }
+
+    public function previewFinal(Cert $cert)
+    {
+        $path = storage_path('app/public/' . $cert->pdf_path);
+
+        if (!file_exists($path)) {
+            abort(404, 'Certificate file not found.');
+        }
+
+        return response()->file($path, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="final_certificate.pdf"',
+        ]);
     }
 }

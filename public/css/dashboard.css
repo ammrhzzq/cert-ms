@@ -194,6 +194,10 @@
     border-top: 3px solid var(--blue-border);
 }
 
+.gray-border {
+    border-top: 3px solid var(--gray-border);
+}
+
 .yellow-border {
     border-top: 3px solid var(--yellow-border);
 }
@@ -210,7 +214,7 @@
     border-top: 3px solid var(--orange-border);
 }
 
-.gray-border {
+.border-color {
     border-top: 3px solid var(--text-color);
 }
 

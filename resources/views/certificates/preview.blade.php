@@ -1,88 +1,368 @@
-<!-- resources/views/certificates/show.blade.php -->
+<!-- resources/views/certificates/preview.blade.php -->
 @extends('layouts.app', ['activeItem' => 'certificates'])
 
 @section('title', 'Certificate Details')
 
 @section('styles')
-<link rel="stylesheet" href="{{ asset('css/data-entry.css') }}">
+<link rel="stylesheet" href="{{ asset('css/preview.css') }}">
 @endsection
 
 @section('content')
-    <div class="detail-container">
-        <h1>Certificate Details</h1>
-        <div class="detail-group">
-            <div class="detail-label">Certificate Type</div>
-            <div class="detail-value">{{ ucfirst($cert->cert_type) }}</div>
-        </div>
+<h1>Certificate Details</h1>
 
-        <div class="detail-group">
-            <div class="detail-label">ISO Number</div>
-            <div class="detail-value">{{ $cert->iso_num }}</div>
-        </div>
+<div class="detail-container">
+    @if (session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+    @endif
 
-        <div class="detail-group">
-            <div class="detail-label">Company Name</div>
-            <div class="detail-value">{{ $cert->comp_name }}</div>
-        </div>
+    @if (session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+    @endif
 
-        <div class="detail-group">
-            <div class="detail-label">Address</div>
-            <div class="detail-value">
-                {{ $cert->comp_address1 }}
-            </div>
-            <div class="detail-value">
-                {{ $cert->comp_address2 }}
-            </div>
-            <div class="detail-value">
-                {{ $cert->comp_address3 }}
-            </div>
-        </div>
+    <div class="detail-group">
+        <div class="detail-label">Certificate Type</div>
+        <div class="detail-value">{{ ucfirst($cert->cert_type) }}</div>
+    </div>
 
-        <div class="detail-row">
-            <div class="detail-column">
-                <div class="detail-group">
-                    <div class="detail-label">Registration Date</div>
-                    <div class="detail-value">{{ \Carbon\Carbon::parse($cert->reg_date)->format('d/m/Y') }}</div>
-                </div>
-            </div>
-            <div class="detail-column">
-                <div class="detail-group">
-                    <div class="detail-label">Issue Date</div>
-                    <div class="detail-value">{{ \Carbon\Carbon::parse($cert->issue_date)->format('d/m/Y') }}</div>
-                </div>
-            </div>
-            <div class="detail-column">
-                <div class="detail-group">
-                    <div class="detail-label">Expired Date</div>
-                    <div class="detail-value">{{ \Carbon\Carbon::parse($cert->exp_date)->format('d/m/Y') }}</div>
-                </div>
+    <div class="detail-group">
+        <div class="detail-label">ISO Number</div>
+        <div class="detail-value">{{ $cert->iso_num }}</div>
+    </div>
+
+    <div class="detail-group">
+        <div class="detail-label">Company Name</div>
+        <div class="detail-value">{{ $cert->comp_name }}</div>
+    </div>
+
+    <div class="detail-group">
+        <div class="detail-label">Address</div>
+        <div class="detail-value">{{ $cert->comp_address1 }}</div>
+        <div class="detail-value">{{ $cert->comp_address2 }}</div>
+        <div class="detail-value">{{ $cert->comp_address3 }}</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-column">
+            <div class="detail-group">
+                <div class="detail-label">Registration Date</div>
+                <div class="detail-value">{{ \Carbon\Carbon::parse($cert->reg_date)->format('d/m/Y') }}</div>
             </div>
         </div>
-
-        <div class="detail-group">
-            <div class="detail-label">Status</div>
-            <div class="detail-value">
-                <span class="status-badge status-{{ $cert->status }}">
-                    {{ ucfirst(str_replace('_', ' ', $cert->status)) }}
-                </span>
+        <div class="detail-column">
+            <div class="detail-group">
+                <div class="detail-label">Issue Date</div>
+                <div class="detail-value">{{ \Carbon\Carbon::parse($cert->issue_date)->format('d/m/Y') }}</div>
             </div>
         </div>
-
-        <div class="last-edited-info">
-            @if($cert->last_edited_at)
-                Last edited on {{ \Carbon\Carbon::parse($cert->last_edited_at)->format('d/m/Y H:i') }} (MYT)
-                @if(isset($cert->lastEditor) && $cert->lastEditor)
-                    by {{ $cert->lastEditor->name }}
-                @endif
-            @else
-                No edit history available
-            @endif
-        </div>
-
-        <div class="button-group">
-            <a href="{{ route('certificates.index') }}" class="btn-back">Back</a>
-            
+        <div class="detail-column">
+            <div class="detail-group">
+                <div class="detail-label">Expired Date</div>
+                <div class="detail-value">{{ \Carbon\Carbon::parse($cert->exp_date)->format('d/m/Y') }}</div>
+            </div>
         </div>
     </div>
+
+    @if ($cert->cert_number)
+    <div class="detail-group">
+        <div class="detail-label">Certificate Number</div>
+        <div class="detail-value">{{ $cert->cert_number }}</div>
+    </div>
+    @endif
+
+    <div class="detail-group">
+        <div class="detail-label">Status</div>
+        <div class="detail-value">
+            <span class="status-badge status-{{ $cert->status }}">
+                {{ ucfirst(str_replace('_', ' ', $cert->status)) }}
+            </span>
+        </div>
+    </div>
+
+    @if ($cert->status === 'need_revision')
+    @if(isset($comments) && count($comments) > 0)
+    <div class="detail-group">
+        <div class="detail-label">Comments History</div>
+        <div class="detail-value">
+            <ul class="comments-list">
+                @foreach($comments as $comment)
+                <li class="comment-item {{ $comment->comment_type == 'revision_request' ? 'revision-request' : ($comment->comment_type == 'verification' ? 'verification' : 'internal') }}">
+                    <div class="comment-header">
+                        <p class="comment-author">{{ $comment->commented_by }}</p>
+                        <small class="comment-date">{{ \Carbon\Carbon::parse($comment->created_at)->format('d M Y H:i') }}</small>
+                    </div>
+
+                    <p class="comment-text">{{ $comment->comment }}</p>
+
+                    <div>
+                        @if($comment->comment_type == 'verification')
+                        <span class="status-badge status-success">Verification</span>
+                        @elseif($comment->comment_type == 'revision_request')
+                        <span class="status-badge status-warning">Revision Request</span>
+                        @else
+                        <span class="status-badge status-secondary">Internal</span>
+                        @endif
+                    </div>
+                </li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+    @endif
+
+    @if(in_array(auth()->user()->role, ['manager', 'hod']))
+    <a href="{{ route('certificates.edit', $cert->id) }}" class="btn-action btn-warning">Edit Certificate</a>
+    @endif
+    @endif
+
+    <div class="last-edited-info">
+        @if($cert->last_edited_at)
+        Last edited on {{ \Carbon\Carbon::parse($cert->last_edited_at)->format('d/m/Y H:i') }} (MYT)
+        @if(isset($cert->lastEditor) && $cert->lastEditor)
+        by {{ $cert->lastEditor->name }}
+        @endif
+        @else
+        No edit history available
+        @endif
+    </div>
+
+    <div class="button-group">
+        <a href="{{ route('certificates.index') }}" class="btn-back">Back</a>
+        @if (in_array(auth()->user()->role, ['manager', 'hod']) && $cert->status == 'pending_review')
+        <button class="confirm-btn" onclick="openConfirmModal()">Confirm</button>
+        @endif
+        @if (auth()->user()->role === 'hod' && $cert->status == 'pending_hod_approval')
+        <button class="approve-btn" onclick="openApproveModal()">Approve</button>
+        <button class="reject-btn" onclick="openRejectModal()">Reject</button>
+        @endif
+    </div>
 </div>
+
+{{-- Notification for Assign Number --}}
+@if(isset($verification) && $verification->is_verified && $cert->status === 'client_verified' && in_array(auth()->user()->role, ['manager', 'hod']))
+<div id="verificationNotification" class="verification pulse-animation">
+    <button class="verification-close" onclick="closeNotification()">
+        <i class="fas fa-times"></i>
+    </button>
+
+    <div class="verification-header">
+        <div class="verification-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div>
+            <h4 class="verification-title">Client has verified the data</h4>
+            <p class="verification-subtitle">Verified on {{ $verification->verified_at }}</p>
+        </div>
+    </div>
+
+    <div class="verification-content">
+        <p><strong>Status:</strong>
+            <span class="verification-status">
+                <i class="fas fa-clock"></i> Client Verified
+            </span>
+        </p>
+    </div>
+
+    <div class="verification-action">
+        <a href="{{ route('certificates.assign-number.form', $cert->id) }}" class="verification-btn primary">
+            Assign Certificate Number
+        </a>
+    </div>
+</div>
+@endif
+
+{{-- Verification Notification --}}
+@if($cert->status === 'pending_client_verification')
+<div id="verificationNotification" class="verification pulse-animation">
+    <button class="verification-close" onclick="closeNotification()">
+        <i class="fas fa-times"></i>
+    </button>
+
+    <div class="verification-header">
+        <div class="verification-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div>
+            <h4 class="verification-title">Client Verification Required</h4>
+            <p class="verification-subtitle">{{ $cert->comp_name }}</p>
+        </div>
+    </div>
+
+    <div class="verification-content">
+        <p><strong>Status:</strong>
+            <span class="verification-status">
+                <i class="fas fa-clock"></i> Pending Client Verification
+            </span>
+        </p>
+        <p><strong>Link Expires:</strong> {{ \Carbon\Carbon::parse($verification->expires_at)->format('d M Y H:i') }}</p>
+    </div>
+
+    <div class="verification-action">
+        @if(isset($verification))
+        <a href="{{ route('certificates.verification-link', $cert->id) }}" class="verification-btn primary">
+            <i class="fas fa-link"></i> View Link
+        </a>
+        <form method="POST" action="{{ route('certificates.renew-verification', $cert->id) }}" style="display: inline;">
+            @csrf
+            <button type="submit" class="verification-btn">
+                <i class="fas fa-sync-alt"></i> Renew Link
+            </button>
+        </form>
+        @else
+        <form method="POST" action="{{ route('certificates.renew-verification', $cert->id) }}" style="display: inline;">
+            @csrf
+            <button type="submit" class="verification-btn primary">
+                <i class="fas fa-plus"></i> Generate Link
+            </button>
+        </form>
+        @endif
+    </div>
+</div>
+@endif
+
+@php $canVerify = in_array(auth()->user()->role, ['manager', 'hod']); @endphp
+
+{{-- Confirm Modal --}}
+@if($canVerify && $cert->status == 'pending_review')
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <h3>Review and Confirm</h3>
+        <p>Are you sure you want to confirm the data? Please type <strong>CONFIRM</strong> to proceed.</p>
+        <form method="POST" action="{{ route('certificates.confirm', $cert->id) }}">
+            @csrf
+            <input type="text" id="confirmationInput" name="confirmation_text" placeholder="Type CONFIRM to continue" required>
+            <div class="modal-actions">
+                <button type="submit" class="confirm-btn">Confirm</button>
+                <button type="button" class="btn-back" onclick="closeConfirmModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
+
+{{-- Approve Modal --}}
+@if(auth()->user()->role === 'hod' && $cert->status === 'pending_hod_approval')
+<div id="approveModal" class="modal">
+    <div class="modal-content">
+        <h3>Review and Approve</h3>
+        <p>Are you sure you want to approve the certificate? Please type <strong>APPROVE</strong> to proceed.</p>
+        <form method="POST" action="{{ route('certificates.hod-approval', $cert->id) }}">
+            @csrf
+            <input type="hidden" name="action" value="approve">
+            <input type="text" id="hodConfirmationInput" name="hod_confirmation_text" placeholder="Type APPROVE to continue" required>
+            <div class="modal-actions">
+                <button type="submit" class="approve-btn">Approve</button>
+                <button type="button" class="btn-back" onclick="closeApproveModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Reject Modal --}}
+<div id="rejectModal" class="modal">
+    <div class="modal-content">
+        <h3>Review and Reject</h3>
+        <p>Are you sure you want to reject the certificate? Please type <strong>REJECT</strong> to proceed.</p>
+        <form method="POST" action="{{ route('certificates.hod-approval', $cert->id) }}">
+            @csrf
+            <input type="hidden" name="action" value="reject">
+            <input type="text" id="hodRejectInput" name="hod_reject_text" placeholder="Type REJECT to continue" required>
+            <div class="modal-actions">
+                <button type="submit" class="reject-btn">Reject</button>
+                <button type="button" class="btn-back" onclick="closeRejectModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
+@endsection
+
+@section('scripts')
+<script>
+    // Modal Functions
+    function openConfirmModal() {
+        showModal('confirmModal', 'confirmationInput');
+    }
+
+    function closeConfirmModal() {
+        hideModal('confirmModal', 'confirmationInput');
+    }
+
+    function openApproveModal() {
+        showModal('approveModal', 'hodConfirmationInput');
+    }
+
+    function closeApproveModal() {
+        hideModal('approveModal', 'hodConfirmationInput');
+    }
+
+    function openRejectModal() {
+        showModal('rejectModal', 'hodRejectInput');
+    }
+
+    function closeRejectModal() {
+        hideModal('rejectModal', 'hodRejectInput');
+    }
+
+    // Helper Functions
+    function showModal(modalId, inputId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.add('show');
+
+        setTimeout(() => {
+            const input = document.getElementById(inputId);
+            if (input) input.focus();
+        }, 300);
+
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hideModal(modalId, inputId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.remove('show');
+
+        setTimeout(() => {
+            document.body.style.overflow = 'auto';
+        }, 300);
+
+        const input = document.getElementById(inputId);
+        if (input) input.value = '';
+    }
+
+    // Notification Functions
+    function closeNotification() {
+        const notification = document.getElementById('verificationNotification');
+        if (notification) {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 400);
+        }
+    }
+
+    // Show notification on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const notification = document.getElementById('verificationNotification');
+        if (notification) {
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 500);
+        }
+    });
+</script>
+<script>
+    // Close modal on outside click
+    window.onclick = function(event) {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            if (event.target === modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
+</script>
 @endsection

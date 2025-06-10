@@ -12,6 +12,7 @@ class DashboardController extends Controller
     {
         // Count certificates by status
         $pendingReview = Cert::where('status', 'pending_review')->count();
+        $pendingClientVerification = Cert::where('status', 'pending_client_verification')->count();
         $clientVerified = Cert::where('status', 'client_verified')->count();
         $needRevision = Cert::where('status', 'need_revision')->count();
         $pendingHodApproval = Cert::where('status', 'pending_hod_approval')->count();
@@ -22,6 +23,7 @@ class DashboardController extends Controller
         
         return view('dashboard.index', [
             'pendingReview' => $pendingReview,
+            'pendingClientVerification' => $pendingClientVerification,
             'clientVerified' => $clientVerified,
             'needRevision' => $needRevision,
             'pendingHodApproval' => $pendingHodApproval,

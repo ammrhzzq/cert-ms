@@ -4,34 +4,31 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTemplatesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('templates', function (Blueprint $table) {
             $table->id();
-            $table->string('cert_type');
             $table->string('name');
-            $table->string('file_name');
-            $table->string('original_name');
             $table->string('file_path');
-            $table->string('file_type');
+            $table->text('description')->nullable();
+            $table->boolean('is_active')->default(false);
+            $table->string('cert_type');
+            $table->unsignedBigInteger('uploaded_by');
+            $table->string('version')->nullable();
             $table->timestamps();
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('templates');
     }
-}
+};

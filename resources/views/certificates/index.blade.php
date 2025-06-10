@@ -18,25 +18,33 @@
 
 <!-- Status tabs -->
 <div class="tabs">
-    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'all'])) }}" 
-       class="tab {{ request('status', 'all') == 'all' ? 'active' : '' }}">
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'all'])) }}"
+        class="tab {{ request('status', 'all') == 'all' ? 'active' : '' }}">
         All
     </a>
-    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'pending_review'])) }}" 
-       class="tab {{ request('status') == 'pending_review' ? 'active' : '' }}">
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'pending_review'])) }}"
+        class="tab {{ request('status') == 'pending_review' ? 'active' : '' }}">
         Pending Review
     </a>
-    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'client_verified'])) }}" 
-       class="tab {{ request('status') == 'client_verified' ? 'active' : '' }}">
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'pending_client_verification'])) }}"
+        class="tab {{ request('status') == 'pending_client_verification' ? 'active' : '' }}">
+        Pending Client Verification
+    </a>
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'client_verified'])) }}"
+        class="tab {{ request('status') == 'client_verified' ? 'active' : '' }}">
         Client Verified
     </a>
-    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'need_revision'])) }}" 
-       class="tab {{ request('status') == 'need_revision' ? 'active' : '' }}">
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'need_revision'])) }}"
+        class="tab {{ request('status') == 'need_revision' ? 'active' : '' }}">
         Need Revision
     </a>
-    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'pending_hod_approval'])) }}" 
-       class="tab {{ request('status') == 'pending_hod_approval' ? 'active' : '' }}">
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'pending_hod_approval'])) }}"
+        class="tab {{ request('status') == 'pending_hod_approval' ? 'active' : '' }}">
         Pending HoD Approval
+    </a>
+    <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'certificate_issued'])) }}"
+        class="tab {{ request('status') == 'certificate_issued' ? 'active' : '' }}">
+        Issued
     </a>
 </div>
 
@@ -45,6 +53,7 @@
     <thead>
         <tr>
             <th>Certificate</th>
+            <th>Created By</th>
             <th>Last Edited</th>
             <th>Status</th>
             <th>Action</th>
@@ -54,7 +63,14 @@
         @foreach($certs as $cert)
         <tr>
             <td>{{ $cert->cert_type }}-{{ $cert->comp_name }}</td>
-
+            <td>
+                @if($cert->creator)
+                {{ $cert->creator->name }}<br>
+                {{ \Carbon\Carbon::parse($cert->created_at)->format('d/m/Y H:i') }}
+                @else
+                Unknown Creator
+                @endif
+            </td>
             <td>
                 @if($cert->last_edited_at)
                 {{ \Carbon\Carbon::parse($cert->last_edited_at)->format('d/m/Y H:i') }}<br>
@@ -72,11 +88,25 @@
                     <a href="{{ route('certificates.preview', ['cert' => $cert]) }}" class="view-icon" title="View">
                         <i class="fa-regular fa-eye"></i>
                     </a>
-
+                    @if ($cert->status == 'pending_review')
                     <a href="{{ route('certificates.edit', ['cert' => $cert]) }}" class="edit-icon" title="Edit">
                         <i class="fas fa-pencil-alt"></i>
                     </a>
+                    @endif
+                    @php
+                    $user = auth()->user();
+                    $canDelete = false;
 
+                    if ($user->role === 'hod') {
+                    $canDelete = true;
+                    } elseif ($user->role === 'manager' && $cert->status !== 'certificate_issued') {
+                    $canDelete = true;
+                    } elseif ($user->role === 'staff' && $cert->status === 'pending_review') {
+                    $canDelete = true;
+                    }
+                    @endphp
+
+                    @if($canDelete)
                     <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form">
                         @csrf
                         @method('DELETE')
@@ -84,7 +114,7 @@
                             <i class="fas fa-trash"></i>
                         </button>
                     </form>
-
+                    @endif
                 </div>
             </td>
         </tr>
@@ -96,24 +126,14 @@
 @section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const filterToggle = document.getElementById('filterToggle');
-        const filterPanel = document.getElementById('filterPanel');
-
-        filterToggle.addEventListener('click', function() {
-            if (filterPanel.style.display === 'none') {
-                filterPanel.style.display = 'block';
-            } else {
-                filterPanel.style.display = 'none';
-            }
-        });
-
-        // Add event listener for date field change
-        const dateTypeSelect = document.getElementById('date_type');
-        const dateValueSelect = document.getElementById('date_value');
-
-        dateTypeSelect.addEventListener('change', function() {
-            // Submit the form to refresh the page with the new date type
-            this.form.submit();
+        // Confirm delete
+        const deleteForms = document.querySelectorAll('.delete-form');
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function(event) {
+                if (!confirm('Are you sure you want to delete this certificate?')) {
+                    event.preventDefault();
+                }
+            });
         });
     });
 </script>

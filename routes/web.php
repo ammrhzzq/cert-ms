@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TemplateController;
+use App\Http\Controllers\NotificationController;
 
 // Redirect root to login page
 Route::get('/', function () {
@@ -33,6 +34,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/api/notifications', [NotificationController::class, 'getNotifications'])->name('notifications.get');
 
     // Client routes
     Route::get('/client', [ClientController::class, 'index'])->name('clients.index');
@@ -51,7 +53,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/certificate/{cert}/edit', [CertController::class, 'edit'])->name('certificates.edit');
     Route::put('/certificate/{cert}/update', [CertController::class, 'update'])->name('certificates.update');
     Route::delete('/certificate/{cert}/destroy', [CertController::class, 'destroy'])->name('certificates.destroy');
-    Route::get('/certificate/{cert}', [CertController::class, 'preview'])->name('certificates.preview');
+    Route::get('/certificate/preview/{cert}', [CertController::class, 'preview'])->name('certificates.preview');
+    Route::post('/certificates/{cert}/confirm', [CertController::class, 'confirm'])->name('certificates.confirm');
+    Route::get('certificates/{cert}/verification-link', [CertController::class, 'getVerificationLink'])->name('certificates.verification-link');
+    Route::get('certificates/verify/{token}', [CertController::class, 'verify'])->name('certificates.verify');
+    Route::post('certificates/verify/{token}', [CertController::class, 'processVerification'])->name('certificates.process-verification');
+    Route::post('certificates/{cert}/renew-verification', [CertController::class, 'renewVerificationLink'])->name('certificates.renew-verification');
+    Route::get('/certificates/{cert}/preview-draft', [CertController::class, 'previewDraft'])->name('certificates.previewDraft');
+    Route::post('/certificates/{cert}/hod-approval', [CertController::class, 'hodApproval'])->name('certificates.hod-approval');
+    Route::post('certificates/{cert}/confirm', [CertController::class, 'confirm'])->name('certificates.confirm');
+    Route::get('/certificates/{cert}/assign-number', [CertController::class, 'showAssignNumberForm'])->name('certificates.assign-number.form');
+    Route::post('/certificates/{cert}/assign-number', [CertController::class, 'assignNumber'])->name('certificates.assign-number');
+    Route::get('/certificates/{cert}/preview-final', [CertController::class, 'previewFinal'])->name('certificates.preview-final');
 
     // User management routes
     Route::get('/user', [UserController::class, 'index'])->name('users.index');
@@ -60,14 +73,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/user/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/user/{user}/update', [UserController::class, 'update'])->name('users.update');
     Route::delete('/user/{user}/destroy', [UserController::class, 'destroy'])->name('users.destroy');
-    
+
     // Password reset routes - only accessible through user management
     Route::get('/user/{user}/reset-password', [UserController::class, 'showResetPasswordForm'])->name('users.reset-password');
     Route::post('/user/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password.update');
 
     // Template management routes
-    Route::get('/template-management', [TemplateController::class, 'index'])->name('templates.index');
-    Route::post('/template-management', [TemplateController::class, 'store'])->name('templates.store');
-    Route::get('/template-management/{template}/preview', [TemplateController::class, 'preview'])->name('templates.preview');
-    Route::delete('/template-management/{template}', [TemplateController::class, 'destroy'])->name('templates.destroy');
+    Route::get('/template', [TemplateController::class, 'index'])->name('templates.index');
+    Route::post('/template', [TemplateController::class, 'store'])->name('templates.store');
+    Route::get('/template/{template}/preview', [TemplateController::class, 'preview'])->name('templates.preview');
+    Route::patch('/template/{template}/toggle', [TemplateController::class, 'toggleActive'])->name('templates.toggle');
+    Route::delete('/template/{template}', [TemplateController::class, 'destroy'])->name('templates.destroy');
+
+    // Additional routes for full functionality (add these)
+    Route::get('/template/{template}/edit', [TemplateController::class, 'edit'])->name('templates.edit');
+    Route::put('/template/{template}', [TemplateController::class, 'update'])->name('templates.update');
+    Route::get('/template/{template}/download', [TemplateController::class, 'download'])->name('templates.download');
+    Route::patch('/template/{template}/toggle-active', [TemplateController::class, 'toggleActive'])->name('templates.toggle-active');
 });
