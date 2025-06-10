@@ -8,6 +8,64 @@
 @endsection
 
 @section('content')
+@php
+$statusSteps = [
+'create_certificate' => 'Create Certificate',
+'pending_review' => 'Pending Review',
+'pending_client_verification' => 'Pending Client Verification',
+'client_verified' => 'Client Verified',
+'pending_hod_approval' => 'Pending HOD Approval',
+'certificate_issued' => 'Certificate Issued',
+];
+
+if ($cert->status === 'need_revision') {
+if ($cert->revision_source === 'client') {
+$statusSteps = array_slice($statusSteps, 0, 3, true) +
+['need_revision' => 'Need Revision'] +
+array_slice($statusSteps, 3, null, true);
+} elseif ($cert->revision_source === 'hod') {
+$statusSteps = array_slice($statusSteps, 0, 5, true) +
+['need_revision' => 'Need Revision'] +
+array_slice($statusSteps, 5, null, true);
+}
+}
+
+$statusOrder = array_keys($statusSteps);
+$currentStatusIndex = array_search($cert->status, $statusOrder) ? array_search($cert->status, $statusOrder) : -1;
+$stepNumber = 1;
+@endphp
+<h1>Certificate Progress</h1>
+<div class="progress-card">
+    <div class="progress-body">
+        <div class="cert-progress-wrapper">
+            <div class="cert-progress-bar">
+                @foreach ($statusSteps as $statusKey => $label)
+                @php
+                $stepIndex = array_search($statusKey, $statusOrder);
+                $isCompleted = $stepIndex <= $currentStatusIndex;
+                    $isCurrent=$stepIndex===$currentStatusIndex;
+                    $isNeedRevision=$statusKey==='need_revision' ;
+                    @endphp
+
+                    <div class="cert-step {{ $isCompleted ? 'completed' : '' }} {{ $isCurrent ? 'current' : '' }} {{ $isNeedRevision ? 'need-revision' : '' }}">
+                    <div class="circle">
+                        @if($isNeedRevision)
+                        !
+                        @else
+                        {{ $stepNumber }}
+                        @php $stepNumber++; @endphp
+                        @endif
+                    </div>
+                    <div class="label">{{ $label }}</div>
+            </div>
+            @if (!$loop->last)
+            <div class="connector {{ $stepIndex < $currentStatusIndex ? 'completed' : ''}}"></div>
+            @endif
+            @endforeach
+        </div>
+    </div>
+</div>
+</div>
 <h1>Certificate Details</h1>
 
 <div class="detail-container">
