@@ -34,8 +34,9 @@ $statusOrder = array_keys($statusSteps);
 $currentStatusIndex = array_search($cert->status, $statusOrder) ? array_search($cert->status, $statusOrder) : -1;
 $stepNumber = 1;
 @endphp
-<h1>Certificate Progress</h1>
 <div class="progress-card">
+    <h1>Certificate Progress</h1>
+
     <div class="progress-body">
         <div class="cert-progress-wrapper">
             <div class="cert-progress-bar">
@@ -66,9 +67,10 @@ $stepNumber = 1;
     </div>
 </div>
 </div>
-<h1>Certificate Details</h1>
 
 <div class="detail-container">
+    <h1>Certificate Details</h1>
+
     @if (session('success'))
     <div class="alert alert-success">
         {{ session('success') }}
@@ -113,13 +115,13 @@ $stepNumber = 1;
         <div class="detail-column">
             <div class="detail-group">
                 <div class="detail-label">Issue Date</div>
-                <div class="detail-value">{{ \Carbon\Carbon::parse($cert->issue_date)->format('d/m/Y') }}</div>
+                <div class="detail-value">TBD</div>
             </div>
         </div>
         <div class="detail-column">
             <div class="detail-group">
                 <div class="detail-label">Expired Date</div>
-                <div class="detail-value">{{ \Carbon\Carbon::parse($cert->exp_date)->format('d/m/Y') }}</div>
+                <div class="detail-value">TBD</div>
             </div>
         </div>
     </div>
@@ -142,9 +144,27 @@ $stepNumber = 1;
 
     @if ($cert->status === 'need_revision')
     @if(isset($comments) && count($comments) > 0)
-    <div class="detail-group">
-        <div class="detail-label">Comments History</div>
-        <div class="detail-value">
+    <div id="verificationNotification" class="verification pulse-animation">
+        <button class="verification-close" onclick="closeNotification()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="verification-header">
+            <div class="verification-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div>
+                <h4 class="verification-title">Revision Required</h4>
+                <p class="verification-subtitle">{{ $cert->revision_source === 'client' ? 'Client' : 'HOD' }} has requested a revision.</p>
+            </div>
+        </div>
+        <div class="verification-content">
+            <p><strong>Status:</strong>
+                <span class="verification-status">
+                    <i class="fas fa-exclamation-triangle"></i> Need Revision
+                </span>
+            </p>
+            <p><strong>Revision Source:</strong> {{ $cert->revision_source === 'client' ? 'Client' : 'HOD' }}</p>
+            <p><strong>Comments:</strong></p>
             <ul class="comments-list">
                 @foreach($comments as $comment)
                 <li class="comment-item {{ $comment->comment_type == 'revision_request' ? 'revision-request' : ($comment->comment_type == 'verification' ? 'verification' : 'internal') }}">
@@ -153,26 +173,20 @@ $stepNumber = 1;
                         <small class="comment-date">{{ \Carbon\Carbon::parse($comment->created_at)->format('d M Y H:i') }}</small>
                     </div>
 
-                    <p class="comment-text">{{ $comment->comment }}</p>
+                    <p class="comment-text">Commented: {{ $comment->comment }}</p>
 
-                    <div>
-                        @if($comment->comment_type == 'verification')
-                        <span class="status-badge status-success">Verification</span>
-                        @elseif($comment->comment_type == 'revision_request')
-                        <span class="status-badge status-warning">Revision Request</span>
-                        @else
-                        <span class="status-badge status-secondary">Internal</span>
-                        @endif
-                    </div>
                 </li>
                 @endforeach
             </ul>
         </div>
+        <div class="verification-action">
+            @if(in_array(auth()->user()->role, ['manager', 'hod']))
+            <a href="{{ route('certificates.edit', $cert->id) }}" class="verification-btn primary">
+                <i class="fas fa-edit"></i> Edit Certificate
+            </a>
+            @endif
+        </div>
     </div>
-    @endif
-
-    @if(in_array(auth()->user()->role, ['manager', 'hod']))
-    <a href="{{ route('certificates.edit', $cert->id) }}" class="btn-action btn-warning">Edit Certificate</a>
     @endif
     @endif
 
@@ -328,6 +342,10 @@ $stepNumber = 1;
             @csrf
             <input type="hidden" name="action" value="reject">
             <input type="text" id="hodRejectInput" name="hod_reject_text" placeholder="Type REJECT to continue" required>
+            <div class="modal-description">
+                <p>Please provide a reason for rejection:</p>
+                <textarea class="form-control" id="unverify-comment" name="comment" rows="5" required></textarea>
+            </div>
             <div class="modal-actions">
                 <button type="submit" class="reject-btn">Reject</button>
                 <button type="button" class="btn-back" onclick="closeRejectModal()">Cancel</button>

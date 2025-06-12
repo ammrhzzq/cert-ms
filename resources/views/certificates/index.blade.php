@@ -61,7 +61,10 @@
     </thead>
     <tbody>
         @foreach($certs as $cert)
-        <tr>
+        <tr class="clickable-row" 
+            data-certificate-id="{{ $cert->id }}"
+            data-certificate-name="{{ $cert->cert_type }}-{{ $cert->comp_name }}"
+            data-preview-url="{{ route('certificates.preview', $cert->id) }}">
             <td>{{ $cert->cert_type }}-{{ $cert->comp_name }}</td>
             <td>
                 @if($cert->creator)
@@ -126,6 +129,8 @@
 @section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+
+        const clickableRows = document.querySelectorAll('.clickable-row');
         // Confirm delete
         const deleteForms = document.querySelectorAll('.delete-form');
         deleteForms.forEach(form => {
@@ -133,6 +138,21 @@
                 if (!confirm('Are you sure you want to delete this certificate?')) {
                     event.preventDefault();
                 }
+            });
+        });
+
+        // Handle clickable rows
+        clickableRows.forEach(row => {
+            row.addEventListener('click', function(event) {
+                // Don't trigger if clicking on action buttons
+                if (event.target.closest('.action-icons')) {
+                    return;
+                }
+
+                const previewUrl = this.getAttribute('data-preview-url');
+                
+                // Navigate to the preview page
+                window.location.href = previewUrl;
             });
         });
     });

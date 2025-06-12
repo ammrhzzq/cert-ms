@@ -120,7 +120,10 @@
         <tbody>
             @foreach($certs as $cert)
             @if ($cert->status == 'certificate_issued')
-            <tr>
+            <tr class="clickable-row" 
+                data-certificate-id="{{ $cert->id }}"
+                data-certificate-name="{{ $cert->cert_type }}-{{ $cert->comp_name }}"
+                data-preview-url="{{ route('certificates.preview-final', $cert->id) }}">
                 <td>{{ $cert->cert_type }}-{{ $cert->comp_name }}</td>
 
                 <td>{{ \Carbon\Carbon::parse($cert->issue_date)->format('d/m/Y') }}</td>
@@ -188,6 +191,7 @@
             const certificatePreviewTitle = document.getElementById('certificatePreviewTitle');
             const openCertificateNewTab = document.getElementById('openCertificateNewTab');
             const previewBtns = document.querySelectorAll('.view-icon');
+            const clickableRows = document.querySelectorAll('.clickable-row');
 
             // Handle filter toggle
             filterToggle.addEventListener('click', function() {
@@ -198,21 +202,44 @@
                 }
             });
 
+            // Function to open certificate preview
+            function openCertificatePreview(certificateId, certificateName, previewUrl) {
+                // Set modal content
+                certificatePreviewTitle.textContent = `${certificateName}`;
+                certificatePreviewFrame.src = previewUrl;
+                openCertificateNewTab.href = previewUrl;
+
+                // Show modal
+                certificatePreviewModal.style.display = 'block';
+            }
+
             // Handle certificate preview button clicks
             previewBtns.forEach(btn => {
                 btn.addEventListener('click', function(event) {
                     event.preventDefault();
+                    event.stopPropagation(); // Prevent row click when clicking the eye icon
+                    
                     const certificateId = this.getAttribute('data-certificate-id');
                     const certificateName = this.getAttribute('data-certificate-name');
                     const previewUrl = this.getAttribute('data-preview-url');
 
-                    // Set modal content
-                    certificatePreviewTitle.textContent = `${certificateName}`;
-                    certificatePreviewFrame.src = previewUrl;
-                    openCertificateNewTab.href = previewUrl;
+                    openCertificatePreview(certificateId, certificateName, previewUrl);
+                });
+            });
 
-                    // Show modal
-                    certificatePreviewModal.style.display = 'block';
+            // Handle clickable rows
+            clickableRows.forEach(row => {
+                row.addEventListener('click', function(event) {
+                    // Don't trigger if clicking on action buttons
+                    if (event.target.closest('.action-icons')) {
+                        return;
+                    }
+
+                    const certificateId = this.getAttribute('data-certificate-id');
+                    const certificateName = this.getAttribute('data-certificate-name');
+                    const previewUrl = this.getAttribute('data-preview-url');
+
+                    openCertificatePreview(certificateId, certificateName, previewUrl);
                 });
             });
 
@@ -243,8 +270,12 @@
             const deleteForms = document.querySelectorAll('.delete-form');
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(event) {
-                    if (!confirm('Are you sure you want to delete this certificate?')) {
-                        event.preventDefault();
+                    event.preventDefault();
+                    event.stopPropagation(); // Prevent row click when clicking delete
+                    
+                    if (confirm('Are you sure you want to delete this certificate?')) {
+                        // If confirmed, submit the form
+                        this.submit();
                     }
                 });
             });

@@ -516,14 +516,6 @@ textarea.form-control {
                                     <th>Registration Date</th>
                                     <td>{{ $cert->reg_date->format('d-m-Y') }}</td>
                                 </tr>
-                                <tr>
-                                    <th>Issue Date</th>
-                                    <td>{{ $cert->issue_date->format('d-m-Y') }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Expiry Date</th>
-                                    <td>{{ $cert->exp_date->format('d-m-Y') }}</td>
-                                </tr>
                             </table>
                         </div>
                         <div class="col-md-6">

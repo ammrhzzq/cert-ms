@@ -115,20 +115,16 @@ class CertController extends Controller
             'comp_phone2' => 'nullable|string|max:15',
             'phone2_name' => 'nullable|string|max:255',
             'reg_date' => 'required|date',
-            'issue_date' => 'required|date',
-            'exp_date' => 'required|date',
             'client_id' => 'nullable|exists:clients,id',
-
         ]);
-
-        // Ensure the issue date is before the expiration date
-        if ($data['issue_date'] >= $data['exp_date']) {
-            return redirect()->back()->withErrors(['issue_date' => 'Issue date must be before expiration date.']);
-        }
 
         $data['status'] = 'pending_review'; // Default status
         $data['created_by'] = Auth::id(); // Set the creator of the certificate
-        
+
+        // Don't set issue_date and exp_date during creation - they will be set when certificate is issued
+        $data['issue_date'] = null;
+        $data['exp_date'] = null;
+
         $newCert = Cert::create($data);
 
         // Create or update client information if client_id is empty or not selected
@@ -158,7 +154,8 @@ class CertController extends Controller
 
     public function update(Request $request, Cert $cert)
     {
-        $data = $request->validate([
+        // Base validation rules
+        $validationRules = [
             'cert_type' => 'required|string|max:255',
             'iso_num' => 'required|string|max:255',
             'comp_name' => 'required|string|max:255',
@@ -170,9 +167,15 @@ class CertController extends Controller
             'phone1_name' => 'required|string|max:255',
             'phone2_name' => 'nullable|string|max:255',
             'reg_date' => 'required|date',
-            'issue_date' => 'required|date',
-            'exp_date' => 'required|date'
-        ]);
+        ];
+
+        // Only validate issue_date and exp_date if certificate is already issued
+        if ($cert->status === 'certificate_issued' && $cert->issue_date) {
+            $validationRules['issue_date'] = 'required|date';
+            $validationRules['exp_date'] = 'required|date|after:issue_date';
+        }
+
+        $data = $request->validate($validationRules);
 
         $data['last_edited_at'] = now();
         $data['last_edited_by'] = Auth::id();
@@ -188,11 +191,6 @@ class CertController extends Controller
 
         $cert->update($data);
 
-        // Automatically generate the certificate PDF if status is final approved
-        if ($cert->status === 'certificate_issued') {
-            // Generate the PDF
-            $this->generateCertificatePDF($cert); // Directly pass the Cert instance
-        }
         return redirect()->route('certificates.index')->with('success', 'Certificate updated successfully.');
     }
 
@@ -295,24 +293,42 @@ class CertController extends Controller
 
     public function hodApproval(Request $request, Cert $cert)
     {
-
         $action = $request->input('action');
 
         if ($action === 'approve') {
+            // Set issue date to today when certificate is approved
+            $issueDate = now()->toDateString();
+            $expDate = now()->addYears(3)->toDateString(); // 3 years from issue date
+
             $cert->status = 'certificate_issued';
             $cert->hod_approved = true;
+            $cert->issue_date = $issueDate;
+            $cert->exp_date = $expDate;
             $cert->save();
 
             // Generate the final certificate PDF
             $this->generateCertificatePDF($cert);
 
             return redirect()->route('certificates.preview', $cert->id)
-                ->with('success', 'Certificate approved and final PDF generated.');
+                ->with('success', 'Certificate approved and final PDF generated. Issue date set to today, expiry date set to 3 years from now.');
         } elseif ($action === 'reject') {
+            // Validate the comment
+            $request->validate([
+                'comment' => 'required|string|max:1000',
+            ]);
+
             $cert->status = 'need_revision';
             $cert->revision_source = 'hod';
             $cert->hod_approved = false;
             $cert->save();
+
+            // Save the rejection comment
+            CertComment::create([
+                'cert_id' => $cert->id,
+                'comment' => $request->input('comment'),
+                'commented_by' => 'HoD',
+                'comment_type' => 'revision_request'
+            ]);
 
             return redirect()->route('certificates.preview', $cert->id)
                 ->with('error', 'Certificate sent back for revision.');
@@ -431,7 +447,7 @@ class CertController extends Controller
             if ($request->filled('comment')) {
                 CertComment::create([
                     'cert_id' => $cert->id,
-                    'comment' => 'Client has verified the cetificate',
+                    'comment' => 'Client has verified the certificate',
                     'commented_by' => $request->input('name', 'Client'),
                     'comment_type' => 'verification'
                 ]);
@@ -467,6 +483,7 @@ class CertController extends Controller
         return redirect()->route('certificates.verify', ['token' => $token])
             ->with('success', 'Certificate verification status updated successfully.');
     }
+
     // New method to fetch client data for Ajax requests
     public function getClientData($id)
     {
@@ -496,7 +513,7 @@ class CertController extends Controller
             ->with('success', 'Certificate draft confirmed successfully.');
     }
 
-    protected function generateCertificatePDF(Cert $cert)
+    protected function generatePDFWithData(Cert $cert, $isDraft = false)
     {
         // 1. Get the active template for this cert type
         $template = Template::where('cert_type', $cert->cert_type)
@@ -504,68 +521,95 @@ class CertController extends Controller
             ->first();
 
         if (!$template || !Storage::disk('public')->exists($template->file_path)) {
-            throw new \Exception('No active template file found for this certificate type.');
+            throw new \Exception('No active template found for this certificate type.');
         }
 
-        // 2. Get the full path to the template PDF
+        // 2. Get full path of template
         $templatePath = Storage::disk('public')->path($template->file_path);
 
-        // 3. Prepare output file path
-        $fileName = 'certificates/' . $cert->id . '_' . now()->format('YmdHis') . '.pdf';
-        $outputPath = Storage::disk('public')->path($fileName);
-
-        // 4. Use FPDI to import the template and overlay data
+        // 3. Create PDF using FPDI
         $pdf = new Fpdi('P', 'mm', 'A4');
         $pageCount = $pdf->setSourceFile($templatePath);
         $tplIdx = $pdf->importPage(1);
         $pdf->AddPage();
         $pdf->useTemplate($tplIdx);
 
-        // 4. Add cert data overlay
+        // 4. Add cert data overlay with consistent positioning
         $pdf->SetTextColor(0, 0, 0);
         $pageWidth = $pdf->GetPageWidth();
 
-        $pdf->SetFont('Helvetica', 'B', 32);
+        // Company Name - consistent positioning
+        $pdf->SetFont('Helvetica', 'B', 26);
         $textWidth = $pdf->GetStringWidth($cert->comp_name);
         $pdf->SetXY(($pageWidth - $textWidth) / 2, 90);
         $pdf->Write(8, $cert->comp_name);
 
-        $pdf->SetFont('Helvetica', '', 16);
+        // Address - consistent positioning
+        $pdf->SetFont('Helvetica', '', 12);
+
         $address = $cert->comp_address1;
         if ($cert->comp_address2) {
-            $address .= ', ' . $cert->comp_address2;
+            $address .= "\n" . $cert->comp_address2; // Use \n for line break
         }
         if ($cert->comp_address3) {
-            $address .= ', ' . $cert->comp_address3;
+            $address .= "\n" . $cert->comp_address3;
         }
 
         // Center-align using MultiCell
-        $pdf->SetXY(10, 105); // X = margin, Y = vertical position
+        $pdf->SetXY(20, 102); // X = margin, Y = vertical position
         $pdf->MultiCell(
-            $pageWidth - 20, // width with 10mm left/right margins
-            10,              // height per line
+            $pageWidth - 40, // width with 20mm horizontal margin (10mm on each side)
+            6,               // height per line (adjust as needed)
             $address,
             0,               // no border
             'C'              // center align
         );
 
+        // ISO Number - consistent positioning
         $pdf->SetFont('Helvetica', 'B', 28);
         $textWidth = $pdf->GetStringWidth($cert->iso_num);
         $pdf->SetXY(($pageWidth - $textWidth) / 2, 145);
         $pdf->Write(8, $cert->iso_num);
 
+        // Certificate Number
         $pdf->SetFont('Helvetica', '', 14);
         $pdf->SetXY(87, 160.5);
-        $pdf->Write(8, $cert->cert_number);
+        if ($isDraft) {
+            $pdf->Write(8, $cert->cert_number ?? '[Certificate Number]');
+        } else {
+            $pdf->Write(8, $cert->cert_number);
+        }
 
+        // Registration Date
         $pdf->SetXY(88, 167.5);
         $pdf->Write(8, $cert->reg_date->format('d M Y'));
 
+        // Issue Date
         $pdf->SetXY(74, 174.5);
-        $pdf->Write(8, $cert->issue_date->format('d M Y'));
+        if ($isDraft) {
+            $pdf->Write(8, '[Issue Date]');
+        } else {
+            $pdf->Write(8, $cert->issue_date->format('d M Y'));
+        }
 
+        // Expiry Date
         $pdf->SetXY(76, 181.5);
-        $pdf->Write(8, $cert->exp_date->format('d M Y'));
+        if ($isDraft) {
+            $pdf->Write(8, '[Expiry Date]');
+        } else {
+            $pdf->Write(8, $cert->exp_date->format('d M Y'));
+        }
+
+        return $pdf;
+    }
+
+    protected function generateCertificatePDF(Cert $cert)
+    {
+        $pdf = $this->generatePDFWithData($cert, false);
+
+        // Prepare output file path
+        $fileName = 'certificates/' . $cert->id . '_' . now()->format('YmdHis') . '.pdf';
+        $outputPath = Storage::disk('public')->path($fileName);
 
         // Save the PDF to storage
         $pdf->Output($outputPath, 'F');
@@ -579,75 +623,16 @@ class CertController extends Controller
 
     public function previewDraft(Cert $cert)
     {
-        // 1. Get the active template for this cert type
-        $template = Template::where('cert_type', $cert->cert_type)
-            ->where('is_active', true)
-            ->first();
+        try {
+            $pdf = $this->generatePDFWithData($cert, true);
 
-        if (!$template || !Storage::disk('public')->exists($template->file_path)) {
-            abort(404, 'No active template found for this certificate type.');
+            // Output inline (no download)
+            return response($pdf->Output('S'), 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'inline; filename="certificate_draft.pdf"');
+        } catch (\Exception $e) {
+            abort(404, $e->getMessage());
         }
-
-        // 2. Get full path of template
-        $templatePath = Storage::disk('public')->path($template->file_path);
-
-        // 3. Create PDF using FPDI
-        $pdf = new Fpdi('P', 'mm', 'A4');
-        $pageCount = $pdf->setSourceFile($templatePath);
-        $tplIdx = $pdf->importPage(1);
-        $pdf->AddPage();
-        $pdf->useTemplate($tplIdx);
-
-        // 4. Add cert data overlay
-        $pdf->SetTextColor(0, 0, 0);
-        $pageWidth = $pdf->GetPageWidth();
-
-        $pdf->SetFont('Helvetica', 'B', 32);
-        $textWidth = $pdf->GetStringWidth($cert->comp_name);
-        $pdf->SetXY(($pageWidth - $textWidth) / 2, 90);
-        $pdf->Write(8, $cert->comp_name);
-
-        $pdf->SetFont('Helvetica', '', 16);
-        $address = $cert->comp_address1;
-        if ($cert->comp_address2) {
-            $address .= ', ' . $cert->comp_address2;
-        }
-        if ($cert->comp_address3) {
-            $address .= ', ' . $cert->comp_address3;
-        }
-
-        // Center-align using MultiCell
-        $pdf->SetXY(10, 105); // X = margin, Y = vertical position
-        $pdf->MultiCell(
-            $pageWidth - 20, // width with 10mm left/right margins
-            10,              // height per line
-            $address,
-            0,               // no border
-            'C'              // center align
-        );
-
-        $pdf->SetFont('Helvetica', 'B', 24);
-        $textWidth = $pdf->GetStringWidth($cert->iso_num);
-        $pdf->SetXY(($pageWidth - $textWidth) / 2, 145);
-        $pdf->Write(8, $cert->iso_num);
-
-        $pdf->SetFont('Helvetica', '', 12);
-        $pdf->SetXY(85, 160.5);
-        $pdf->Write(8, '-');
-
-        $pdf->SetXY(87, 168.5);
-        $pdf->Write(8, $cert->reg_date->format('d M Y'));
-
-        $pdf->SetXY(70, 176.5);
-        $pdf->Write(8, $cert->issue_date->format('d M Y'));
-
-        $pdf->SetXY(72, 184);
-        $pdf->Write(8, $cert->exp_date->format('d M Y'));
-
-        // 5. Output inline (no download)
-        return response($pdf->Output('S'), 200)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="certificate_draft.pdf"');
     }
 
     public function assignNumber(Request $request, Cert $cert)

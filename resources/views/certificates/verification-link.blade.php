@@ -54,7 +54,7 @@
         <!-- Step 1: Verification Link -->
         <div class="form-group">
             <label style="display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600;">
-                <span style="background-color: var(--primary-color); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">1</span>
+                <span style="background-color: var(--primary-color); color: var(--bg-color); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">1</span>
                 Verification Link
             </label>
             
@@ -64,7 +64,7 @@
                        value="{{ $verificationUrl }}" 
                        readonly 
                        style="flex: 1; background-color: var(--hover-color);">
-                <button class="btn-custom-primary" type="button" onclick="copyToClipboard()" id="copy-link-btn">
+                <button class="btn-copy" type="button" onclick="copyToClipboard()" id="copy-link-btn">
                     <i class="fas fa-copy"></i> Copy
                 </button>
             </div>
@@ -80,7 +80,7 @@
         <!-- Step 2: Email Template -->
         <div class="form-group">
             <label style="display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600;">
-                <span style="background-color: var(--primary-color); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">2</span>
+                <span style="background-color: var(--primary-color); color: var(--bg-color); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">2</span>
                 Email Template
             </label>
             
@@ -89,7 +89,7 @@
                     <h3 style="margin: 0; font-size: 16px; color: var(--text-color);">
                         <i class="fas fa-envelope"></i> Email
                     </h3>
-                    <button class="btn-custom-primary-sm" onclick="copyEmailTemplate()" id="copy-email-btn" style="margin-left: auto;">
+                    <button class="btn-copy" onclick="copyEmailTemplate()" id="copy-email-btn" style="margin-left: auto;">
                         <i class="fas fa-copy"></i> Copy Template
                     </button>
                 </div>
@@ -113,7 +113,7 @@ Thank you for your cooperation.
 
 Best regards,
 [Your Name]
-{{ config('app.name') }}</textarea>
+ISCB</textarea>
             </div>
         </div>
 

@@ -169,6 +169,24 @@ h1 {
     background-color: rgba(128, 128, 128, 0.1);
 }
 
+.table tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: var(--hover-color);
+}
+
+/* Prevent action column from triggering row click */
+.table tbody tr td:last-child {
+    cursor: default;
+}
+
+.table tbody tr td:last-child:hover {
+    background-color: transparent;
+}
+
 /* Client card styles */
 .client-card {
     border-bottom: 1px solid #eee;

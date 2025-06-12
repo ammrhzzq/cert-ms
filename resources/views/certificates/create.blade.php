@@ -5,9 +5,53 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/data-entry.css') }}">
+<link rel="stylesheet" href="{{ asset('css/preview.css') }}">
 @endsection
 
 @section('content')
+@php
+$statusSteps = [
+'create_certificate' => 'Create Certificate',
+'pending_review' => 'Pending Review',
+'pending_client_verification' => 'Pending Client Verification',
+'client_verified' => 'Client Verified',
+'pending_hod_approval' => 'Pending HOD Approval',
+'certificate_issued' => 'Certificate Issued',
+];
+
+$currentStatus = 'create_certificate'; // Current step for create page
+$statusOrder = array_keys($statusSteps);
+$currentStatusIndex = array_search($currentStatus, $statusOrder);
+$stepNumber = 1;
+@endphp
+
+<div class="progress-card">
+    <h1>Certificate Progress</h1>
+    <div class="progress-body">
+        <div class="cert-progress-wrapper">
+            <div class="cert-progress-bar">
+                @foreach ($statusSteps as $statusKey => $label)
+                @php
+                $stepIndex = array_search($statusKey, $statusOrder);
+                $isCompleted = $stepIndex < $currentStatusIndex;
+                    $isCurrent=$stepIndex===$currentStatusIndex;
+                    @endphp
+
+                    <div class="cert-step {{ $isCompleted ? 'completed' : '' }} {{ $isCurrent ? 'current' : '' }}">
+                    <div class="circle">
+                        {{ $stepNumber }}
+                        @php $stepNumber++; @endphp
+                    </div>
+                    <div class="label">{{ $label }}</div>
+            </div>
+            @if (!$loop->last)
+            <div class="connector {{ $stepIndex < $currentStatusIndex ? 'completed' : ''}}"></div>
+            @endif
+            @endforeach
+        </div>
+    </div>
+</div>
+</div>
 <div class="container">
     <h1>Create Certificate</h1>
     <div class="form-container">
@@ -100,28 +144,12 @@
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="form-column">
+            <div class="form-column">
                     <div class="form-group">
                         <label>Registration Date</label>
                         <input type="date" id="reg_date" name="reg_date" required>
                     </div>
                 </div>
-
-                <div class="form-column">
-                    <div class="form-group">
-                        <label>Issue Date</label>
-                        <input type="date" name="issue_date" required>
-                    </div>
-                </div>
-
-                <div class="form-column">
-                    <div class="form-group">
-                        <label>Expired Date</label>
-                        <input type="date" name="exp_date" required>
-                    </div>
-                </div>
-            </div>
 
             <div class="button-group">
                 <button type="reset" class="btn-back">Reset</button>

@@ -51,12 +51,12 @@
 
             <div class="form-group">
                 <label>Issue Date</label>
-                <input type="text" value="{{ \Carbon\Carbon::parse($cert->issue_date)->format('d M Y') }}" readonly>
+                <input type="text" value="TBD" readonly>
             </div>
 
             <div class="form-group">
                 <label>Expiry Date</label>
-                <input type="text" value="{{ \Carbon\Carbon::parse($cert->exp_date)->format('d M Y') }}" readonly>
+                <input type="text" value="TBD" readonly>
             </div>
 
             {{-- Editable field --}}
