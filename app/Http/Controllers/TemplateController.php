@@ -7,6 +7,7 @@ use App\Models\Cert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Log;
 use Spatie\PdfToImage\Pdf;
 
 class TemplateController extends Controller{
@@ -189,5 +190,25 @@ class TemplateController extends Controller{
         }
 
         abort(404);
+    }
+
+    public function toggleActive(Template $template)
+    {
+        try {
+            // If activating this template, deactivate others of the same type
+            if (!$template->is_active) {
+                Template::where('cert_type', $template->cert_type)
+                    ->where('id', '!=', $template->id)
+                    ->update(['is_active' => false]);
+            }
+            
+            $template->update(['is_active' => !$template->is_active]);
+            
+            $status = $template->is_active ? 'activated' : 'deactivated';
+            return redirect()->route('templates.index')->with('success', "Template {$status} successfully.");
+        } catch (\Exception $e) {
+            Log::error('Template status toggle failed: ' . $e->getMessage());
+            return redirect()->route('templates.index')->with('error', 'Failed to update template status.');
+        }
     }
 }

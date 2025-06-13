@@ -13,7 +13,8 @@ class CertComment extends Model
         'cert_id',
         'comment',
         'commented_by',
-        'comment_type'
+        'comment_type',
+        'revision_source',
     ];
 
     // Relationship with Cert model

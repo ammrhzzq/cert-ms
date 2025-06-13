@@ -45,12 +45,12 @@
                 {{ $client->comp_address3 }}
             </td>
             <td>
-                {{ $client->phone1_name }}<br>
-                {{ $client->phone2_name }}
+                1. {{ $client->phone1_name }}<br>
+                2. {{ $client->phone2_name }}
             </td>
             <td>
-                {{ $client->comp_phone1 }}<br>
-                {{ $client->comp_phone2 }}
+                1. {{ $client->comp_phone1 }}<br>
+                2. {{ $client->comp_phone2 }}
             </td>
             <td>
                 <div class="action-icons">

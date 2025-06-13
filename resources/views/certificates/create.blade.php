@@ -74,8 +74,6 @@
                     <select name="cert_type" required>
                         <option value="" selected disabled>Select Certificate Type</option>
                         <option value="ISMS">ISMS</option>
-                        <option value="BCMS">BCMS</option>
-                        <option value="PIMS">PIMS</option>
                     </select>
                 </div>
             </div>
@@ -86,8 +84,6 @@
                     <select name="iso_num" required>
                         <option value="" disabled selected>Select ISO Number</option>
                         <option value="ISO/IEC 27001:2022">ISO/IEC 27001:2022</option>
-                        <option value="ISO 22301:2019">ISO 22301:2019</option>
-                        <option value="ISO/IEC 27701:2019">ISO/IEC 27701:2019</option>
                     </select>
                 </div>
             </div>
@@ -190,11 +186,6 @@
         certTypeSelect.addEventListener('change', function() {
             if (this.value === 'ISMS') {
                 isoNumSelect.value = 'ISO/IEC 27001:2022';
-            }
-            else if (this.value === 'BCMS') {
-                isoNumSelect.value = 'ISO 22301:2019';
-            } else if (this.value === 'PIMS') {
-                isoNumSelect.value = 'ISO/IEC 27701:2019';
             }
         });
     });

@@ -8,6 +8,7 @@ use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TemplateController;
+use App\Http\Controllers\NotificationController;
 
 // Redirect root to login page
 Route::get('/', function () {
@@ -41,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/api/notifications', [NotificationController::class, 'getNotifications'])->name('notifications.get');
     
     // Client routes
     Route::get('/client', [ClientController::class, 'index'])->name('clients.index');
@@ -50,7 +52,6 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/client/{client}/update', [ClientController::class, 'update'])->name('clients.update');
     Route::delete('/client/{client}/destroy', [ClientController::class, 'destroy'])->name('clients.destroy');
     Route::get('/client/{id}/data', [CertController::class, 'getClientData'])->name('client.data');
-
 
     // Certificate routes
     Route::get('/certificate', [CertController::class, 'index'])->name('certificates.index');
@@ -72,6 +73,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/certificates/{cert}/assign-number', [CertController::class, 'showAssignNumberForm'])->name('certificates.assign-number.form');
     Route::post('/certificates/{cert}/assign-number', [CertController::class, 'assignNumber'])->name('certificates.assign-number');
     Route::get('/certificates/{cert}/preview-final', [CertController::class, 'previewFinal'])->name('certificates.preview-final');
+    Route::patch('/template/{template}/toggle', [TemplateController::class, 'toggleActive'])->name('templates.toggle');
+    Route::patch('/template/{template}/toggle-active', [TemplateController::class, 'toggleActive'])->name('templates.toggle-active');
 
     // User management routes
     Route::get('/user', [UserController::class, 'index'])->name('users.index');

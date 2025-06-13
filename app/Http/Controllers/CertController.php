@@ -158,23 +158,17 @@ class CertController extends Controller
 
         if ($hasChanges) {
             $data['last_edited_at'] = now();
+            
+            if ($cert->status === 'need_revision') {
+                if ($cert->revision_source === 'hod') {
+                    $data['status'] = 'pending_hod_approval';
+                }  else {
+                $data['status'] = 'pending_client_verification';
+            }
+                $data['revision_source'] = null;
+            }
+
             // $data['last_edited_by'] = auth()->id(); // if you track editor
-            $cert->update($data);
-            return redirect()->route('certificates.index')->with('success', 'Certificate updated successfully.');
-        } else {
-            // No changes, do not update last_edited_at
-            return redirect()->route('certificates.index')->with('info', 'No changes detected.');
-        }
-
-        if ($cert->status === 'need_revision') {
-            if ($cert->revision_source === 'hod') {
-                $data['status'] = 'pending_hod_approval';
-            }  else {
-            $data['status'] = 'pending_client_verification';
-        }
-            $data['revision_source'] = null;
-        }
-
         $cert->update($data);
 
         // Automatically generate the certificate PDF if status is final approved
@@ -182,7 +176,12 @@ class CertController extends Controller
             // Generate the PDF
             $this->generateCertificatePDF($cert); // Directly pass the Cert instance
         }
+
         return redirect()->route('certificates.index')->with('success', 'Certificate updated successfully.');
+        } else {
+            // No changes, do not update last_edited_at
+            return redirect()->route('certificates.index')->with('info', 'No changes detected.');
+        }
     }
 
     public function destroy(Cert $cert) {
@@ -404,7 +403,8 @@ class CertController extends Controller
         return view('certificates.verify', [
             'cert' => $cert,
             'verification' => $verification,
-            'comments' => $comments
+            'comments' => $comments,
+            'revision_source' => 'client'
         ]);
     }
 
@@ -432,14 +432,12 @@ class CertController extends Controller
             $cert->status = 'client_verified';
             $cert->save();
 
-            if ($request->filled('comment')) {
-                CertComment::create([
-                    'cert_id' => $cert->id,
-                    'comment' => 'Client has verified the cetificate',
-                    'commented_by' => $request->input('name', 'Client'),
-                    'comment_type' => 'verification'
-                ]);
-            }
+            CertComment::create([
+                'cert_id' => $cert->id,
+                'comment' => 'Client has verified the cetificate',
+                'commented_by' => $request->input('name'),
+                'comment_type' => 'verification'
+            ]);
             
             return redirect()->route('certificates.verify', ['token' => $token])
                 ->with('success', 'Certificate verified successfully.');

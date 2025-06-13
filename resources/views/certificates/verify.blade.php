@@ -34,8 +34,8 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h3>{{ $cert->comp_name }} - {{ $cert->cert_type }}</h3>
-                        <span class="status-badge status-{{ $verification->is_verified ? 'client_verified' : 'pending_client_verification' }}">
-                            {{ $verification->is_verified ? 'Verified' : 'Pending Verification' }}
+                        <span class="status-badge status-{{ $cert->status }}">
+                            {{ ucfirst(str_replace('_', ' ', $cert->status)) }}
                         </span>
                     </div>
 

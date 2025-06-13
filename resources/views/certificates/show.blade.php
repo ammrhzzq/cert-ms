@@ -139,6 +139,24 @@
                 </div>
             @endif
 
+            @if(
+                in_array($cert->status, [
+                    'client_verified',
+                    'pending_hod_approval',
+                    'certificate_issued',
+                    'need_revision'
+                ]) && isset($verificationUrl)
+            )
+                <div class="detail-group">
+                    <div class="detail-label">Client Verification Page</div>
+                    <div class="detail-value">
+                        <button class="btn-action" onclick="window.open('{{ $verificationUrl }}', '_blank')" type="button">
+                            <i class="fas fa-external-link-alt"></i> Open Verification Page
+                        </button>
+                    </div>
+                </div>
+            @endif
+
             <div class="detail-group">
                 <div class="detail-label">Status</div>
                 <div class="detail-value">
@@ -243,7 +261,7 @@
                         <div class="detail-value">
                             <ul style="list-style: none; padding-left: 0;">
                                 @foreach($comments as $comment)
-                                    @if($comment->comment_type == 'revision_request' && $cert->revision_source === 'client')
+                                    @if($comment->comment_type == 'revision_request' && $comment->revision_source === 'client')
                                         <li style="background: #f9f9f9; border: 1px solid #e0e0e0; padding: 16px; border-radius: 6px; margin-bottom: 18px;">
                                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                                 <p style="font-size: 15px;">{{  $comment->commented_by }}</p>
@@ -273,7 +291,7 @@
                         <div class="detail-value">
                             <ul style="list-style: none; padding-left: 0;">
                                 @foreach($comments as $comment)
-                                    @if($comment->comment_type == 'revision_request' && $cert->revision_source === 'hod')
+                                    @if($comment->comment_type == 'revision_request' && $comment->revision_source === 'hod')
                                         <li style="background: #f9f9f9; border: 1px solid #e0e0e0; padding: 16px; border-radius: 6px; margin-bottom: 18px;">
                                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                                 <p style="font-size: 15px;">{{  $comment->commented_by }}</p>
@@ -370,8 +388,8 @@
                 <input type="hidden" name="action" value="reject">
                 <input type="text" id="hodRejectInput" name="hod_reject_text" placeholder="Type REJECT to continue" required>
                 <div class="form-group" style="margin-top: 15px;">
-                    <label for="hod_reject_comment">Comment (required):</label>
-                    <textarea name="hod_reject_comment" id="hod_reject_comment" rows="4" class="form-control" required></textarea>
+                    <p>Comment <strong>(Required)</strong>:</p>
+                    <textarea name="hod_reject_comment" id="hod_reject_comment" rows="4" class="form-control" style="margin-top: 15px;" required></textarea>
                 </div>
                 <div class="modal-actions" style="margin-top: 15px;">
                     <button type="submit" class="confirm-btn">Reject</button>
@@ -380,6 +398,91 @@
             </form>
         </div>
     </div>
+@endif
+
+
+{{-- Notification for Assign Number --}}
+@if(isset($verification) && $verification->is_verified && $cert->status === 'client_verified' && in_array(auth()->user()->role, ['manager', 'hod']))
+<div id="verificationNotification" class="verification pulse-animation">
+    <button class="verification-close" onclick="closeNotification()">
+        <i class="fas fa-times"></i>
+    </button>
+
+    <div class="verification-header">
+        <div class="verification-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div>
+            <h4 class="verification-title">Client has verified the data</h4>
+            <p class="verification-subtitle">Verified on {{ $verification->verified_at }}</p>
+        </div>
+    </div>
+
+    <div class="verification-content">
+        <p><strong>Status:</strong>
+            <span class="verification-status">
+                <i class="fas fa-clock"></i> Client Verified
+            </span>
+        </p>
+    </div>
+
+    <div class="verification-action">
+        <a href="{{ route('certificates.assign-number.form', $cert->id) }}" class="verification-btn primary">
+            Assign Certificate Number
+        </a>
+    </div>
+</div>
+@endif
+
+{{-- Verification Notification --}}
+@if($cert->status === 'pending_client_verification')
+<div id="verificationNotification" class="verification pulse-animation">
+    <button class="verification-close" onclick="closeNotification()">
+        <i class="fas fa-times"></i>
+    </button>
+
+    <div class="verification-header">
+        <div class="verification-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div>
+            <h4 class="verification-title">Client Verification Required</h4>
+            <p class="verification-subtitle">{{ $cert->comp_name }}</p>
+        </div>
+    </div>
+
+    <div class="verification-content">
+        <p><strong>Status:</strong>
+            <span class="verification-status">
+                <i class="fas fa-clock"></i> Pending Client Verification
+            </span>
+        </p>
+        @if(isset($verification) && $verification)
+            <p><strong>Link Expires:</strong> {{ \Carbon\Carbon::parse($verification->expires_at)->format('d M Y H:i') }}</p>
+        @endif
+    </div>
+
+    <div class="verification-action">
+        @if(isset($verification))
+        <a href="{{ route('certificates.verification-link', $cert->id) }}" class="verification-btn primary">
+            <i class="fas fa-link"></i> View Link
+        </a>
+        <form method="POST" action="{{ route('certificates.renew-verification', $cert->id) }}" style="display: inline;">
+            @csrf
+            <button type="submit" class="verification-btn">
+                <i class="fas fa-sync-alt"></i> Renew Link
+            </button>
+        </form>
+        @else
+        <form method="POST" action="{{ route('certificates.renew-verification', $cert->id) }}" style="display: inline;">
+            @csrf
+            <button type="submit" class="verification-btn primary">
+                <i class="fas fa-plus"></i> Generate Link
+            </button>
+        </form>
+        @endif
+    </div>
+</div>
 @endif
 
 <script>
@@ -406,5 +509,28 @@
     function closeRejectModal(){
         document.getElementById('rejectModal').style.display = 'none';
     }
+
+
+    // Notification Functions
+    function closeNotification() {
+        const notification = document.getElementById('verificationNotification');
+        if (notification) {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 400);
+        }
+    }
+
+    // Show notification on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const notification = document.getElementById('verificationNotification');
+        if (notification) {
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 500);
+        }
+    });
+    
 </script>
 @endsection

@@ -43,7 +43,7 @@
 <body>
     <header class="main-header">
         <div class="container">
-            <h2>Certificate Verification Portal</h2>
+            <h2>Certificate Verification Page</h2>
         </div>
     </header>
     
@@ -53,7 +53,7 @@
     
     <footer class="main-footer">
         <div class="container">
-            <p>&copy; {{ date('Y') }} Your Company Name. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} CyberSecurity Malaysia @ UPM. All rights reserved.</p>
         </div>
     </footer>
     
