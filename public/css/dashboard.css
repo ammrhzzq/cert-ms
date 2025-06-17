@@ -192,30 +192,37 @@
 
 .blue-border {
     border-top: 3px solid var(--blue-border);
+    border-left: 3px solid var(--blue-border);
 }
 
 .gray-border {
     border-top: 3px solid var(--gray-border);
+    border-left: 3px solid var(--gray-border);
 }
 
 .yellow-border {
     border-top: 3px solid var(--yellow-border);
+    border-left: 3px solid var(--yellow-border);
 }
 
 .red-border {
     border-top: 3px solid var(--red-border);
+    border-left: 3px solid var(--red-border);
 }
 
 .green-border {
     border-top: 3px solid var(--green-border);
+    border-left: 3px solid var(--green-border);
 }
 
 .orange-border {
     border-top: 3px solid var(--orange-border);
+    border-left: 3px solid var(--orange-border);
 }
 
 .border-color {
     border-top: 3px solid var(--text-color);
+    border-left: 3px solid var(--text-color);
 }
 
 /* Responsive design */

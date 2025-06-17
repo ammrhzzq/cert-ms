@@ -69,7 +69,12 @@ $stepNumber = 1;
 </div>
 
 <div class="detail-container">
-    <h1>Certificate Details</h1>
+    <div class="header">
+        <h1>Certificate Details</h1>
+        <span class="status-badge status-{{ $cert->status }}">
+            {{ ucfirst(str_replace('_', ' ', $cert->status)) }}
+        </span>
+    </div>
 
     @if (session('success'))
     <div class="alert alert-success">
@@ -105,24 +110,10 @@ $stepNumber = 1;
         <div class="detail-value">{{ $cert->comp_address3 }}</div>
     </div>
 
-    <div class="detail-row">
-        <div class="detail-column">
-            <div class="detail-group">
-                <div class="detail-label">Registration Date</div>
-                <div class="detail-value">{{ \Carbon\Carbon::parse($cert->reg_date)->format('d/m/Y') }}</div>
-            </div>
-        </div>
-        <div class="detail-column">
-            <div class="detail-group">
-                <div class="detail-label">Issue Date</div>
-                <div class="detail-value">TBD</div>
-            </div>
-        </div>
-        <div class="detail-column">
-            <div class="detail-group">
-                <div class="detail-label">Expired Date</div>
-                <div class="detail-value">TBD</div>
-            </div>
+    <div class="detail-column">
+        <div class="detail-group">
+            <div class="detail-label">Registration Date</div>
+            <div class="detail-value">{{ \Carbon\Carbon::parse($cert->reg_date)->format('d/m/Y') }}</div>
         </div>
     </div>
 
@@ -132,15 +123,6 @@ $stepNumber = 1;
         <div class="detail-value">{{ $cert->cert_number }}</div>
     </div>
     @endif
-
-    <div class="detail-group">
-        <div class="detail-label">Status</div>
-        <div class="detail-value">
-            <span class="status-badge status-{{ $cert->status }}">
-                {{ ucfirst(str_replace('_', ' ', $cert->status)) }}
-            </span>
-        </div>
-    </div>
 
     @if ($cert->status === 'need_revision')
     @if(isset($comments) && count($comments) > 0)
@@ -226,21 +208,29 @@ $stepNumber = 1;
         </div>
         <div>
             <h4 class="verification-title">Client has verified the data</h4>
-            <p class="verification-subtitle">Verified on {{ $verification->verified_at }}</p>
+            <p class="verification-subtitle">Verified on {{ $verification->verified_at->format('d M Y, H:i') }}</p>
         </div>
     </div>
 
     <div class="verification-content">
         <p><strong>Status:</strong>
             <span class="verification-status">
-                <i class="fas fa-clock"></i> Client Verified
+                <i class="fas fa-check-circle"></i> Client Verified
             </span>
         </p>
     </div>
 
     <div class="verification-action">
-        <a href="{{ route('certificates.assign-number.form', $cert->id) }}" class="verification-btn primary">
-            Assign Certificate Number
+        <a href="{{ route('certificates.assign-number.form', $cert->id) }}"
+            class="verification-btn primary"
+            onclick="trackAssignNumberClick()">
+            <i class="fas fa-pencil"></i> Assign Cert Number
+        </a>
+        <a href="{{ route('certificates.verification-link', $cert->id) }}"
+            class="verification-btn secondary"
+            style="margin-left: 10px;"
+            onclick="trackViewVerificationClick()">
+            <i class="fas fa-eye"></i> Verification Details
         </a>
     </div>
 </div>

@@ -5,6 +5,18 @@ body {
     padding: 0;
 }
 
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+h1 {
+    padding-top: 20px;
+    color: var(--text-color);
+    margin: 0;
+}
+
 .progress-card {
     position: relative;
     width: 100%;
@@ -12,6 +24,7 @@ body {
     margin: 0 auto;
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
+    border-top: 3px solid var(--primary-color);
     border-left: 3px solid var(--primary-color);
     border-radius: 8px;
     padding: 32px 24px;
@@ -93,6 +106,7 @@ body {
     color: var(--bg-color) !important;
     border: 2px solid var(--red-border);
 }
+
 .cert-step.need-revision .label {
     color: var(--red-border) !important;
     font-weight: bold;
@@ -194,7 +208,7 @@ input[type="submit"]:hover {
 }
 
 .confirm-btn:hover {
-   opacity: 1;
+    opacity: 1;
 }
 
 .approve-btn {
@@ -293,36 +307,40 @@ textarea.form-control {
 /* Status Badge Styling */
 .status-badge {
     display: inline-block;
+    white-space: nowrap;
     padding: 6px 12px;
-    border-radius: 6px;
-    font-weight: bold;
-    color: white;
+    border-radius: 16px;
+    font-size: 14px;
 }
 
 .status-pending_review {
-    background-color: var(--gray-border);
+    background-color: #ebebeb;
+    color: var(--gray-border);
 }
 
 .status-pending_client_verification {
-    background-color: var(--yellow-border);
-    color: #000000;
+    background-color: #feffd4;
+    color: #bdb000;
 }
 
 .status-client_verified {
-    background-color: var(--orange-border);
-    color: #000000;
+    background-color: #ffebd4;
+    color: var(--orange-border);
 }
 
 .status-need_revision {
-    background-color: var(--red-border);
+    background-color: #fcdede;
+    color: var(--red-border);
 }
 
 .status-pending_hod_approval {
-    background-color: var(--green-border);
+    background-color: #e0ffd8;
+    color: var(--green-border);
 }
 
 .status-certificate_issued {
-    background-color: var(--blue-border);
+    background-color: #e0eefd;
+    color: var(--blue-border);
 }
 
 .status-success {
@@ -569,8 +587,13 @@ textarea.form-control {
 
 /* Modal Animations */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes slideUp {
@@ -578,6 +601,7 @@ textarea.form-control {
         opacity: 0;
         transform: translateY(30px) scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -611,11 +635,11 @@ textarea.form-control {
         padding: 24px;
         margin: 20px;
     }
-    
+
     .modal-actions {
         flex-direction: column;
     }
-    
+
     .modal-actions .confirm-btn,
     .modal-actions .btn-back {
         width: 100%;
@@ -638,7 +662,7 @@ textarea.form-control {
     position: fixed;
     top: 100px;
     right: 20px;
-    width: 350px;
+    width: 380px;
     background: var(--primary-color);
     color: var(--bg-color);
     border-radius: 12px;
@@ -659,7 +683,7 @@ textarea.form-control {
     right: 20px;
     width: 0;
     height: 0;
-  
+
 }
 
 .verification-header {
@@ -717,7 +741,7 @@ textarea.form-control {
     border-radius: 16px;
     text-decoration: none;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     transition: all 0.3s ease;
     display: inline-flex;

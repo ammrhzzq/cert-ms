@@ -89,28 +89,12 @@
                 </div>
             </div>
 
-            <div class="form-row">
                 <div class="form-column">
                     <div class="form-group">
                         <label>Registration Date</label>
                         <input type="date" name="reg_date" value="{{ $cert->reg_date }}" required>
                     </div>
                 </div>
-
-                <div class="form-column">
-                    <div class="form-group">
-                        <label>Issue Date</label>
-                        <input type="date" name="issue_date" value="{{ $cert->issue_date }}" required>
-                    </div>
-                </div>
-
-                <div class="form-column">
-                    <div class="form-group">
-                        <label>Expired Date</label>
-                        <input type="date" name="exp_date" value="{{ $cert->exp_date }}" required>
-                    </div>
-                </div>
-            </div>
 
             <div class="form-group">
                 <label>Status</label>

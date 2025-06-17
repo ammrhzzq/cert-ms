@@ -12,7 +12,6 @@ body {
     margin-top: 0px;
     background-color: var(--card-bg);
     border-radius: 8px;
-    border-bottom: 3px solid var(--primary-color);
     border-left: 3px solid var(--primary-color);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
     padding: 32px;

@@ -4,6 +4,7 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+<link rel="stylesheet" href="{{ asset('css/preview.css') }}">
 @endsection
 
 @section('content')
@@ -44,7 +45,7 @@
     </a>
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'certificate_issued'])) }}"
         class="tab {{ request('status') == 'certificate_issued' ? 'active' : '' }}">
-        Issued
+        Certificate Issued
     </a>
 </div>
 
@@ -85,7 +86,9 @@
                 @endif
             </td>
 
-            <td>{{ ucfirst(str_replace('_', ' ', $cert->status)) }}</td>
+            <td><span class="status-badge status-{{ $cert->status }}">
+                {{ ucfirst(str_replace('_', ' ', $cert->status)) }}
+            </span></td>
             <td>
                 <div class="action-icons">
                     <a href="{{ route('certificates.preview', ['cert' => $cert]) }}" class="view-icon" title="View">

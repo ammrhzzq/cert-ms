@@ -129,80 +129,85 @@
 <div id="uploadModal" class="modal">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
-        <h2 class="modal-title">Upload Certificate Template</h2>
 
-        <form action="{{ route('templates.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
+        <div class="modal-header">
+            <h2 class="modal-title">Upload Certificate Template</h2>
+        </div>
 
-            <div class="form-group">
-                <label for="cert_type">Certificate Type</label>
-                <div class="select-container">
-                    <select name="cert_type" id="cert_type" required>
-                        <option value="" selected disabled>Select Certificate Type</option>
-                        <option value="ISMS">ISMS</option>
-                    </select>
-                </div>
-            </div>
+        <div class="modal-body">
+            <form action="{{ route('templates.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
 
-            <div class="form-group">
-                <label for="name">Template Name</label>
-                <input type="text" name="name" id="name" placeholder="Enter template name" value="{{ old('name') }}" required>
-                @error('name')
-                <div class="error-message">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="description">Description (Optional)</label>
-                <textarea name="description" id="description" placeholder="Enter template description" rows="3">{{ old('description') }}</textarea>
-                @error('description')
-                <div class="error-message">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="version">Version (Optional)</label>
-                <input type="text" name="version" id="version" placeholder="e.g., 1.0, 2.1" value="{{ old('version', '1.0') }}">
-                @error('version')
-                <div class="error-message">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label>Template File</label>
-                <div class="file-input-wrapper">
-                    <div class="file-input-button">
-                        Choose File
+                <div class="form-group">
+                    <label for="cert_type">Certificate Type</label>
+                    <div class="select-container">
+                        <select name="cert_type" id="cert_type" required>
+                            <option value="" selected disabled>Select Certificate Type</option>
+                            <option value="ISMS">ISMS</option>
+                        </select>
                     </div>
-                    <input type="file" name="template_file" id="template_file" accept=".pdf,.docx" required>
                 </div>
-                <div class="file-name-display" id="fileName">No file chosen</div>
-                <small>Supported formats: PDF, DOCX. Max size: 5MB</small>
-                @error('template_file')
-                <div class="error-message">{{ $message }}</div>
-                @enderror
-            </div>
 
-            <div class="form-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active') ? 'checked' : '' }}>
-                    <span class="checkmark"></span>
-                    Set as active template for this certificate type
-                </label>
-                <small>Note: Setting this as active will deactivate other templates of the same type.</small>
-            </div>
+                <div class="form-group">
+                    <label for="name">Template Name</label>
+                    <input type="text" name="name" id="name" placeholder="Enter template name" value="{{ old('name') }}" required>
+                    @error('name')
+                    <div class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
 
-            <div class="button-group">
-                <button type="button" class="btn-back" id="cancelUpload">Cancel</button>
-                <input type="submit" value="Upload" />
-            </div>
-        </form>
+                <div class="form-group">
+                    <label for="description">Description (Optional)</label>
+                    <textarea name="description" id="description" placeholder="Enter template description" rows="3">{{ old('description') }}</textarea>
+                    @error('description')
+                    <div class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="version">Version (Optional)</label>
+                    <input type="text" name="version" id="version" placeholder="e.g., 1.0, 2.1" value="{{ old('version', '1.0') }}">
+                    @error('version')
+                    <div class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label>Template File</label>
+                    <div class="file-input-wrapper">
+                        <div class="file-input-button">
+                            Choose File
+                        </div>
+                        <input type="file" name="template_file" id="template_file" accept=".pdf,.docx" required>
+                    </div>
+                    <div class="file-name-display" id="fileName">No file chosen</div>
+                    <small>Supported formats: PDF, DOCX. Max size: 5MB</small>
+                    @error('template_file')
+                    <div class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active') ? 'checked' : '' }}>
+                        <span class="checkmark"></span>
+                        Set as active template for this certificate type
+                    </label>
+                    <small>Note: Setting this as active will deactivate other templates of the same type.</small>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn-back" id="cancelUpload">Cancel</button>
+                    <input type="submit" value="Upload" />
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 <!-- Template Preview Modal-->
 <div id="templatePreviewModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-preview">
         <span class="close-modal" id="closeTemplateModal">&times;</span>
         <div class="certificate-preview-content">
             <div class="preview-header">
