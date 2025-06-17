@@ -12,6 +12,8 @@ use App\Models\CertComment;
 use App\Models\Client;
 use Illuminate\Support\Str;
 use App\Models\Template;
+use setasign\Fpdi\PdfReader\PdfReaderException;
+use setasign\Fpdi\PdfParser\PdfParserException;
 
 class CertController extends Controller
 {
@@ -602,6 +604,8 @@ class CertController extends Controller
         $pdf->AddPage();
         $pdf->useTemplate($tplIdx);
 
+        $pdf->Image(public_path('images/draft_watermark.png'), 0, 10, 200, 0, 'PNG');
+
         // 4. Add cert data overlay
         $pdf->SetTextColor(0, 0, 0);
         $pageWidth = $pdf->GetPageWidth();
@@ -688,10 +692,12 @@ class CertController extends Controller
         if (!file_exists($path)) {
             abort(404, 'Certificate file not found.');
         }
+        // Generate a safe file name
+        $filename =  $cert->cert_number . '_' . 'certificate_' . Str::slug($cert->comp_name) . '.pdf';
 
         return response()->file($path, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="final_certificate.pdf"',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"',
         ]);
     }
 }

@@ -397,6 +397,44 @@ textarea.form-control {
     color: var(--red-border) !important;
 }
 
+    .collapsible-btn {
+        margin-bottom: 0;
+        padding-left: 0;
+        padding-right: 0;
+        background: none;
+        border: none;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        }
+
+    .collapsible-btn:hover,
+    .collapsible-btn.active {
+        background-color: white;
+    }
+
+    .collapsible-btn::after {
+        content: '\002B'; /* plus sign */
+        color: white;
+        font-weight: bold;
+        float: right;
+        margin-left: 10px;
+    }
+
+    .collapsible-btn.active::after {
+        content: "\2212"; /* minus sign */
+    }
+
+    .collapsible-content {
+        padding: 0 18px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease-out;
+        background-color: white;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
 /* Responsive design */
 @media (max-width: 768px) {
     .container {

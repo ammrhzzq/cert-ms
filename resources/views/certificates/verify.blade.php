@@ -32,11 +32,13 @@
                     <h4>Certificate Verification</h4>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h3>{{ $cert->comp_name }} - {{ $cert->cert_type }}</h3>
-                        <span class="status-badge status-{{ $cert->status }}">
-                            {{ ucfirst(str_replace('_', ' ', $cert->status)) }}
-                        </span>
+                    <div class="d-flex align-items-center mb-4" style="gap: 10px;">
+                        <div style="flex:1; text-align:left;">
+                            <h3 style="margin:0;">{{ $cert->comp_name }} - {{ $cert->cert_type }}</h3>
+                        </div>
+                        <div style="flex:1; text-align:center;">
+                            <h3 style="margin:0;">Certificate Preview</h3>
+                        </div>
                     </div>
 
                     <div class="row">
@@ -77,9 +79,6 @@
                             </table>
                         </div>
                         <div class="col-md-6">
-                            <div class="text-center mb-3">
-                                <h5>Certificate Preview</h5>
-                            </div>
                             <div class="embed-responsive embed-responsive-1by1">
                                 <iframe class="embed-responsive-item" src="{{ route('certificates.previewDraft', $cert->id) }}" allowfullscreen></iframe>
                             </div>
@@ -111,7 +110,7 @@
                         @endphp
                         <div class="alert alert-success">
                             <i class="fas fa-check-circle fa-2x"></i>
-                            <h5 class="mt-2">This certificate has been verified on {{ $verification->verified_at->format('d M Y') }}
+                            <h5 class="mt-2">This certificate has been verified on {{ $verification->verified_at->format('d M Y') }} at {{ $verification->verified_at->format('H:i') }}
                                 @if($verifier)
                                     by {{ $verifier->commented_by }}
                                 @endif
@@ -122,40 +121,33 @@
                 </div>
             </div>
 
-            @if($comments->count() > 0)
-            <div class="card">
-                <div class="card-header">
-                    <h5>Comments</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group">
-                        @foreach($comments as $comment)
-                        <li class="list-group-item {{ $comment->comment_type == 'revision_request' ? 'list-group-item-warning' : 'list-group-item-light' }}">
-                            <div style="display: flex; align-items: flex-start; gap: 10p;">
-                                <div style="flex-grow: 1;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span style="font-weight: 600; color: #333;">{{ $comment->commented_by }}</span>
-                                        <small style="color: #888;">{{ $comment->created_at->diffForHumans() }} ({{ $comment->created_at->format('d M Y H:i') }})</small>
-                                    </div>
-                                    <div style="margin-top: 8px; color: #444; line-height: 1.5;">
-                                        {{ $comment->comment }}
-                                    </div>
-                                    @if ($comment->comment_type == 'revision_request')
-                                        <div style="margin-top: 5px;">
-                                            <span class="badge badge-warning" style="font-size: 12px;">[Request Change]</span>
+            @if($comments->where('comment_type', 'revision_request')->count() > 0)
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <button type="button" class="collapsible-btn"><h5>Comments History</h5></button>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="card-body">
+                            <ul class="list-group">
+                                @foreach($comments->where('comment_type', 'revision_request') as $comment)
+                                    <li class="list-group-item list-group-item-warning" style="background-color: white; border-color: #999;">
+                                        <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                            <div style="flex-grow: 1;">
+                                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                    <span style="font-weight: 600; color: var(--primary-color);">{{ $comment->commented_by }}</span>
+                                                    <small style="color: #888;">{{ $comment->created_at->diffForHumans() }} ({{ $comment->created_at->format('d M Y H:i') }})</small>
+                                                </div>
+                                                <div style="margin-top: 8px; margin-left: 12px; color: #444; line-height: 1.5;">
+                                                    {{ $comment->comment }}
+                                                </div>
+                                            </div>
                                         </div>
-                                    @elseif($comment->comment_type === 'verification')
-                                        <div style="margin-top: 5px;">
-                                            <span class="badge badge-success" style="font-size: 12px;">[Verified]</span>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        </li>
-                        @endforeach
-                    </ul>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-            </div>
             @endif
         </div>
     </div>
@@ -265,6 +257,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (event.target === unverifyModal) {
             unverifyModal.style.display = 'none';
+        }
+    });
+
+    var btn = document.querySelector('.collapsible-btn');
+    var content = document.querySelector('.collapsible-content');
+
+    btn.addEventListener('click', function () {
+        this.classList.toggle('active');
+
+        if (content.style.maxHeight) {
+            content.style.maxHeight = null;
+        } else {
+            content.style.maxHeight = content.scrollHeight + "px";
         }
     });
 });

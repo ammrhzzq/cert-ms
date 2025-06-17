@@ -48,10 +48,10 @@
                     <a class="nav-link {{ $activeTab == 'register' ? 'active' : '' }}" 
                        href="{{ route('show.register') }}">Register</a>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a class="nav-link {{ $activeTab == 'forgot-password' ? 'active' : '' }}" 
                        href="{{ route('password.request') }}">Forgot Password</a>
-                </li>
+                </li> -->
             </ul>
 
             <!-- Content for Login -->

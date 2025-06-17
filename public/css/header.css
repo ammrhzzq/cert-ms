@@ -262,7 +262,12 @@
 
 .notification-item.warning .notification-icon {
     background: #fff3cd;
-    color: #856404;
+    color: var(--primary-color);
+}
+
+.dark-mode .notification-item.warning .notification-icon {
+    background: var(--yellow-border); 
+    color: black;     
 }
 
 .notification-item.success .notification-icon {

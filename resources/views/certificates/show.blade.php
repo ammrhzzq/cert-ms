@@ -177,7 +177,7 @@
                                     @if($verification->is_verified)
                                         <span class="status-badge status-success">Verified on {{ \Carbon\Carbon::parse($verification->verified_at)->format('d M Y') }}</span>
                                     @else
-                                        <span class="status-badge status-warning" style="background-color: red">Awaiting Verification</span>
+                                        <span class="status-badge status-warning" style="color: red">Awaiting Verification</span>
                                     @endif
                                 </p>
                                 <p style="margin-top: 15px; margin-bottom: 15px;"><strong>Link Expires:</strong> {{ \Carbon\Carbon::parse($verification->expires_at)->format('d M Y H:i') }}</p>
@@ -264,7 +264,7 @@
                                     @if($comment->comment_type == 'revision_request' && $comment->revision_source === 'client')
                                         <li style="background: #f9f9f9; border: 1px solid #e0e0e0; padding: 16px; border-radius: 6px; margin-bottom: 18px;">
                                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                                <p style="font-size: 15px;">{{  $comment->commented_by }}</p>
+                                                <p style="font-size: 15px;">{{  $comment->commented_by }} (Client)</p>
                                                 <small style="color: #888;">{{ \Carbon\Carbon::parse($comment->created_at)->format('d M Y H:i') }}</small>
                                             </div>
                                             <p style="margin-top: 10px; color: #333; line-height: 1.5; font-weight: normal;">{{ $comment->comment }}</p>
@@ -351,8 +351,11 @@
             <form id='confirmForm' method="POST" action="{{ route('certificates.confirm', $cert->id) }}">
                 @csrf
                 <input type="text" id="confirmationInput" name="confirmation_text" placeholder="Type CONFIRM to continue" required style="margin-bottom: 15px;">
+                <div id="confirmError" style="color: red; display: none; font-size: 14px; margin-bottom: 8px;">
+                    Please type CONFIRM to enable the button.
+                </div>
                 <div class="modal-actions">
-                    <button type="submit" class="confirm-btn">Confirm</button>
+                    <button type="submit" class="confirm-btn" id="confirmSubmitBtn" disabled>Confirm</button>
                     <button type="button" class="btn-back" onclick="closeConfirmModal()">Cancel</button>
                 </div>
             </form> 
@@ -369,9 +372,12 @@
             <form method="POST" action="{{ route('certificates.hod-approval', $cert->id) }}" style="display:inline;">
                 @csrf
                 <input type="hidden" name="action" value="approve">
-                <input type="text" id="hodConfirmationInput" name="hod_confirmation_text" placeholder="Type APPROVE to continue" required>
+                <input type="text" id="hodConfirmationInput" name="hod_confirmation_text" placeholder="Type APPROVE to continue" required style="margin-bottom: 8px;">
+                <div id="approveError" style="color: red; display: none; font-size: 14px; margin-bottom: 8px;">
+                    Please type APPROVE to enable the button.
+                </div>
                 <div class="modal-actions" style="margin-top: 15px;">
-                    <button type="submit" class="confirm-btn" onclick="document.getElementById('hodAction').value='approve'">Approve</button>
+                    <button type="submit" class="confirm-btn" id="approveSubmitBtn" disabled>Approve</button>
                     <button type="button" class="btn-back" onclick="closeApproveModal()">Cancel</button>
                 </div>
             </form>
@@ -386,13 +392,16 @@
             <form method="POST" action="{{ route('certificates.hod-approval', $cert->id) }}" style="display:inline;">
                 @csrf
                 <input type="hidden" name="action" value="reject">
-                <input type="text" id="hodRejectInput" name="hod_reject_text" placeholder="Type REJECT to continue" required>
+                <input type="text" id="hodRejectInput" name="hod_reject_text" placeholder="Type REJECT to continue" required style="margin-bottom: 8px;">
+                <div id="rejectError" style="color: red; display: none; font-size: 14px; margin-bottom: 8px;">
+                    Please type REJECT to enable the button.
+                </div>
                 <div class="form-group" style="margin-top: 15px;">
                     <p>Comment <strong>(Required)</strong>:</p>
                     <textarea name="hod_reject_comment" id="hod_reject_comment" rows="4" class="form-control" style="margin-top: 15px;" required></textarea>
                 </div>
                 <div class="modal-actions" style="margin-top: 15px;">
-                    <button type="submit" class="confirm-btn">Reject</button>
+                    <button type="submit" class="confirm-btn" id="rejectSubmitBtn" disabled>Reject</button>
                     <button type="button" class="btn-back" onclick="closeRejectModal()">Cancel</button>
                 </div>
             </form>
@@ -464,9 +473,9 @@
 
     <div class="verification-action">
         @if(isset($verification))
-        <a href="{{ route('certificates.verification-link', $cert->id) }}" class="verification-btn primary">
+        <button class="verification-btn" onclick="window.open('{{ $verificationUrl }}', '_blank')" type="button" style="background-color: white; color: black;">
             <i class="fas fa-link"></i> View Link
-        </a>
+        </button>
         <form method="POST" action="{{ route('certificates.renew-verification', $cert->id) }}" style="display: inline;">
             @csrf
             <button type="submit" class="verification-btn">
@@ -486,6 +495,68 @@
 @endif
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Confirm Modal
+        var confirmInput = document.getElementById('confirmationInput');
+        var confirmBtn = document.getElementById('confirmSubmitBtn');
+        var confirmError = document.getElementById('confirmError');
+        if(confirmInput && confirmBtn && confirmError) {
+            confirmInput.addEventListener('input', function() {
+                if (confirmInput.value === 'CONFIRM') {
+                    confirmBtn.disabled = false;
+                    confirmError.style.display = 'none';
+                } else {
+                    confirmBtn.disabled = true;
+                    if (confirmInput.value.length > 0) {
+                        confirmError.style.display = 'block';
+                    } else {
+                        confirmError.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Approve Modal
+        var approveInput = document.getElementById('hodConfirmationInput');
+        var approveBtn = document.getElementById('approveSubmitBtn');
+        var approveError = document.getElementById('approveError');
+        if(approveInput && approveBtn && approveError) {
+            approveInput.addEventListener('input', function() {
+                if (approveInput.value === 'APPROVE') {
+                    approveBtn.disabled = false;
+                    approveError.style.display = 'none';
+                } else {
+                    approveBtn.disabled = true;
+                    if (approveInput.value.length > 0) {
+                        approveError.style.display = 'block';
+                    } else {
+                        approveError.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Reject Modal
+        var rejectInput = document.getElementById('hodRejectInput');
+        var rejectBtn = document.getElementById('rejectSubmitBtn');
+        var rejectError = document.getElementById('rejectError');
+        if(rejectInput && rejectBtn && rejectError) {
+            rejectInput.addEventListener('input', function() {
+                if (rejectInput.value === 'REJECT') {
+                    rejectBtn.disabled = false;
+                    rejectError.style.display = 'none';
+                } else {
+                    rejectBtn.disabled = true;
+                    if (rejectInput.value.length > 0) {
+                        rejectError.style.display = 'block';
+                    } else {
+                        rejectError.style.display = 'none';
+                    }
+                }
+            });
+        }
+    });
+
     function openConfirmModal(){
         document.getElementById('confirmModal').style.display = 'flex';
     }

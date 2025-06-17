@@ -1,0 +1,89 @@
+
+/* Card styling */
+.card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    border-bottom: 3px solid var(--primary-color);
+    border-left: 3px solid var(--primary-color);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    margin: 0 auto 20px auto;
+}
+
+.card-header {
+    background-color: var(--card-bg);
+    border-radius: 8px 8px 0 0;
+    margin-bottom: 10px;
+}
+
+.card-body {
+    border-top: 1px solid var(--border-color);
+    padding: 30px;
+}
+
+.card-header h5 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.collapsible-btn {
+    text-align: left;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    }
+
+.collapsible-btn:hover,
+.collapsible-btn.active {
+    background-color: var(--card-bg);
+}
+
+.collapsible-content {
+    padding: 0 18px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    background-color: var(--card-bg);
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.manual-step-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 14px;
+    vertical-align: middle;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.07);
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.manual-img {
+    max-width: 750px;
+    width: 100%;
+    height: auto;
+    margin: 20px auto;
+    display: block;
+    border-radius: 8px;
+    border: 2px solid #bbb;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}

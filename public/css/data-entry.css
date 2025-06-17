@@ -406,6 +406,7 @@ input[type="submit"]:hover {
     display: inline-block;
     margin-right: 10px;
     transition: background-color 0.3s ease;
+    cursor: pointer;
 }
 
 .btn-action:hover {

@@ -256,6 +256,104 @@ h1 {
         max-height: 80vh !important;
     }
 
+.modal { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+.modal-content { 
+    background-color: var(--card-bg,#fff); 
+    color: var(--text-color, #333);
+    padding: 30px; 
+    border-radius: 10px; 
+    max-width: 500px; 
+    width: 90%; 
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: fadeIn 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.modal-actions {
+    display: flex;
+    gap: 10px; 
+    justify-content: center; 
+}
+.confirm-btn {
+    background-color: var(--primary-color);
+    color: var(--sidebar-bg);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-align: center;
+}
+.confirm-btn:disabled {
+    background: #f5b7b1;
+    cursor: not-allowed;
+}
+.btn-back {
+    background-color: var(--border-color);
+    color: var(--text-color);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.confirm-btn {
+    background-color: var(--primary-color);
+    color: var(--sidebar-bg);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-align: center;
+}
+
+.confirm-btn:hover {
+    background-color: var(--primary-color);
+    opacity: 0.9;
+}
+
+.btn-back {
+    background-color: var(--border-color);
+    color: var(--text-color);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.btn-back:hover {
+    background-color: var(--cancel-hover);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .fancybox__iframe {
