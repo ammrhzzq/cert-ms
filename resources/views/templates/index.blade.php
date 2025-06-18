@@ -114,10 +114,10 @@
                         </button>
                     </form>
                 </div>
-                <form action="{{ route('templates.destroy', $template) }}" method="POST" class="delete-form">
+                <form action="{{ route('templates.destroy', $template) }}" method="POST" class="delete-form" data-template-id="{{ $template->id }}" onsubmit="return false;">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="delete-icon" title="Delete">
+                    <button type="button" class="delete-icon open-delete-modal" data-template-id="{{ $template->id }}" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>
                 </form>
@@ -128,7 +128,9 @@
 </div>
 
 <!-- Upload Modal -->
-<div id="uploadModal" class="modal">
+<div id="uploadModal" class="modal" style="display: none; position: fixed;
+    align-items: center; 
+    justify-content: center;">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
         <h2 class="modal-title">Upload Certificate Template</h2>
@@ -219,6 +221,22 @@
         </div>
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteConfirmModal" class="template-modal" style="display: none;">
+    <div class="template-modal-content">
+        <h3>Confirm Delete</h3>
+        <p>Type <strong>DELETE</strong> to confirm deletion. This action cannot be undone.</p>
+        <input type="text" id="deleteConfirmInput" placeholder="Type DELETE to continue" style="margin-bottom: 8px;">
+        <div id="deleteError" style="color: red; display: none; font-size: 14px; margin-bottom: 8px;">
+            Please type DELETE to enable the button.
+        </div>
+        <div class="template-modal-actions">
+            <button id="deleteConfirmBtn" class="confirm-btn" disabled>Delete</button>
+            <button id="deleteCancelBtn" class="btn-back">Cancel</button>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -245,6 +263,14 @@
         const docxPreviewTitle = document.getElementById('docxPreviewTitle');
 
         const previewBtns = document.querySelectorAll('.preview-btn');
+
+        // Delete modal logic
+        let modal = document.getElementById('deleteConfirmModal');
+        let input = document.getElementById('deleteConfirmInput');
+        let error = document.getElementById('deleteError');
+        let confirmBtn = document.getElementById('deleteConfirmBtn');
+        let cancelBtn = document.getElementById('deleteCancelBtn');
+        let formToDelete = null;
 
         // Open upload modal
         uploadTrigger.addEventListener('click', function() {
@@ -357,6 +383,44 @@
             console.error('Failed to load template preview');
             this.style.display = 'none';
             this.parentNode.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;"><i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 1rem;"></i><br>Preview not available<br><small>Click "Open in New Tab" to view the template</small></div>';
+        });
+
+        document.querySelectorAll('.open-delete-modal').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                formToDelete = btn.closest('form');
+                input.value = '';
+                confirmBtn.disabled = true;
+                error.style.display = 'none';
+                modal.style.display = 'flex';
+            });
+        });
+
+        input.addEventListener('input', function() {
+            if (input.value === 'DELETE') {
+                confirmBtn.disabled = false;
+                error.style.display = 'none';
+            } else {
+                confirmBtn.disabled = true;
+                error.style.display = input.value.length > 0 ? 'block' : 'none';
+            }
+        });
+
+        confirmBtn.addEventListener('click', function() {
+            if (formToDelete) {
+                formToDelete.submit();
+            }
+            modal.style.display = 'none';
+        });
+
+        cancelBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
         });
     });
 </script>

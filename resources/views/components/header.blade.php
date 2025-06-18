@@ -4,9 +4,6 @@
         
     </div>
     <div class="navbar-right">
-        <button class="icon-button" title="Settings">
-            <i class="fas fa-cog"></i>
-        </button>
         <a href="{{ route('user.manual') }}" class="icon-button" title="Help">
             <i class="fas fa-question-circle"></i>
         </a>

@@ -113,7 +113,15 @@
                     </div>
                 </div>
             </div>
-            
+
+            @if($cert->cert_number)
+                <div class="form-group">
+                    <label>Certificate Number <span class="text-danger"></span></label>
+                    <input type="text" name="cert_number" placeholder="Enter Certificate Number" value="{{ old('cert_number', $cert->cert_number) }}" required>
+                    @error('cert_number') <div class="text-danger">{{ $message }}</div> @enderror
+                </div>
+            @endif
+
             <div class="button-group">
                 <a href="{{ route('certificates.index') }}" class="btn-back">Cancel</a>
                 <input type="submit" value="Update" />

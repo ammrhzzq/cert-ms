@@ -221,6 +221,12 @@ input[type="submit"]:hover {
     opacity: 0.9;
 }
 
+.confirm-btn:disabled:hover,
+.btn-back:disabled:hover {
+    background: #f5b7b1;
+    cursor: not-allowed;
+}
+
 /* Alert styling */
 .alert {
     padding: 15px;

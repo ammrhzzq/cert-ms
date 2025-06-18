@@ -496,105 +496,66 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Helper for modal input validation
+        function setupModalInput(inputId, btnId, errorId, requiredWord) {
+            var input = document.getElementById(inputId);
+            var btn = document.getElementById(btnId);
+            var error = document.getElementById(errorId);
+            if(input && btn && error) {
+                input.addEventListener('input', function() {
+                    if (input.value === requiredWord) {
+                        btn.disabled = false;
+                        error.style.display = 'none';
+                    } else {
+                        btn.disabled = true;
+                        error.style.display = input.value.length > 0 ? 'block' : 'none';
+                    }
+                });
+                // Initial state
+                btn.disabled = true;
+                error.style.display = 'none';
+            }
+        }
+
         // Confirm Modal
-        var confirmInput = document.getElementById('confirmationInput');
-        var confirmBtn = document.getElementById('confirmSubmitBtn');
-        var confirmError = document.getElementById('confirmError');
-        if(confirmInput && confirmBtn && confirmError) {
-            confirmInput.addEventListener('input', function() {
-                if (confirmInput.value === 'CONFIRM') {
-                    confirmBtn.disabled = false;
-                    confirmError.style.display = 'none';
-                } else {
-                    confirmBtn.disabled = true;
-                    if (confirmInput.value.length > 0) {
-                        confirmError.style.display = 'block';
-                    } else {
-                        confirmError.style.display = 'none';
-                    }
-                }
-            });
-        }
-
+        setupModalInput('confirmationInput', 'confirmSubmitBtn', 'confirmError', 'CONFIRM');
         // Approve Modal
-        var approveInput = document.getElementById('hodConfirmationInput');
-        var approveBtn = document.getElementById('approveSubmitBtn');
-        var approveError = document.getElementById('approveError');
-        if(approveInput && approveBtn && approveError) {
-            approveInput.addEventListener('input', function() {
-                if (approveInput.value === 'APPROVE') {
-                    approveBtn.disabled = false;
-                    approveError.style.display = 'none';
-                } else {
-                    approveBtn.disabled = true;
-                    if (approveInput.value.length > 0) {
-                        approveError.style.display = 'block';
-                    } else {
-                        approveError.style.display = 'none';
-                    }
-                }
-            });
-        }
-
+        setupModalInput('hodConfirmationInput', 'approveSubmitBtn', 'approveError', 'APPROVE');
         // Reject Modal
-        var rejectInput = document.getElementById('hodRejectInput');
-        var rejectBtn = document.getElementById('rejectSubmitBtn');
-        var rejectError = document.getElementById('rejectError');
-        if(rejectInput && rejectBtn && rejectError) {
-            rejectInput.addEventListener('input', function() {
-                if (rejectInput.value === 'REJECT') {
-                    rejectBtn.disabled = false;
-                    rejectError.style.display = 'none';
-                } else {
-                    rejectBtn.disabled = true;
-                    if (rejectInput.value.length > 0) {
-                        rejectError.style.display = 'block';
-                    } else {
-                        rejectError.style.display = 'none';
-                    }
-                }
-            });
+        setupModalInput('hodRejectInput', 'rejectSubmitBtn', 'rejectError', 'REJECT');
+
+        // Modal open/close functions (unchanged)
+        window.openConfirmModal = function(){
+            document.getElementById('confirmModal').style.display = 'flex';
         }
-    });
-
-    function openConfirmModal(){
-        document.getElementById('confirmModal').style.display = 'flex';
-    }
-
-    function closeConfirmModal(){
-        document.getElementById('confirmModal').style.display = 'none';
-    }
-
-    function openApproveModal(){
-    document.getElementById('approveModal').style.display = 'flex';
-    }
-
-    function closeApproveModal(){
-        document.getElementById('approveModal').style.display = 'none';
-    }
-
-    function openRejectModal(){
-        document.getElementById('rejectModal').style.display = 'flex';
-    }
-
-    function closeRejectModal(){
-        document.getElementById('rejectModal').style.display = 'none';
-    }
-
-
-    // Notification Functions
-    function closeNotification() {
-        const notification = document.getElementById('verificationNotification');
-        if (notification) {
-            notification.classList.remove('show');
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 400);
+        window.closeConfirmModal = function(){
+            document.getElementById('confirmModal').style.display = 'none';
         }
-    }
+        window.openApproveModal = function(){
+            document.getElementById('approveModal').style.display = 'flex';
+        }
+        window.closeApproveModal = function(){
+            document.getElementById('approveModal').style.display = 'none';
+        }
+        window.openRejectModal = function(){
+            document.getElementById('rejectModal').style.display = 'flex';
+        }
+        window.closeRejectModal = function(){
+            document.getElementById('rejectModal').style.display = 'none';
+        }
 
-    // Show notification on page load
-    document.addEventListener('DOMContentLoaded', function() {
+        // Notification Functions
+        window.closeNotification = function() {
+            const notification = document.getElementById('verificationNotification');
+            if (notification) {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 400);
+            }
+        }
+
+        // Show notification on page load
         const notification = document.getElementById('verificationNotification');
         if (notification) {
             setTimeout(() => {
@@ -602,6 +563,5 @@
             }, 500);
         }
     });
-    
 </script>
 @endsection

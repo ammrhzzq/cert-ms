@@ -188,7 +188,7 @@
                 input.value = '';
                 confirmBtn.disabled = true;
                 error.style.display = 'none';
-                modal.style.display = 'block';
+                modal.style.display = 'flex';
             });
         });
 
@@ -267,13 +267,5 @@
             });
         });
     });
-
-    function confirmDelete(event) {
-    if (!confirm('Are you sure you want to delete this certificate? This action cannot be undone.')) {
-        event.preventDefault();
-        return false;
-    }
-    return true;
-}
 </script>
 @endsection
