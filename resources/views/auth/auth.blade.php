@@ -71,7 +71,7 @@
 
                 <div class="help-text">
                     <p class="text-muted">
-                        <small>Forgot your password? Contact your system administrator for a password reset.</small>
+                        <small>Forgot your password? Contact HoD for a password reset.</small>
                     </p>
                 </div>
             </form>

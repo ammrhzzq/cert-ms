@@ -35,6 +35,7 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/api/notifications', [NotificationController::class, 'getNotifications'])->name('notifications.get');
+    Route::get('/manual', function () {return view('manual.user_manual');})->name('user.manual');
 
     // Client routes
     Route::get('/client', [ClientController::class, 'index'])->name('clients.index');

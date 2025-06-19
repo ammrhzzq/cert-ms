@@ -65,8 +65,6 @@ body {
 .card {
     background-color: var(--card-bg);
     border-radius: 8px;
-    border-bottom: 3px solid var(--primary-color);
-    border-left: 3px solid var(--primary-color);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
     margin-bottom: 20px;
 }
@@ -104,6 +102,7 @@ body {
 
 .mb-4 {
     margin-bottom: 1.5rem;
+    padding: 20px;
 }
 
 .mt-4 {
@@ -519,9 +518,6 @@ textarea.form-control {
                             </table>
                         </div>
                         <div class="col-md-6">
-                            <div class="text-center mb-3">
-                                <h5>Certificate Preview</h5>
-                            </div>
                             <div class="embed-responsive embed-responsive-1by1">
                                 <iframe class="embed-responsive-item" src="{{ route('certificates.previewDraft', $cert->id) }}" allowfullscreen></iframe>
                             </div>

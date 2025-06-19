@@ -24,20 +24,24 @@ h1 {
     margin: 0 auto;
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-top: 3px solid var(--primary-color);
     border-left: 3px solid var(--primary-color);
     border-radius: 8px;
     padding: 32px 24px;
+    padding-top: 20px;
     box-shadow: 0 2px 4px rgba(231, 224, 224, 0.1);
     margin-bottom: 20px;
     overflow: hidden;
+}
+
+.progress-card h1 {
+    padding: 24px;
 }
 
 .progress-body {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-top: 20px;
+    padding-top: 10px;
 }
 
 .cert-progress-wrapper {
@@ -122,6 +126,7 @@ h1 {
     padding: 32px 50px;
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
+    border-left: 3px solid var(--primary-color);
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(231, 224, 224, 0.1);
 }

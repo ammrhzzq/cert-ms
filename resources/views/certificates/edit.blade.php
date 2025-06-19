@@ -70,7 +70,7 @@
                 <div class="form-column">
                     <div class="form-group">
                         <label>Contact Number 1</label>
-                        <input type="text" name="comp_phone1" placeholder="Contact Number 1" value="{{ $cert->comp_phone1 }}">
+                        <input type="number" name="comp_phone1" placeholder="Contact Number 1" value="{{ $cert->comp_phone1 }}">
                     </div>
                     <div class="form-group">
                         <label>Contact Name 1</label>
@@ -80,7 +80,7 @@
                 <div class="form-column">
                     <div class="form-group">
                         <label>Contact Number 2</label>
-                        <input type="text" name="comp_phone2" placeholder="Contact Number 2" value="{{ $cert->comp_phone2 }}">
+                        <input type="number" name="comp_phone2" placeholder="Contact Number 2" value="{{ $cert->comp_phone2 }}">
                     </div>
                     <div class="form-group">
                         <label>Contact Name 2</label>

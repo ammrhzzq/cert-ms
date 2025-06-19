@@ -7,9 +7,9 @@
         <button class="icon-button" title="Settings">
             <i class="fas fa-cog"></i>
         </button>
-        <button class="icon-button" title="Help">
+        <a href="{{ route('user.manual') }}" class="icon-button" title="User Manual">
             <i class="fas fa-question-circle"></i>
-        </button>
+        </a>
         
         <!-- Notification Button with Popout -->
         <div class="notification-container">

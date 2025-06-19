@@ -54,7 +54,7 @@
     <thead>
         <tr>
             <th>Certificate</th>
-            <th>Created By</th>
+            <th>Created</th>
             <th>Last Edited</th>
             <th>Status</th>
             <th>Action</th>
@@ -69,8 +69,8 @@
             <td>{{ $cert->cert_type }}-{{ $cert->comp_name }}</td>
             <td>
                 @if($cert->creator)
-                {{ $cert->creator->name }}<br>
-                {{ \Carbon\Carbon::parse($cert->created_at)->format('d/m/Y H:i') }}
+                {{ \Carbon\Carbon::parse($cert->created_at)->format('d/m/Y H:i') }}<br>
+                by {{ $cert->creator->name }}
                 @else
                 Unknown Creator
                 @endif

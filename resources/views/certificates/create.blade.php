@@ -110,22 +110,22 @@ $stepNumber = 1;
 
             <div class="form-group">
                 <label>Address</label>
-                <input type="text" id="comp_address1" name="comp_address1" placeholder="Address Line 1" required>
+                <input type="text" id="comp_address1" name="comp_address1" placeholder="Lot/Unit No., Building/Street Name, Area Name" required>
             </div>
 
             <div class="form-group">
-                <input type="text" id="comp_address2" name="comp_address2" placeholder="Address Line 2">
+                <input type="text" id="comp_address2" name="comp_address2" placeholder="Postcode, City, State">
             </div>
 
             <div class="form-group">
-                <input type="text" id="comp_address3" name="comp_address3" placeholder="Address Line 3">
+                <input type="text" id="comp_address3" name="comp_address3" placeholder="Country">
             </div>
 
             <div class="form-row">
                 <div class="form-column">
                     <div class="form-group">
                         <label>Contact Number 1</label>
-                        <input type="text" id="comp_phone1" name="comp_phone1" placeholder="Contact Number">
+                        <input type="number" id="comp_phone1" name="comp_phone1" placeholder="Contact Number">
                     </div>
                     <div class="form-group">
                         <label>Contact Name 1</label>
@@ -135,7 +135,7 @@ $stepNumber = 1;
                 <div class="form-column">
                     <div class="form-group">
                         <label>Contact Number 2</label>
-                        <input type="text" id="comp_phone2" name="comp_phone2" placeholder="Contact Number">
+                        <input type="number" id="comp_phone2" name="comp_phone2" placeholder="Contact Number">
                     </div>
                     <div class="form-group">
                         <label>Contact Name 2</label>

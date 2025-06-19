@@ -16,44 +16,44 @@ $isCollapsed = isset($_COOKIE['sidebarCollapsed']) && $_COOKIE['sidebarCollapsed
 
     <ul class="menu">
         <li>
-            <a href="{{ route('dashboard') }}" class="{{ $activeItem == 'dashboard' ? 'active' : '' }}">
+            <a href="{{ route('dashboard') }}" class="{{ $activeItem == 'dashboard' ? 'active' : '' }}" title="Dashboard">
                 <i class="fas fa-home icon"></i>
                 <span class="text">Dashboard</span>
             </a>
         </li>
         <li>
-            <a href="{{ route('certificates.create') }}" class="{{ $activeItem == 'create' ? 'active' : '' }}">
+            <a href="{{ route('certificates.create') }}" class="{{ $activeItem == 'create' ? 'active' : '' }}" title="Create New Certificate">
                 <i class="fas fa-plus-circle icon"></i>
                 <span class="text">Create New</span>
             </a>
         </li>
         <li>
-            <a href="{{ route('certificates.index') }}" class="{{ $activeItem == 'certificates' ? 'active' : '' }}">
+            <a href="{{ route('certificates.index') }}" class="{{ $activeItem == 'certificates' ? 'active' : '' }}" title="Status & Action">
                 <i class="fas fa-clipboard-list icon"></i>
                 <span class="text">Status & Action</span>
             </a>
         </li>
         <li>
-            <a href="{{ route('certificates.view') }}" class="{{ $activeItem == 'view' ? 'active' : '' }}">
+            <a href="{{ route('certificates.view') }}" class="{{ $activeItem == 'view' ? 'active' : '' }}" title="View & Search">
                 <i class="fas fa-search icon"></i>
                 <span class="text">View & Search</span>
             </a>
         </li>
         <li>
-            <a href="{{ route('templates.index') }}" class="{{ $activeItem == 'templates' ? 'active' : '' }}">
+            <a href="{{ route('templates.index') }}" class="{{ $activeItem == 'templates' ? 'active' : '' }}" title="Template Management">
                 <i class="fas fa-file icon"></i>
                 <span class="text">Template Management</span>
             </a>
         </li>
         <li>
-            <a href="{{ route('clients.index') }}" class="{{ $activeItem == 'clients' ? 'active' : '' }}">
+            <a href="{{ route('clients.index') }}" class="{{ $activeItem == 'clients' ? 'active' : '' }}" title="Client Management">
                 <i class="fas fa-users icon"></i>
                 <span class="text">Client Management</span>
             </a>
         </li>
         @if(auth()->check() && auth()->user()->role === 'hod')
         <li>
-            <a href="{{ route('users.index') }}" class="{{ $activeItem == 'users' ? 'active' : '' }}">
+            <a href="{{ route('users.index') }}" class="{{ $activeItem == 'users' ? 'active' : '' }}" title="User Management">
                 <i class="fas fa-user-cog icon"></i>
                 <span class="text">User Management</span>
             </a>
