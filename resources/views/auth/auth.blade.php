@@ -43,11 +43,11 @@
                 <li class="nav-item">
                     <a class="nav-link {{ $activeTab == 'login' ? 'active' : '' }}" 
                        href="{{ route('show.login') }}">Login</a>
-                </li>
+                </li> 
                 <li class="nav-item">
                     <a class="nav-link {{ $activeTab == 'register' ? 'active' : '' }}" 
                        href="{{ route('show.register') }}">Register</a>
-                </li>
+                </li> 
                 <!-- <li class="nav-item">
                     <a class="nav-link {{ $activeTab == 'forgot-password' ? 'active' : '' }}" 
                        href="{{ route('password.request') }}">Forgot Password</a>

@@ -56,7 +56,7 @@
     @php
     $fileExtension = pathinfo($template->file_path, PATHINFO_EXTENSION);
     @endphp
-    <div class="template-card" data-id="{{ $template->id }}" data-file-type="{{ strtolower($fileExtension) }}" data-file-path="{{ Storage::url($template->file_path) }}" data-name="{{ $template->name }}" data-cert-type="{{ $template->cert_type }}">
+    <div class="template-card" data-id="{{ $template->id }}" data-file-type="{{ strtolower($fileExtension) }}" data-file-path="{{ Storage::url($template->file_path) }}" data-name="{{ $template->cert_type }}{{ $template->version ? ' v' . $template->version : '' }}">
 
         <div class="template-preview">
             @if(strtolower($fileExtension) == 'pdf')
@@ -128,9 +128,7 @@
 </div>
 
 <!-- Upload Modal -->
-<div id="uploadModal" class="modal" style="display: none; position: fixed;
-    align-items: center; 
-    justify-content: center;">
+<div id="uploadModal" class="modal">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
         <h2 class="modal-title">Upload Certificate Template</h2>
@@ -225,12 +223,8 @@
 <!-- Delete Confirmation Modal -->
 <div id="deleteConfirmModal" class="template-modal" style="display: none;">
     <div class="template-modal-content">
-        <h3>Confirm Delete</h3>
-        <p>Type <strong>DELETE</strong> to confirm deletion. This action cannot be undone.</p>
-        <input type="text" id="deleteConfirmInput" placeholder="Type DELETE to continue" style="margin-bottom: 8px;">
-        <div id="deleteError" style="color: red; display: none; font-size: 14px; margin-bottom: 8px;">
-            Please type DELETE to enable the button.
-        </div>
+        <h3>Confirm Delete <strong id="templateNameToDelete">[Template Name]</strong>?</h3>
+        <p>Are you sure you want to delete the template? This action cannot be undone.</p>
         <div class="template-modal-actions">
             <button id="deleteConfirmBtn" class="confirm-btn" disabled>Delete</button>
             <button id="deleteCancelBtn" class="btn-back">Cancel</button>
@@ -265,9 +259,8 @@
         const previewBtns = document.querySelectorAll('.preview-btn');
 
         // Delete modal logic
+        let templateNameToDelete = document.getElementById('templateNameToDelete');
         let modal = document.getElementById('deleteConfirmModal');
-        let input = document.getElementById('deleteConfirmInput');
-        let error = document.getElementById('deleteError');
         let confirmBtn = document.getElementById('deleteConfirmBtn');
         let cancelBtn = document.getElementById('deleteCancelBtn');
         let formToDelete = null;
@@ -389,21 +382,11 @@
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 formToDelete = btn.closest('form');
-                input.value = '';
-                confirmBtn.disabled = true;
-                error.style.display = 'none';
+                const templateCard = btn.closest('.template-card');
+                const templateName = templateCard.getAttribute('data-name');
+                templateNameToDelete.textContent = templateName;
                 modal.style.display = 'flex';
             });
-        });
-
-        input.addEventListener('input', function() {
-            if (input.value === 'DELETE') {
-                confirmBtn.disabled = false;
-                error.style.display = 'none';
-            } else {
-                confirmBtn.disabled = true;
-                error.style.display = input.value.length > 0 ? 'block' : 'none';
-            }
         });
 
         confirmBtn.addEventListener('click', function() {

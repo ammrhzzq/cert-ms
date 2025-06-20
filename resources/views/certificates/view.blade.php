@@ -109,57 +109,54 @@
 </div>
 
 <!-- Certificate table -->
-<table class="table">
-    <thead>
-        <tr>
-            <th>Certificate</th>
-            <th>Last Edited</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($certs as $cert)
-        @if ($cert->status == 'certificate_issued')
-        <tr class="cert-row" data-preview-url="{{ route('certificates.preview-final', $cert->id) }}" style="cursor: pointer;">
-            <td>{{ $cert->cert_type }}-{{ $cert->comp_name }}</td>
-            <td>
-                @if($cert->last_edited_at)
-                {{ \Carbon\Carbon::parse($cert->last_edited_at)->format('d/m/Y H:i') }}<br>
-                @if($cert->lastEditor)
-                by {{ $cert->lastEditor->name }}
-                @endif
-                @else
-                Not edited
-                @endif
-            </td>
-            <td>{{ ucfirst(str_replace('_', ' ', $cert->status)) }}</td>
-            <td>
-                <div class="action-icons">
-                    <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form" data-cert-id="{{ $cert->id }}" onsubmit="return false;" onclick="event.stopPropagation();">
-                        @csrf
-                        @method('DELETE')
-                        <button type="button" class="delete-icon open-delete-modal" data-cert-id="{{ $cert->id }}" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </form>
-                </div>
-            </td>
-        </tr>
-        @endif
-        @endforeach
-    </tbody>
-</table>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Certificate</th>
+                <th>Issue Date</th>
+                <th>Expiry Date</th>
+                <th>Certificate ID</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($certs as $cert)
+            @if ($cert->status == 'certificate_issued')
+            <tr class="cert-row" 
+                data-certificate-id="{{ $cert->id }}"
+                data-certificate-name="{{ $cert->cert_type }}-{{ $cert->comp_name }}"
+                data-preview-url="{{ route('certificates.preview-final', $cert->id) }}" style="cursor: pointer;">
+                <td>{{ $cert->cert_type }}-{{ $cert->comp_name }}</td>
+
+                <td>{{ \Carbon\Carbon::parse($cert->issue_date)->format('d/m/Y') }}</td>
+
+                <td>{{ \Carbon\Carbon::parse($cert->exp_date)->format('d/m/Y') }}</td>
+
+                <td>{{ $cert->cert_number }}</td>
+                
+                <td>
+                    <div class="action-icons">
+                        <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form" data-cert-name="{{ $cert->cert_type }} - {{ $cert->comp_name }}" onsubmit="return false;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="delete-icon open-delete-modal" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+
+                    </div>
+                </td>
+            </tr>
+            @endif
+            @endforeach
+        </tbody>
+    </table>
 
 <!-- Delete Confirmation Modal -->
 <div id="deleteConfirmModal" class="modal" style="display: none;">
     <div class="modal-content">
-        <h3>Confirm Delete</h3>
-        <p>Type <strong>DELETE</strong> to confirm deletion. This action cannot be undone.</p>
-        <input type="text" id="deleteConfirmInput" placeholder="Type DELETE to continue" style="margin-bottom: 8px;">
-        <div id="deleteError" style="color: red; display: none; font-size: 14px; margin-bottom: 8px;">
-            Please type DELETE to enable the button.
-        </div>
+        <h3>Confirm Delete <strong id="certNameToDelete">[Certificate Name]</strong>?</h3>
+        <p>Are you sure you want to delete the certificate? This action cannot be undone.</p>
         <div class="modal-actions">
             <button id="deleteConfirmBtn" class="confirm-btn" disabled>Delete</button>
             <button id="deleteCancelBtn" class="btn-back">Cancel</button>
@@ -171,36 +168,21 @@
 @section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const filterToggle = document.getElementById('filterToggle');
-        const filterPanel = document.getElementById('filterPanel');
-        let modal = document.getElementById('deleteConfirmModal');
-        let input = document.getElementById('deleteConfirmInput');
-        let error = document.getElementById('deleteError');
-        let confirmBtn = document.getElementById('deleteConfirmBtn');
-        let cancelBtn = document.getElementById('deleteCancelBtn');
+        const modal = document.getElementById('deleteConfirmModal');
+        const certNameSpan = document.getElementById('certNameToDelete');
+        const confirmBtn = document.getElementById('deleteConfirmBtn');
+        const cancelBtn = document.getElementById('deleteCancelBtn');
         let formToDelete = null;
 
-        // Open modal on delete icon click
+        // Open modal with cert name
         document.querySelectorAll('.open-delete-modal').forEach(function(btn) {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 formToDelete = btn.closest('form');
-                input.value = '';
-                confirmBtn.disabled = true;
-                error.style.display = 'none';
+                const certName = formToDelete.getAttribute('data-cert-name');
+                certNameSpan.textContent = certName;
                 modal.style.display = 'flex';
             });
-        });
-
-        // Enable button only if DELETE is typed
-        input.addEventListener('input', function() {
-            if (input.value === 'DELETE') {
-                confirmBtn.disabled = false;
-                error.style.display = 'none';
-            } else {
-                confirmBtn.disabled = true;
-                error.style.display = input.value.length > 0 ? 'block' : 'none';
-            }
         });
 
         // Confirm delete
@@ -211,7 +193,7 @@
             modal.style.display = 'none';
         });
 
-        // Cancel button
+        // Cancel delete
         cancelBtn.addEventListener('click', function() {
             modal.style.display = 'none';
         });
@@ -222,6 +204,7 @@
                 modal.style.display = 'none';
             }
         });
+
 
         filterToggle.addEventListener('click', function() {
             if (filterPanel.style.display === 'none') {

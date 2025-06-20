@@ -49,9 +49,13 @@ class AuthController extends Controller
 
         $user = User::create($validated);
 
-        Auth::login($user);
-
-        return redirect()->route('dashboard')->with('success', 'Registration successful!');
+        // Only login if user is approved (HOD is auto-approved)
+        if ($validated['is_approved']) {
+            Auth::login($user);
+            return redirect()->route('dashboard')->with('success', 'Registration successful!');
+        } else {
+            return redirect()->route('show.login')->with('success', 'Registration successful! Please wait for HoD approval before logging in.');
+        }
     }
 
     public function login(Request $request)
@@ -61,7 +65,20 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
+        // First, check if credentials are correct
         if (Auth::attempt($validated)) {
+            $user = Auth::user();
+            
+            // Check if user is approved
+            if (!$user->is_approved) {
+                Auth::logout(); // Log them out immediately
+                
+                throw ValidationException::withMessages([
+                    'credentials' => 'Your account is pending approval. Please contact your HoD.',
+                ]);
+            }
+            
+            // User is approved, proceed with login
             $request->session()->regenerate();
             return redirect()->route('dashboard')->with('success', 'Login successful!');
         }

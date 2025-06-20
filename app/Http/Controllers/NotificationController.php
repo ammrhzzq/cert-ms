@@ -14,7 +14,7 @@ class NotificationController extends Controller
         $notifications = [];
 
         // Get pending actions based on user role
-        if (in_array($user->role, ['manager', 'hod'])) {
+        if (in_array($user->role, ['staff', 'manager', 'hod'])) {
             // Certificates pending review
             $pendingReview = Cert::where('status', 'pending_review')->count();
             if ($pendingReview > 0) {
@@ -27,7 +27,10 @@ class NotificationController extends Controller
                     'action_url' => route('certificates.index', ['status' => 'pending_review'])
                 ];
             }
+        }
 
+        // Get pending actions based on user role
+        if (in_array($user->role, ['manager', 'hod'])) {
             // Client verified certificates
             $clientVerified = Cert::where('status', 'client_verified')->count();
             if ($clientVerified > 0) {

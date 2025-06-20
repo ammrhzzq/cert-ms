@@ -47,13 +47,14 @@
             </td>
             <td>
                 <div class="action-icons">
-                    <form action="{{ route('users.destroy', ['user' => $user]) }}" method="POST" class="delete-form" data-user-id="{{ $user->id }}" onsubmit="return false;">
+                    <form action="{{ route('users.destroy', ['user' => $user]) }}" method="POST" class="delete-form" data-user-name="{{ $user->name }}" onsubmit="return false;">
                         @csrf
                         @method('DELETE')
-                        <button type="button" class="delete-icon open-delete-modal" data-user-id="{{ $user->id }}" title="Delete">
+                        <button type="button" class="delete-icon open-delete-modal" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
                     </form>
+
                     <a href="{{ route('users.edit', ['user' => $user]) }}" class="edit-icon" title="Edit">
                         <i class="fas fa-pencil-alt"></i>
                     </a>
@@ -67,14 +68,10 @@
 <!-- Delete Confirmation Modal -->
 <div id="deleteConfirmModal" class="modal" style="display: none;">
     <div class="modal-content">
-        <h3>Confirm Delete User?</h3>
-        <p>Type <strong>DELETE</strong> to confirm deletion. This action cannot be undone.</p>
-        <input type="text" id="deleteConfirmInput" placeholder="Type DELETE to continue" style="margin-bottom: 8px;">
-        <div id="deleteError" style="color: red; display: none; font-size: 14px; margin-bottom: 8px;">
-            Please type DELETE to enable the button.
-        </div>
+        <h3>Confirm Delete <strong id="userNameToDelete">[User Name]</strong>?</h3>
+        <p>Are you sure you want to delete this user? This action cannot be undone.</p>
         <div class="modal-actions">
-            <button id="deleteConfirmBtn" class="confirm-btn" disabled>Delete</button>
+            <button id="deleteConfirmBtn" class="confirm-btn">Delete</button>
             <button id="deleteCancelBtn" class="btn-back">Cancel</button>
         </div>
     </div>
@@ -84,37 +81,23 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    let modal = document.getElementById('deleteConfirmModal');
-    let input = document.getElementById('deleteConfirmInput');
-    let error = document.getElementById('deleteError');
-    let confirmBtn = document.getElementById('deleteConfirmBtn');
-    let cancelBtn = document.getElementById('deleteCancelBtn');
+    // Handle delete confirmation modal
+    const modal = document.getElementById('deleteConfirmModal');
+    const confirmBtn = document.getElementById('deleteConfirmBtn');
+    const cancelBtn = document.getElementById('deleteCancelBtn');
+    const userNameToDelete = document.getElementById('userNameToDelete');
     let formToDelete = null;
 
-    // Open modal on delete icon click
-    document.querySelectorAll('.open-delete-modal').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            formToDelete = btn.closest('form');
-            input.value = '';
-            confirmBtn.disabled = true;
-            error.style.display = 'none';
+    document.querySelectorAll('.open-delete-modal').forEach(button => {
+        button.addEventListener('click', function() {
+            const form = button.closest('.delete-form');
+            const userName = form.getAttribute('data-user-name');
+            userNameToDelete.textContent = userName;
+            formToDelete = form;
             modal.style.display = 'flex';
         });
     });
 
-    // Enable button only if DELETE is typed
-    input.addEventListener('input', function() {
-        if (input.value === 'DELETE') {
-            confirmBtn.disabled = false;
-            error.style.display = 'none';
-        } else {
-            confirmBtn.disabled = true;
-            error.style.display = input.value.length > 0 ? 'block' : 'none';
-        }
-    });
-
-    // Confirm delete
     confirmBtn.addEventListener('click', function() {
         if (formToDelete) {
             formToDelete.submit();
@@ -122,12 +105,10 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.style.display = 'none';
     });
 
-    // Cancel button
     cancelBtn.addEventListener('click', function() {
         modal.style.display = 'none';
     });
 
-    // Close modal when clicking outside
     window.addEventListener('click', function(event) {
         if (event.target === modal) {
             modal.style.display = 'none';
