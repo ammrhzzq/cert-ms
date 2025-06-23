@@ -267,23 +267,26 @@ h1 {
     justify-content: flex-start;
 }
 
-.edit-icon {
+.view-icon, .edit-icon, .delete-icon {
     background: none;
     border: none;
     cursor: pointer;
     opacity: 0.7;
-    color: var(--text-color);
+}
+
+.view-icon {
+    color: var(--blue-border);
+}
+
+.edit-icon {
+    color: var(--green-border);
 }
 
 .delete-icon {
-    background: none;
-    border: none;
-    cursor: pointer;
-    opacity: 0.7;
-    color: red;
+    color: var(--red-border);
 }
 
-.edit-icon:hover, .delete-icon:hover {
+.view-icon:hover, .edit-icon:hover, .delete-icon:hover {
     opacity: 1;
 }
 
@@ -294,36 +297,6 @@ h1 {
 .action-icons {
     display: flex;
     gap: 10px;
-}
-
-.view-icon {
-    color: #3498db;
-    cursor: pointer;
-}
-
-.view-icon:hover {
-    color: #2980b9;
-}
-
-.edit-icon {
-    color: #2ecc71;
-    cursor: pointer;
-}
-
-.edit-icon:hover {
-    color: #27ae60;
-}
-
-.delete-icon {
-    color: #e74c3c;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-}
-
-.delete-icon:hover {
-    color: #c0392b;
 }
 
 /* Responsive design */

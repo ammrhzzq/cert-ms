@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Notifications\EmailVerificationNotification;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -36,25 +39,138 @@ class AuthController extends Controller
         $validated['password'] = bcrypt($validated['password']);
         
         // Check if the email is the designated HOD email
-        $hodEmail = Config::get('app.hod_email', 'hod@cybersecurity.my'); // Default value as fallback
+        $hodEmail = env('HOD_EMAIL', 'hod@cybersecurity.my');
+        
+        // Get email domain
+        $emailDomain = substr(strrchr($validated['email'], '@'), 1);
         
         // Set the role based on email
         if ($validated['email'] === $hodEmail) {
             $validated['role'] = 'hod';
             $validated['is_approved'] = true; // Auto-approve HOD
+            $validated['email_verified_at'] = now(); // Auto-verify HOD email
         } else {
-            $validated['role'] = 'staff'; // Default role for other users
-            $validated['is_approved'] = false; // Other users need approval
+            $validated['role'] = 'staff';
+            
+            // Auto-approve Gmail users, others need HOD approval
+            if ($emailDomain === 'gmail.com') {
+                $validated['is_approved'] = true; // Auto-approve Gmail users
+            } else {
+                $validated['is_approved'] = false; // Others need HOD approval
+            }
         }
 
         $user = User::create($validated);
 
-        // Only login if user is approved (HOD is auto-approved)
-        if ($validated['is_approved']) {
-            Auth::login($user);
-            return redirect()->route('dashboard')->with('success', 'Registration successful!');
+        // Only send verification email for non-HOD users
+        if ($user->role !== 'hod') {
+            // Generate and send email verification token
+            $user->generateEmailVerificationToken();
+            
+            try {
+                $user->notify(new EmailVerificationNotification($user->email_verification_token));
+                Log::info('Email verification sent to: ' . $user->email);
+                
+                return redirect()->route('show.verify.email', ['user' => $user->id])
+                    ->with('success', 'Registration successful! Please check your email for verification code.');
+            } catch (\Exception $e) {
+                Log::error('Failed to send verification email: ' . $e->getMessage());
+                
+                return redirect()->route('show.verify.email', ['user' => $user->id])
+                    ->with('error', 'Registration successful but failed to send verification email. Please contact support.');
+            }
         } else {
-            return redirect()->route('show.login')->with('success', 'Registration successful! Please wait for HoD approval before logging in.');
+            // HOD registration complete - redirect to login
+            return redirect()->route('show.login')
+                ->with('success', 'HOD registration successful! You can now login directly.');
+        }
+    }
+
+    public function showVerifyEmail(User $user)
+    {
+        // Check if user already verified
+        if ($user->email_verified_at !== null) {
+            return redirect()->route('show.login')
+                ->with('success', 'Email already verified. You can now login.');
+        }
+
+        return view('auth.auth', [
+            'activeTab' => 'verify-email',
+            'user' => $user
+        ]);
+    }
+
+    public function verifyEmail(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'verification_code' => 'required|string|size:6',
+        ]);
+
+        // Check if user already verified
+        if ($user->email_verified_at !== null) {
+            return redirect()->route('show.login')
+                ->with('success', 'Email already verified. You can now login.');
+        }
+
+        // Validate the token
+        if (!$user->isValidEmailVerificationToken($validated['verification_code'])) {
+            $user->incrementVerificationAttempts();
+            
+            // Check if max attempts reached
+            if ($user->email_verification_attempts >= 3) {
+                return back()->withErrors([
+                    'verification_code' => 'Too many failed attempts. Please request a new verification code.'
+                ]);
+            }
+
+            return back()->withErrors([
+                'verification_code' => 'Invalid or expired verification code.'
+            ]);
+        }
+
+        // Mark email as verified
+        $user->markEmailAsVerified();
+
+        // OPTION 1: Auto-login after verification (if already approved)
+        if ($user->is_approved) {
+            Auth::login($user);
+            return redirect()->route('dashboard')
+                ->with('success', 'Email verified successfully! Welcome to your dashboard.');
+        }
+        
+        // OPTION 2: Still need HOD approval
+        return redirect()->route('show.login')
+            ->with('success', 'Email verified successfully! Please wait for HoD approval before logging in.');
+    }
+
+    public function resendVerificationCode(User $user)
+    {
+        // Check if user already verified
+        if ($user->email_verified_at !== null) {
+            return redirect()->route('show.login')
+                ->with('success', 'Email already verified. You can now login.');
+        }
+
+        // Rate limiting - allow resend only after 2 minutes
+        if ($user->email_verification_expires_at && 
+            $user->email_verification_expires_at->diffInMinutes(Carbon::now()) < 8) {
+            return back()->withErrors([
+                'resend' => 'Please wait before requesting another verification code.'
+            ]);
+        }
+
+        // Generate new token and send email
+        $user->generateEmailVerificationToken();
+        
+        try {
+            $user->notify(new EmailVerificationNotification($user->email_verification_token));
+            Log::info('Verification code resent to: ' . $user->email);
+            return back()->with('success', 'New verification code sent to your email.');
+        } catch (\Exception $e) {
+            Log::error('Failed to resend verification email: ' . $e->getMessage());
+            return back()->withErrors([
+                'resend' => 'Failed to send verification code. Please try again later.'
+            ]);
         }
     }
 
@@ -69,16 +185,28 @@ class AuthController extends Controller
         if (Auth::attempt($validated)) {
             $user = Auth::user();
             
+            // Skip email verification check for HOD
+            if ($user->role !== 'hod') {
+                // Check if email is verified for non-HOD users
+                if ($user->email_verified_at === null) {
+                    Auth::logout();
+                    
+                    // Redirect to verification page
+                    return redirect()->route('show.verify.email', ['user' => $user->id])
+                        ->withErrors(['credentials' => 'Please verify your email address first.']);
+                }
+            }
+            
             // Check if user is approved
             if (!$user->is_approved) {
-                Auth::logout(); // Log them out immediately
+                Auth::logout();
                 
                 throw ValidationException::withMessages([
                     'credentials' => 'Your account is pending approval. Please contact your HoD.',
                 ]);
             }
             
-            // User is approved, proceed with login
+            // User is verified and approved (or is HOD), proceed with login
             $request->session()->regenerate();
             return redirect()->route('dashboard')->with('success', 'Login successful!');
         }

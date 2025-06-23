@@ -6,48 +6,38 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Config;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
         'is_approved',
+        'email_verified_at',
+        'email_verification_token',
+        'email_verification_expires_at',
+        'email_verification_attempts',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
+        'email_verification_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
+        'email_verification_expires_at' => 'datetime',
         'is_approved' => 'boolean',
     ];
 
     /**
-     * Check if the user is a head of department
+     * Check if user is HOD
      */
     public function isHod()
     {
@@ -55,37 +45,55 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if the user is a manager
+     * Check if user's email has been verified
      */
-    public function isManager()
+    public function hasVerifiedEmail()
     {
-        return $this->role === 'manager';
+        return !is_null($this->email_verified_at);
     }
 
     /**
-     * Check if the user is staff
+     * Mark the given user's email as verified
      */
-    public function isStaff()
+    public function markEmailAsVerified()
     {
-        return $this->role === 'staff';
+        $this->forceFill([
+            'email_verified_at' => $this->freshTimestamp(),
+            'email_verification_token' => null,
+            'email_verification_expires_at' => null,
+            'email_verification_attempts' => 0,
+        ])->save();
     }
 
     /**
-     * Check if the user is approved
+     * Generate email verification token
      */
-    public function isApproved()
+    public function generateEmailVerificationToken()
     {
-        return $this->is_approved;
+        $token = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        
+        $this->forceFill([
+            'email_verification_token' => $token,
+            'email_verification_expires_at' => Carbon::now()->addMinutes(10),
+            'email_verification_attempts' => 0,
+        ])->save();
     }
-    
+
     /**
-     * Check if email is the designated HOD email
-     *
-     * @param string $email
-     * @return bool
+     * Check if the verification token is valid
      */
-    public static function isHodEmail($email)
+    public function isValidEmailVerificationToken($token)
     {
-        return $email === Config::get('roles.hod_email', 'hod@example.com');
+        return $this->email_verification_token === $token &&
+               $this->email_verification_expires_at &&
+               $this->email_verification_expires_at->isFuture();
+    }
+
+    /**
+     * Increment verification attempts
+     */
+    public function incrementVerificationAttempts()
+    {
+        $this->increment('email_verification_attempts');
     }
 }

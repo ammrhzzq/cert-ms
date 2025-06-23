@@ -91,14 +91,14 @@
             </span></td>
             <td>
                 <div class="action-icons">
-                    <a href="{{ route('certificates.preview', ['cert' => $cert]) }}" class="view-icon" title="View">
-                        <i class="fa-regular fa-eye"></i>
-                    </a>
                     @if ($cert->status == 'pending_review')
                     <a href="{{ route('certificates.edit', ['cert' => $cert]) }}" class="edit-icon" title="Edit">
                         <i class="fas fa-pencil-alt"></i>
                     </a>
                     @endif
+                    <a href="{{ route('certificates.preview', ['cert' => $cert]) }}" class="view-icon" title="View">
+                        <i class="fa-regular fa-eye"></i>
+                    </a>
                     @php
                     $user = auth()->user();
                     $canDelete = false;

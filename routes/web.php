@@ -19,10 +19,14 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Guest routes (only accessible if not logged in)
 Route::middleware(['guest'])->group(function () {
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('show.register');
     Route::get('/login', [AuthController::class, 'showLogin'])->name('show.login');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('show.register');
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/register', [AuthController::class, 'register'])->name('register');
     Route::post('/login', [AuthController::class, 'login'])->name('login');
+    Route::get('/verify-email/{user}', [AuthController::class, 'showVerifyEmail'])->name('show.verify.email');
+    Route::post('/verify-email/{user}', [AuthController::class, 'verifyEmail'])->name('verify.email');
+    Route::post('/resend-verification/{user}', [AuthController::class, 'resendVerificationCode'])->name('resend.verification');
 });
 
 // Protected routes
@@ -35,7 +39,9 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/api/notifications', [NotificationController::class, 'getNotifications'])->name('notifications.get');
-    Route::get('/manual', function () {return view('manual.user_manual');})->name('user.manual');
+    Route::get('/manual', function () {
+        return view('manual.user_manual');
+    })->name('user.manual');
 
     // Client routes
     Route::get('/client', [ClientController::class, 'index'])->name('clients.index');

@@ -5,11 +5,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $activeTab == 'login' ? 'Login' : ($activeTab == 'register' ? 'Register' : 'Reset Password') }}</title>
+    <title>
+        @if($activeTab == 'login')
+            Login
+        @elseif($activeTab == 'register')
+            Register
+        @elseif($activeTab == 'verify-email')
+            Verify Email
+        @else
+            Reset Password
+        @endif
+    </title>
     <link rel="stylesheet" href="{{ asset('css/global.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+        .verification-code-input {
+            text-align: center;
+            font-size: 24px;
+            letter-spacing: 8px;
+            font-weight: bold;
+        }
+        .resend-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .resend-btn {
+            background: none;
+            border: none;
+            color: #007bff;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .resend-btn:hover {
+            color: #0056b3;
+        }
     </style>
 </head>
 
@@ -40,7 +71,8 @@
             </div>
             @endif
 
-            <!-- Tab navigation -->
+            <!-- Tab navigation (hide for email verification) -->
+            @if($activeTab !== 'verify-email')
             <ul class="tabs" id="authTabs">
                 <li class="item">
                     <a class="link {{ $activeTab == 'login' ? 'active' : '' }}"
@@ -51,6 +83,7 @@
                         href="{{ route('show.register') }}">Register</a>
                 </li>
             </ul>
+            @endif
 
             <!-- Content for Login -->
             @if($activeTab == 'login')
@@ -105,6 +138,49 @@
                 <button type="submit" class="btn">Sign Up</button>
             </form>
             @endif
+
+            <!-- Content for Email Verification -->
+            @if($activeTab == 'verify-email')
+            <form action="{{ route('verify.email', ['user' => $user->id]) }}" method="POST">
+                @csrf
+                <h2>Verify Your Email</h2>
+                
+                <p class="text-center text-muted">
+                    We've sent a 6-digit verification code to<br>
+                    <strong>{{ $user->email }}</strong>
+                </p>
+
+                <div class="form-group">
+                    <input type="text" 
+                           name="verification_code" 
+                           placeholder="000000" 
+                           class="form-control verification-code-input"
+                           maxlength="6" 
+                           pattern="[0-9]{6}"
+                           required 
+                           value="{{ old('verification_code') }}"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                </div>
+
+                <button type="submit" class="btn">Verify Email</button>
+
+                <div class="resend-section">
+                    <p class="text-muted">
+                        <small>Didn't receive the code?</small>
+                    </p>
+                    <form action="{{ route('resend.verification', ['user' => $user->id]) }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" class="resend-btn">Resend Code</button>
+                    </form>
+                </div>
+
+                <div class="help-text">
+                    <p class="text-muted text-center">
+                        <small>The code expires in 10 minutes</small>
+                    </p>
+                </div>
+            </form>
+            @endif
         </div>
     </div>
 
@@ -122,6 +198,12 @@
             if (isDarkMode) {
                 document.body.classList.add('dark-mode');
                 document.getElementById('mode-toggle').innerHTML = '<i class="fas fa-sun"></i>';
+            }
+
+            // Auto-focus verification code input
+            const verificationInput = document.querySelector('input[name="verification_code"]');
+            if (verificationInput) {
+                verificationInput.focus();
             }
         });
 
