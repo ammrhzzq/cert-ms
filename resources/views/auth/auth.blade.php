@@ -19,29 +19,6 @@
     <link rel="stylesheet" href="{{ asset('css/global.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        .verification-code-input {
-            text-align: center;
-            font-size: 24px;
-            letter-spacing: 8px;
-            font-weight: bold;
-        }
-        .resend-section {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .resend-btn {
-            background: none;
-            border: none;
-            color: #007bff;
-            text-decoration: underline;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .resend-btn:hover {
-            color: #0056b3;
-        }
-    </style>
 </head>
 
 <body>
@@ -104,7 +81,7 @@
 
                 <div class="help-text">
                     <p class="text-muted">
-                        <small>Forgot your password? Contact HoD for a password reset.</small>
+                        <small>Forgot your password? Contact system administrator for a password reset.</small>
                     </p>
                 </div>
             </form>
@@ -127,15 +104,47 @@
                 </div>
 
                 <div class="form-group">
-                    <input type="password" name="password" placeholder="Enter your password" class="form-control" required>
+                    <input type="password" name="password" placeholder="Enter your password" class="form-control" 
+                        id="password" required>
+                    
+                    <!-- Password Strength Indicator -->
+                    <div class="password-strength" id="passwordStrength">
+                        <h6>Password Strength</h6>
+                        <div class="strength-bar">
+                            <div class="strength-progress" id="strengthProgress"></div>
+                        </div>
+                        <ul class="password-requirements" id="passwordRequirements">
+                            <li id="req-length">
+                                <i class="fas fa-times requirement-unmet"></i>
+                                At least 8 characters
+                            </li>
+                            <li id="req-lowercase">
+                                <i class="fas fa-times requirement-unmet"></i>
+                                One lowercase letter
+                            </li>
+                            <li id="req-uppercase">
+                                <i class="fas fa-times requirement-unmet"></i>
+                                One uppercase letter
+                            </li>
+                            <li id="req-number">
+                                <i class="fas fa-times requirement-unmet"></i>
+                                One number
+                            </li>
+                            <li id="req-special">
+                                <i class="fas fa-times requirement-unmet"></i>
+                                One special character
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <input type="password" name="password_confirmation" placeholder="Confirm your password"
-                        class="form-control" required>
+                        class="form-control" id="passwordConfirm" required>
+                    <div id="passwordMatch" style="margin-top: 5px; font-size: 12px; display: none;"></div>
                 </div>
 
-                <button type="submit" class="btn">Sign Up</button>
+                <button type="submit" class="btn" id="submitBtn">Sign Up</button>
             </form>
             @endif
 
@@ -205,6 +214,9 @@
             if (verificationInput) {
                 verificationInput.focus();
             }
+
+            // Initialize password strength checker
+            initPasswordStrengthChecker();
         });
 
         // Toggle dark mode
@@ -218,6 +230,108 @@
             // Set cookie for persistence
             document.cookie = `darkMode=${isDarkMode}; path=/; max-age=${60*60*24*365}`;
         });
+
+        // Password Strength Checker
+        function initPasswordStrengthChecker() {
+            const passwordInput = document.getElementById('password');
+            const passwordConfirm = document.getElementById('passwordConfirm');
+            const strengthIndicator = document.getElementById('passwordStrength');
+            const strengthProgress = document.getElementById('strengthProgress');
+            const submitBtn = document.getElementById('submitBtn');
+            const passwordMatch = document.getElementById('passwordMatch');
+
+            if (!passwordInput || !strengthIndicator) return;
+
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                
+                if (password.length > 0) {
+                    strengthIndicator.classList.add('active');
+                    checkPasswordStrength(password);
+                } else {
+                    strengthIndicator.classList.remove('active');
+                }
+            });
+
+            passwordInput.addEventListener('focus', function() {
+                if (this.value.length > 0) {
+                    strengthIndicator.classList.add('active');
+                }
+            });
+
+            // Password confirmation matching
+            if (passwordConfirm && passwordMatch) {
+                passwordConfirm.addEventListener('input', function() {
+                    const password = passwordInput.value;
+                    const confirmPassword = this.value;
+                    
+                    if (confirmPassword.length > 0) {
+                        passwordMatch.style.display = 'block';
+                        if (password === confirmPassword) {
+                            passwordMatch.innerHTML = '<i class="fas fa-check" style="color: #28a745;"></i> Passwords match';
+                            passwordMatch.style.color = '#28a745';
+                        } else {
+                            passwordMatch.innerHTML = '<i class="fas fa-times" style="color: #dc3545;"></i> Passwords do not match';
+                            passwordMatch.style.color = '#dc3545';
+                        }
+                    } else {
+                        passwordMatch.style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        function checkPasswordStrength(password) {
+            const requirements = {
+                length: password.length >= 8,
+                lowercase: /[a-z]/.test(password),
+                uppercase: /[A-Z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+            };
+
+            // Update requirement indicators
+            updateRequirement('req-length', requirements.length);
+            updateRequirement('req-lowercase', requirements.lowercase);
+            updateRequirement('req-uppercase', requirements.uppercase);
+            updateRequirement('req-number', requirements.number);
+            updateRequirement('req-special', requirements.special);
+
+            // Calculate strength score
+            const score = Object.values(requirements).filter(Boolean).length;
+            const strengthProgress = document.getElementById('strengthProgress');
+            
+            // Update progress bar
+            const percentage = (score / 5) * 100;
+            strengthProgress.style.width = percentage + '%';
+            
+            // Update progress bar color
+            strengthProgress.className = 'strength-progress';
+            if (score <= 2) {
+                strengthProgress.classList.add('strength-weak');
+            } else if (score === 3) {
+                strengthProgress.classList.add('strength-fair');
+            } else if (score === 4) {
+                strengthProgress.classList.add('strength-good');
+            } else {
+                strengthProgress.classList.add('strength-strong');
+            }
+        }
+
+        function updateRequirement(elementId, isMet) {
+            const element = document.getElementById(elementId);
+            const icon = element.querySelector('i');
+            
+            if (isMet) {
+                icon.className = 'fas fa-check requirement-met';
+                element.classList.remove('requirement-unmet');
+                element.classList.add('requirement-met');
+            } else {
+                icon.className = 'fas fa-times requirement-unmet';
+                element.classList.remove('requirement-met');
+                element.classList.add('requirement-unmet');
+            }
+        }
     </script>
 </body>
 

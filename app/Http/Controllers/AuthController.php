@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rules\Password;
 use Carbon\Carbon;
 
 class AuthController extends Controller
@@ -32,7 +33,24 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => [
+                'required',
+                'string',
+                'confirmed',
+                Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised()
+            ],
+        ], [
+            'password.min' => 'Password must be at least 8 characters long.',
+            'password.letters' => 'Password must contain at least one letter.',
+            'password.mixed_case' => 'Password must contain both uppercase and lowercase letters.',
+            'password.numbers' => 'Password must contain at least one number.',
+            'password.symbols' => 'Password must contain at least one special character.',
+            'password.uncompromised' => 'This password has been compromised in data breaches. Please choose a different password.',
         ]);
 
         // Hash the password
@@ -53,6 +71,7 @@ class AuthController extends Controller
             $validated['role'] = 'staff';
             
             // Auto-approve Gmail users, others need HOD approval
+            // TODO: Remove Gmail auto-approval once domain email is configured
             if ($emailDomain === 'gmail.com') {
                 $validated['is_approved'] = true; // Auto-approve Gmail users
             } else {
