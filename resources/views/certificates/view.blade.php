@@ -110,9 +110,51 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Certificate</th>
-                <th>Issue Date</th>
-                <th>Expiry Date</th>
+                <th class="sortable-header">
+                    <a href="{{ route('certificates.view', array_merge(request()->except(['sort_field', 'sort_direction']), [
+                        'sort_field' => 'comp_name',
+                        'sort_direction' => ($currentSortField == 'comp_name' && $currentSortDirection == 'asc') ? 'desc' : 'asc'
+                    ])) }}">
+                        Certificate
+                        @if($currentSortField == 'comp_name')
+                        @if($currentSortDirection == 'asc')
+                        <i class="fas fa-sort-up sort-icon"></i>
+                        @else
+                        <i class="fas fa-sort-down sort-icon"></i>
+                        @endif
+                        @endif
+                    </a>
+                </th>
+                <th class="sortable-header">
+                    <a href="{{ route('certificates.view', array_merge(request()->except(['sort_field', 'sort_direction']), [
+                        'sort_field' => 'issue_date',
+                        'sort_direction' => ($currentSortField == 'issue_date' && $currentSortDirection == 'asc') ? 'desc' : 'asc'
+                    ])) }}">
+                        Issue Date
+                        @if($currentSortField == 'issue_date')
+                        @if($currentSortDirection == 'asc')
+                        <i class="fas fa-sort-up sort-icon"></i>
+                        @else
+                        <i class="fas fa-sort-down sort-icon"></i>
+                        @endif
+                        @endif
+                    </a>
+                </th>
+                <th class="sortable-header">
+                    <a href="{{ route('certificates.view', array_merge(request()->except(['sort_field', 'sort_direction']), [
+                        'sort_field' => 'exp_date',
+                        'sort_direction' => ($currentSortField == 'exp_date' && $currentSortDirection == 'asc') ? 'desc' : 'asc'
+                    ])) }}">
+                        Expiry Date
+                        @if($currentSortField == 'exp_date')
+                        @if($currentSortDirection == 'asc')
+                        <i class="fas fa-sort-up sort-icon"></i>
+                        @else
+                        <i class="fas fa-sort-down sort-icon"></i>
+                        @endif
+                        @endif
+                    </a>
+                </th>
                 <th>Certificate ID</th>
                 <th>Action</th>
             </tr>
@@ -120,7 +162,7 @@
         <tbody>
             @foreach($certs as $cert)
             @if ($cert->status == 'certificate_issued')
-            <tr class="clickable-row" 
+            <tr class="clickable-row"
                 data-certificate-id="{{ $cert->id }}"
                 data-certificate-name="{{ $cert->cert_type }}-{{ $cert->comp_name }}"
                 data-preview-url="{{ route('certificates.preview-final', $cert->id) }}">
@@ -131,7 +173,7 @@
                 <td>{{ \Carbon\Carbon::parse($cert->exp_date)->format('d/m/Y') }}</td>
 
                 <td>{{ $cert->cert_number }}</td>
-                
+
                 <td>
                     <div class="action-icons">
                         <a href="#" class="view-icon"
@@ -218,7 +260,7 @@
                 btn.addEventListener('click', function(event) {
                     event.preventDefault();
                     event.stopPropagation(); // Prevent row click when clicking the eye icon
-                    
+
                     const certificateId = this.getAttribute('data-certificate-id');
                     const certificateName = this.getAttribute('data-certificate-name');
                     const previewUrl = this.getAttribute('data-preview-url');
@@ -272,7 +314,7 @@
                 form.addEventListener('submit', function(event) {
                     event.preventDefault();
                     event.stopPropagation(); // Prevent row click when clicking delete
-                    
+
                     if (confirm('Are you sure you want to delete this certificate?')) {
                         // If confirmed, submit the form
                         this.submit();

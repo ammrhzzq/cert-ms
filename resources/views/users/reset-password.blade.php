@@ -47,22 +47,4 @@
         </form>
     </div>
 </div>
-
-<style>
-.user-info {
-    background-color: #f8f9fa;
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-}
-
-.user-info p {
-    margin: 5px 0;
-}
-
-[data-theme="dark"] .user-info {
-    background-color: #2d3748;
-    color: #e2e8f0;
-}
-</style>
 @endsection

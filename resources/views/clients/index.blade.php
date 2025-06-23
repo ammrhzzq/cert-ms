@@ -9,7 +9,6 @@
 @section('content')
 <h1>Client List</h1>
 
-
 <!-- Success alert -->
 @if(session()->has('success'))
 <div class="alert alert-success">
@@ -28,7 +27,16 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Name</th>
+            <th class="sortable-header">
+                <a href="{{ route('clients.index', ['sort' => $currentSort == 'asc' ? 'desc' : 'asc']) }}" >
+                    Name
+                    @if($currentSort == 'asc')
+                        <i class="fas fa-sort-up sort-icon"></i>
+                    @else
+                        <i class="fas fa-sort-down sort-icon"></i>
+                    @endif
+                </a>
+            </th>
             <th>Address</th>
             <th>Contact Person</th>
             <th>Contact Number</th>
@@ -71,5 +79,4 @@
         @endforeach
     </tbody>
 </table>
-</div>
 @endsection

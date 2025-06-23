@@ -636,3 +636,14 @@ input[type="submit"]:hover {
         text-align: center;
     }
 }
+
+.user-info {
+    background-color: var(--bg-color);
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.user-info p {
+    margin: 5px 0;
+}

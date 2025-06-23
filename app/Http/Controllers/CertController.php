@@ -59,6 +59,23 @@ class CertController extends Controller
             });
         }
 
+        // Apply sorting
+        $sortField = $request->get('sort_field', 'created_at'); // Default sort field
+        $sortDirection = $request->get('sort_direction', 'desc'); // Default sort direction
+
+        // Validate sort field to prevent SQL injection
+        $allowedSortFields = ['cert_type', 'comp_name', 'created_at', 'last_edited_at', 'status'];
+        if (!in_array($sortField, $allowedSortFields)) {
+            $sortField = 'created_at';
+        }
+
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+
+        $query->orderBy($sortField, $sortDirection);
+
         // Get all certificates matching the query
         $cert = $query->get();
 
@@ -91,7 +108,9 @@ class CertController extends Controller
             'regDates' => $regDates,
             'issueDates' => $issueDates,
             'expDates' => $expDates,
-            'statusCounts' => $statusCounts
+            'statusCounts' => $statusCounts,
+            'currentSortField' => $sortField,
+            'currentSortDirection' => $sortDirection
         ]);
     }
 
@@ -255,6 +274,23 @@ class CertController extends Controller
             });
         }
 
+        // Apply sorting
+        $sortField = $request->get('sort_field', 'issue_date'); // Default sort field
+        $sortDirection = $request->get('sort_direction', 'desc'); // Default sort direction
+
+        // Validate sort field to prevent SQL injection
+        $allowedSortFields = ['cert_type', 'comp_name', 'issue_date', 'exp_date'];
+        if (!in_array($sortField, $allowedSortFields)) {
+            $sortField = 'issue_date';
+        }
+
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+
+        $query->orderBy($sortField, $sortDirection);
+
         // Get all certificates matching the query
         $cert = $query->get();
 
@@ -287,7 +323,9 @@ class CertController extends Controller
             'regDates' => $regDates,
             'issueDates' => $issueDates,
             'expDates' => $expDates,
-            'statusCounts' => $statusCounts
+            'statusCounts' => $statusCounts,
+            'currentSortField' => $sortField,
+            'currentSortDirection' => $sortDirection
         ]);
     }
 

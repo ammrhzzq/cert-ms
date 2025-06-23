@@ -7,9 +7,22 @@ use App\Models\Client;
 
 class ClientController extends Controller
 {
-    public function index() {
-        $clients = Client::all();
-        return view('clients.index', ['clients' => $clients]);
+    public function index(Request $request) {
+        // Get sort direction from request, default to 'asc'
+        $sortDirection = $request->get('sort', 'asc');
+        
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+        
+        // Sort clients by company name
+        $clients = Client::orderBy('comp_name', $sortDirection)->get();
+        
+        return view('clients.index', [
+            'clients' => $clients,
+            'currentSort' => $sortDirection
+        ]);
     }
 
     public function create() {

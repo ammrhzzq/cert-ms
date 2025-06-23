@@ -53,26 +53,84 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Certificate</th>
-            <th>Created</th>
-            <th>Last Edited</th>
-            <th>Status</th>
+            <th class="sortable-header">
+                <a href="{{ route('certificates.index', array_merge(request()->except(['sort_field', 'sort_direction']), [
+                    'sort_field' => 'comp_name',
+                    'sort_direction' => ($currentSortField == 'comp_name' && $currentSortDirection == 'asc') ? 'desc' : 'asc'
+                ])) }}">
+                    Certificate
+                    @if($currentSortField == 'comp_name')
+                        @if($currentSortDirection == 'asc')
+                            <i class="fas fa-sort-up sort-icon"></i>
+                        @else
+                            <i class="fas fa-sort-down sort-icon"></i>
+                        @endif
+                    @endif
+                </a>
+            </th>
+            <th class="sortable-header">
+                <a href="{{ route('certificates.index', array_merge(request()->except(['sort_field', 'sort_direction']), [
+                    'sort_field' => 'created_at',
+                    'sort_direction' => ($currentSortField == 'created_at' && $currentSortDirection == 'asc') ? 'desc' : 'asc'
+                ])) }}">
+                    Created
+                    @if($currentSortField == 'created_at')
+                        @if($currentSortDirection == 'asc')
+                            <i class="fas fa-sort-up sort-icon"></i>
+                        @else
+                            <i class="fas fa-sort-down sort-icon"></i>
+                        @endif
+                    @endif
+                </a>
+            </th>
+            <th class="sortable-header">
+                <a href="{{ route('certificates.index', array_merge(request()->except(['sort_field', 'sort_direction']), [
+                    'sort_field' => 'last_edited_at',
+                    'sort_direction' => ($currentSortField == 'last_edited_at' && $currentSortDirection == 'asc') ? 'desc' : 'asc'
+                ])) }}">
+                    Last Edited
+                    @if($currentSortField == 'last_edited_at')
+                        @if($currentSortDirection == 'asc')
+                            <i class="fas fa-sort-up sort-icon"></i>
+                        @else
+                            <i class="fas fa-sort-down sort-icon"></i>
+                        @endif
+                    @endif
+                </a>
+            </th>
+            <th class="sortable-header">
+                <a href="{{ route('certificates.index', array_merge(request()->except(['sort_field', 'sort_direction']), [
+                    'sort_field' => 'status',
+                    'sort_direction' => ($currentSortField == 'status' && $currentSortDirection == 'asc') ? 'desc' : 'asc'
+                ])) }}">
+                    Status
+                    @if($currentSortField == 'status')
+                        @if($currentSortDirection == 'asc')
+                            <i class="fas fa-sort-up sort-icon"></i>
+                        @else
+                            <i class="fas fa-sort-down sort-icon"></i>
+                        @endif
+                    @endif
+                </a>
+            </th>
             <th>Action</th>
         </tr>
     </thead>
     <tbody>
         @foreach($certs as $cert)
-        <tr class="clickable-row" 
+        <tr class="clickable-row"
             data-certificate-id="{{ $cert->id }}"
             data-certificate-name="{{ $cert->cert_type }}-{{ $cert->comp_name }}"
             data-preview-url="{{ route('certificates.preview', $cert->id) }}">
             <td>{{ $cert->cert_type }}-{{ $cert->comp_name }}</td>
             <td>
-                @if($cert->creator)
+                @if($cert->created_at)
                 {{ \Carbon\Carbon::parse($cert->created_at)->format('d/m/Y H:i') }}<br>
+                @if($cert->creator)
                 by {{ $cert->creator->name }}
                 @else
                 Unknown Creator
+                @endif
                 @endif
             </td>
             <td>
@@ -87,8 +145,8 @@
             </td>
 
             <td><span class="status-badge status-{{ $cert->status }}">
-                {{ ucfirst(str_replace('_', ' ', $cert->status)) }}
-            </span></td>
+                    {{ ucfirst(str_replace('_', ' ', $cert->status)) }}
+                </span></td>
             <td>
                 <div class="action-icons">
                     @if ($cert->status == 'pending_review')
@@ -153,7 +211,7 @@
                 }
 
                 const previewUrl = this.getAttribute('data-preview-url');
-                
+
                 // Navigate to the preview page
                 window.location.href = previewUrl;
             });

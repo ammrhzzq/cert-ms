@@ -183,7 +183,7 @@ h1 {
 
 /* Create button */
 .create-btn {
-    background-color: var(--primary-color); 
+    background-color: var(--primary-color);
     color: var(--bg-color);
     border: none;
     border-radius: 16px;
@@ -221,6 +221,27 @@ h1 {
     text-align: left;
     padding: 16px 32px;
     border-bottom: 3px solid var(--primary-color);
+}
+
+.sortable-header {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+}
+
+.sortable-header:hover {
+    background-color: var(--hover-color);
+}
+
+.sortable-header a{
+    text-decoration: none;
+    color: inherit;
+}
+
+.sort-icon {
+    margin-left: 5px;
+    font-size: 12px;
 }
 
 .table td {
@@ -267,7 +288,9 @@ h1 {
     justify-content: flex-start;
 }
 
-.view-icon, .edit-icon, .delete-icon {
+.view-icon,
+.edit-icon,
+.delete-icon {
     background: none;
     border: none;
     cursor: pointer;
@@ -286,7 +309,9 @@ h1 {
     color: var(--red-border);
 }
 
-.view-icon:hover, .edit-icon:hover, .delete-icon:hover {
+.view-icon:hover,
+.edit-icon:hover,
+.delete-icon:hover {
     opacity: 1;
 }
 
@@ -305,16 +330,16 @@ h1 {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .search-container {
         width: 100%;
     }
-    
+
     .client-table {
         display: block;
         overflow-x: auto;
     }
-    
+
     .pagination-controls ul {
         flex-wrap: wrap;
     }
