@@ -290,7 +290,8 @@ h1 {
 
 .view-icon,
 .edit-icon,
-.delete-icon {
+.delete-icon,
+.reset-password-icon {
     background: none;
     border: none;
     cursor: pointer;
@@ -309,9 +310,14 @@ h1 {
     color: var(--red-border);
 }
 
+.reset-password-icon {
+    color: var(--gray-border);
+}
+
 .view-icon:hover,
 .edit-icon:hover,
-.delete-icon:hover {
+.delete-icon:hover,
+.reset-password-icon:hover {
     opacity: 1;
 }
 

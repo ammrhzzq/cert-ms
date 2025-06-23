@@ -7,17 +7,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
         @if($activeTab == 'login')
-            Login
+        Login
         @elseif($activeTab == 'register')
-            Register
+        Register
         @elseif($activeTab == 'verify-email')
-            Verify Email
+        Verify Email
         @else
-            Reset Password
+        Reset Password
         @endif
     </title>
     <link rel="stylesheet" href="{{ asset('css/global.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/password-strength.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
@@ -104,9 +105,9 @@
                 </div>
 
                 <div class="form-group">
-                    <input type="password" name="password" placeholder="Enter your password" class="form-control" 
+                    <input type="password" name="password" placeholder="Enter your password" class="form-control"
                         id="password" required>
-                    
+
                     <!-- Password Strength Indicator -->
                     <div class="password-strength" id="passwordStrength">
                         <h6>Password Strength</h6>
@@ -153,22 +154,22 @@
             <form action="{{ route('verify.email', ['user' => $user->id]) }}" method="POST">
                 @csrf
                 <h2>Verify Your Email</h2>
-                
+
                 <p class="text-center text-muted">
                     We've sent a 6-digit verification code to<br>
                     <strong>{{ $user->email }}</strong>
                 </p>
 
                 <div class="form-group">
-                    <input type="text" 
-                           name="verification_code" 
-                           placeholder="000000" 
-                           class="form-control verification-code-input"
-                           maxlength="6" 
-                           pattern="[0-9]{6}"
-                           required 
-                           value="{{ old('verification_code') }}"
-                           oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <input type="text"
+                        name="verification_code"
+                        placeholder="000000"
+                        class="form-control verification-code-input"
+                        maxlength="6"
+                        pattern="[0-9]{6}"
+                        required
+                        value="{{ old('verification_code') }}"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                 </div>
 
                 <button type="submit" class="btn">Verify Email</button>
@@ -244,7 +245,7 @@
 
             passwordInput.addEventListener('input', function() {
                 const password = this.value;
-                
+
                 if (password.length > 0) {
                     strengthIndicator.classList.add('active');
                     checkPasswordStrength(password);
@@ -264,7 +265,7 @@
                 passwordConfirm.addEventListener('input', function() {
                     const password = passwordInput.value;
                     const confirmPassword = this.value;
-                    
+
                     if (confirmPassword.length > 0) {
                         passwordMatch.style.display = 'block';
                         if (password === confirmPassword) {
@@ -300,11 +301,11 @@
             // Calculate strength score
             const score = Object.values(requirements).filter(Boolean).length;
             const strengthProgress = document.getElementById('strengthProgress');
-            
+
             // Update progress bar
             const percentage = (score / 5) * 100;
             strengthProgress.style.width = percentage + '%';
-            
+
             // Update progress bar color
             strengthProgress.className = 'strength-progress';
             if (score <= 2) {
@@ -321,7 +322,7 @@
         function updateRequirement(elementId, isMet) {
             const element = document.getElementById(elementId);
             const icon = element.querySelector('i');
-            
+
             if (isMet) {
                 icon.className = 'fas fa-check requirement-met';
                 element.classList.remove('requirement-unmet');
