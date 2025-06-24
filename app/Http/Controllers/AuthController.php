@@ -56,8 +56,9 @@ class AuthController extends Controller
         // Hash the password
         $validated['password'] = bcrypt($validated['password']);
         
-        // Check if the email is the designated HOD email
+        // Check if the email is the designated HOD or Administrator email
         $hodEmail = env('HOD_EMAIL', 'hod@cybersecurity.my');
+        $adminEmail = env('ADMIN_EMAIL', 'admin@cybersecurity.my');
         
         // Get email domain
         $emailDomain = substr(strrchr($validated['email'], '@'), 1);
@@ -67,6 +68,10 @@ class AuthController extends Controller
             $validated['role'] = 'hod';
             $validated['is_approved'] = true; // Auto-approve HOD
             $validated['email_verified_at'] = now(); // Auto-verify HOD email
+        } elseif ($validated['email'] === $adminEmail) {
+            $validated['role'] = 'admin';
+            $validated['is_approved'] = true; // Auto-approve Administrator
+            $validated['email_verified_at'] = now(); // Auto-verify Administrator email
         } else {
             $validated['role'] = 'staff';
             
@@ -81,8 +86,8 @@ class AuthController extends Controller
 
         $user = User::create($validated);
 
-        // Only send verification email for non-HOD users
-        if ($user->role !== 'hod') {
+        // Only send verification email for staff users (skip HOD and Administrator)
+        if (!in_array($user->role, ['hod', 'admin'])) {
             // Generate and send email verification token
             $user->generateEmailVerificationToken();
             
@@ -99,9 +104,10 @@ class AuthController extends Controller
                     ->with('error', 'Registration successful but failed to send verification email. Please contact support.');
             }
         } else {
-            // HOD registration complete - redirect to login
+            // HOD or Administrator registration complete - redirect to login
+            $roleTitle = $user->role === 'hod' ? 'HOD' : 'Admin';
             return redirect()->route('show.login')
-                ->with('success', 'HOD registration successful! You can now login directly.');
+                ->with('success', $roleTitle . ' registration successful! You can now login directly.');
         }
     }
 
@@ -157,9 +163,9 @@ class AuthController extends Controller
                 ->with('success', 'Email verified successfully! Welcome to your dashboard.');
         }
         
-        // OPTION 2: Still need HOD approval
+        // OPTION 2: Still need approval
         return redirect()->route('show.login')
-            ->with('success', 'Email verified successfully! Please wait for HoD approval before logging in.');
+            ->with('success', 'Email verified successfully! Please wait for approval before logging in.');
     }
 
     public function resendVerificationCode(User $user)
@@ -204,9 +210,9 @@ class AuthController extends Controller
         if (Auth::attempt($validated)) {
             $user = Auth::user();
             
-            // Skip email verification check for HOD
-            if ($user->role !== 'hod') {
-                // Check if email is verified for non-HOD users
+            // Skip email verification check for HOD and Administrator
+            if (!in_array($user->role, ['hod', 'admin'])) {
+                // Check if email is verified for staff users
                 if ($user->email_verified_at === null) {
                     Auth::logout();
                     
@@ -221,11 +227,11 @@ class AuthController extends Controller
                 Auth::logout();
                 
                 throw ValidationException::withMessages([
-                    'credentials' => 'Your account is pending approval. Please contact your HoD.',
+                    'credentials' => 'Your account is pending approval. Please contact your administrator.',
                 ]);
             }
             
-            // User is verified and approved (or is HOD), proceed with login
+            // User is verified and approved (or is HOD/Administrator), proceed with login
             $request->session()->regenerate();
             return redirect()->route('dashboard')->with('success', 'Login successful!');
         }

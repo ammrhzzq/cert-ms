@@ -91,8 +91,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/template/{template}/preview', [TemplateController::class, 'preview'])->name('templates.preview');
     Route::patch('/template/{template}/toggle', [TemplateController::class, 'toggleActive'])->name('templates.toggle');
     Route::delete('/template/{template}', [TemplateController::class, 'destroy'])->name('templates.destroy');
-
-    // Additional routes for full functionality (add these)
     Route::get('/template/{template}/edit', [TemplateController::class, 'edit'])->name('templates.edit');
     Route::put('/template/{template}', [TemplateController::class, 'update'])->name('templates.update');
     Route::get('/template/{template}/download', [TemplateController::class, 'download'])->name('templates.download');

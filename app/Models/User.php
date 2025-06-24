@@ -45,6 +45,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is Administrator
+     */
+    public function isAdministrator()
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is HOD or Administrator
+     */
+    public function hasAdminPrivileges()
+    {
+        return in_array($this->role, ['hod', 'admin']);
+    }
+
+    /**
+     * Check if user is staff
+     */
+    public function isStaff()
+    {
+        return $this->role === 'staff';
+    }
+
+    /**
      * Check if user's email has been verified
      */
     public function hasVerifiedEmail()

@@ -309,58 +309,6 @@ textarea.form-control {
     padding-left: 20px;
 }
 
-/* Status Badge Styling */
-.status-badge {
-    display: inline-block;
-    white-space: nowrap;
-    padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 14px;
-}
-
-.status-pending_review {
-    background-color: #ebebeb;
-    color: var(--gray-border);
-}
-
-.status-pending_client_verification {
-    background-color: #feffd4;
-    color: #bdb000;
-}
-
-.status-client_verified {
-    background-color: #ffebd4;
-    color: var(--orange-border);
-}
-
-.status-need_revision {
-    background-color: #fcdede;
-    color: var(--red-border);
-}
-
-.status-pending_hod_approval {
-    background-color: #e0ffd8;
-    color: var(--green-border);
-}
-
-.status-certificate_issued {
-    background-color: #e0eefd;
-    color: var(--blue-border);
-}
-
-.status-success {
-    background-color: #22c55e;
-}
-
-.status-warning {
-    background-color: #f59e0b;
-    color: #000000;
-}
-
-.status-secondary {
-    background-color: #6b7280;
-}
-
 /* Action Button Styling */
 .btn-action {
     background-color: var(--primary-color);

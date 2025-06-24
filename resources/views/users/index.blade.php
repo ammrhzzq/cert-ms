@@ -4,6 +4,7 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+<link rel="stylesheet" href="{{ asset('css/badge.css') }}">
 @endsection
 
 @section('content')
@@ -39,7 +40,12 @@
         <tr>
             <td>{{ $user->name }}</td>
             <td>{{ $user->email }}</td>
-            <td>{{ ucfirst($user->role) }}</td>
+            <td>
+                <span class="role-badge role-{{ $user->role }}">
+                    {{ ucfirst($user->role) }}
+                </span>
+
+            </td>
             <td>
                 <span class="badge {{ $user->is_approved ? 'badge-success' : 'badge-warning' }}">
                     {{ $user->is_approved ? 'Approved' : 'Pending' }}

@@ -28,9 +28,14 @@ class UserController extends Controller
         // Check if HOD already exists
         $hodExists = User::where('role', 'hod')->exists();
         
+        // Check if Administrator already exists
+        $adminExists = User::where('role', 'admin')->exists();
+        
         return view('users.create', [
             'hodExists' => $hodExists,
-            'hodEmail' => Config::get('roles.hod_email', 'hod@cybersecurity.my')
+            'adminExists' => $adminExists,
+            'hodEmail' => Config::get('roles.hod_email', 'hod@cybersecurity.my'),
+            'adminEmail' => Config::get('roles.admin_email', 'admin@cybersecurity.my')
         ]);
     }
 
@@ -46,15 +51,25 @@ class UserController extends Controller
             'role' => [
                 'required',
                 'string',
-                Rule::in(['staff', 'manager', 'hod']),
+                Rule::in(['staff', 'manager', 'hod', 'admin']),
             ],
         ]);
 
-        // Check if trying to create HOD but it's not the designated email
+        // Get designated emails
         $hodEmail = Config::get('roles.hod_email', 'hod@cybersecurity.my');
+        $adminEmail = Config::get('roles.admin_email', 'admin@cybersecurity.my');
+
+        // Check if trying to create HOD but it's not the designated email
         if ($data['role'] === 'hod' && $data['email'] !== $hodEmail) {
             return redirect()->back()->withErrors([
                 'email' => "Only the designated email ({$hodEmail}) can be assigned the HOD role."
+            ])->withInput();
+        }
+
+        // Check if trying to create Administrator but it's not the designated email
+        if ($data['role'] === 'admin' && $data['email'] !== $adminEmail) {
+            return redirect()->back()->withErrors([
+                'email' => "Only the designated email ({$adminEmail}) can be assigned the Administrator role."
             ])->withInput();
         }
         
@@ -65,11 +80,23 @@ class UserController extends Controller
             ])->withInput();
         }
 
+        // Check if Administrator already exists when trying to create another Administrator
+        if ($data['role'] === 'administrator' && User::where('role', 'admin')->exists()) {
+            return redirect()->back()->withErrors([
+                'role' => 'Administrator role already assigned to another user. There can only be one Administrator.'
+            ])->withInput();
+        }
+
         // Hash the password
         $data['password'] = bcrypt($data['password']);
         
         // Set default approval status
         $data['is_approved'] = true;
+
+        // Auto-verify email for HOD and Administrator
+        if (in_array($data['role'], ['hod', 'admin'])) {
+            $data['email_verified_at'] = now();
+        }
 
         $newUser = User::create($data);
         return redirect()->route('users.index')->with('success', 'User created successfully.');
@@ -84,11 +111,18 @@ class UserController extends Controller
         $hodExists = User::where('role', 'hod')
                      ->where('id', '!=', $user->id)
                      ->exists();
+
+        // Check if Administrator already exists (excluding current user)
+        $adminExists = User::where('role', 'admin')
+                      ->where('id', '!=', $user->id)
+                      ->exists();
                      
         return view('users.edit', [
             'user' => $user,
             'hodExists' => $hodExists,
-            'hodEmail' => Config::get('roles.hod_email', 'hod@cybersecurity.my')
+            'adminExists' => $adminExists,
+            'hodEmail' => Config::get('roles.hod_email', 'hod@cybersecurity.my'),
+            'adminEmail' => Config::get('roles.admin_email', 'admin@cybersecurity.my')
         ]);
     }
 
@@ -103,16 +137,26 @@ class UserController extends Controller
             'role' => [
                 'required',
                 'string',
-                Rule::in(['staff', 'manager', 'hod']),
+                Rule::in(['staff', 'manager', 'hod', 'admin']),
             ],
             'is_approved' => 'sometimes|boolean',
         ]);
 
-        // Check if trying to change to HOD but it's not the designated email
+        // Get designated emails
         $hodEmail = Config::get('roles.hod_email', 'hod@cybersecurity.my');
+        $adminEmail = Config::get('roles.admin_email', 'admin@cybersecurity.my');
+
+        // Check if trying to change to HOD but it's not the designated email
         if ($data['role'] === 'hod' && $data['email'] !== $hodEmail) {
             return redirect()->back()->withErrors([
                 'role' => "Only the designated email ({$hodEmail}) can be assigned the HOD role."
+            ])->withInput();
+        }
+
+        // Check if trying to change to Administrator but it's not the designated email
+        if ($data['role'] === 'admin' && $data['email'] !== $adminEmail) {
+            return redirect()->back()->withErrors([
+                'role' => "Only the designated email ({$adminEmail}) can be assigned the Administrator role."
             ])->withInput();
         }
         
@@ -121,6 +165,18 @@ class UserController extends Controller
             return redirect()->back()->withErrors([
                 'role' => 'HOD role already assigned to another user. There can only be one HOD.'
             ])->withInput();
+        }
+
+        // Check if Administrator already exists when trying to change role to Administrator
+        if ($data['role'] === 'admin' && $user->role !== 'admin' && User::where('role', 'admin')->exists()) {
+            return redirect()->back()->withErrors([
+                'role' => 'Administrator role already assigned to another user. There can only be one Administrator.'
+            ])->withInput();
+        }
+
+        // Auto-verify email when changing to HOD or Administrator role
+        if (in_array($data['role'], ['hod', 'admin']) && !in_array($user->role, ['hod', 'admin'])) {
+            $data['email_verified_at'] = now();
         }
 
         // Only update password if provided
