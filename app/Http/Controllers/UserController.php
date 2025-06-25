@@ -29,7 +29,7 @@ class UserController extends Controller
         $schemeHeadExists = User::where('role', 'scheme_head')->exists();
         
         // Check if Administrator already exists
-        $adminExists = User::where('role', 'admin')->exists();
+        $adminExists = User::where('role', 'administrator')->exists();
         
         return view('users.create', [
             'schemeHeadExists' => $schemeHeadExists,
@@ -51,7 +51,7 @@ class UserController extends Controller
             'role' => [
                 'required',
                 'string',
-                Rule::in(['certificate_admin', 'scheme_manager', 'scheme_head', 'admin']),
+                Rule::in(['certificate_admin', 'scheme_manager', 'scheme_head', 'administrator']),
             ],
         ]);
 
@@ -67,7 +67,7 @@ class UserController extends Controller
         }
 
         // Check if trying to create Administrator but it's not the designated email
-        if ($data['role'] === 'admin' && $data['email'] !== $adminEmail) {
+        if ($data['role'] === 'administrator' && $data['email'] !== $adminEmail) {
             return redirect()->back()->withErrors([
                 'email' => "Only the designated email ({$adminEmail}) can be assigned the Administrator role."
             ])->withInput();
@@ -81,7 +81,7 @@ class UserController extends Controller
         }
 
         // Check if Administrator already exists when trying to create another Administrator
-        if ($data['role'] === 'admin' && User::where('role', 'admin')->exists()) {
+        if ($data['role'] === 'administrator' && User::where('role', 'administrator')->exists()) {
             return redirect()->back()->withErrors([
                 'role' => 'Administrator role already assigned to another user. There can only be one Administrator.'
             ])->withInput();
@@ -94,7 +94,7 @@ class UserController extends Controller
         $data['is_approved'] = true;
 
         // Auto-verify email for Scheme Head and Administrator
-        if (in_array($data['role'], ['scheme_head', 'admin'])) {
+        if (in_array($data['role'], ['scheme_head', 'administrator'])) {
             $data['email_verified_at'] = now();
         }
 
@@ -113,7 +113,7 @@ class UserController extends Controller
                      ->exists();
 
         // Check if Administrator already exists (excluding current user)
-        $adminExists = User::where('role', 'admin')
+        $adminExists = User::where('role', 'administrator')
                       ->where('id', '!=', $user->id)
                       ->exists();
                      
@@ -168,14 +168,14 @@ class UserController extends Controller
         }
 
         // Check if Administrator already exists when trying to change role to Administrator
-        if ($data['role'] === 'admin' && $user->role !== 'admin' && User::where('role', 'admin')->exists()) {
+        if ($data['role'] === 'administrator' && $user->role !== 'administrator' && User::where('role', 'administrator')->exists()) {
             return redirect()->back()->withErrors([
                 'role' => 'Administrator role already assigned to another user. There can only be one Administrator.'
             ])->withInput();
         }
 
         // Auto-verify email when changing to Scheme Head or Administrator role
-        if (in_array($data['role'], ['scheme_head', 'admin']) && !in_array($user->role, ['scheme_head', 'admin'])) {
+        if (in_array($data['role'], ['scheme_head', 'administrator']) && !in_array($user->role, ['scheme_head', 'administrator'])) {
             $data['email_verified_at'] = now();
         }
 

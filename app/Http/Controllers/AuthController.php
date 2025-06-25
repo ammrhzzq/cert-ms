@@ -69,7 +69,7 @@ class AuthController extends Controller
             $validated['is_approved'] = true; // Auto-approve Scheme Head
             $validated['email_verified_at'] = now(); // Auto-verify Scheme Head email
         } elseif ($validated['email'] === $adminEmail) {
-            $validated['role'] = 'admin';
+            $validated['role'] = 'administrator';
             $validated['is_approved'] = true; // Auto-approve Administrator
             $validated['email_verified_at'] = now(); // Auto-verify Administrator email
         } else {
@@ -87,7 +87,7 @@ class AuthController extends Controller
         $user = User::create($validated);
 
         // Only send verification email for certificate admin users (skip Scheme Head and Administrator)
-        if (!in_array($user->role, ['scheme_head', 'admin'])) {
+        if (!in_array($user->role, ['scheme_head', 'administrator'])) {
             // Generate and send email verification token
             $user->generateEmailVerificationToken();
             
@@ -105,7 +105,7 @@ class AuthController extends Controller
             }
         } else {
             // Scheme Head or Administrator registration complete - redirect to login
-            $roleTitle = $user->role === 'scheme_head' ? 'Scheme Head' : 'Admin';
+            $roleTitle = $user->role === 'scheme_head' ? 'Scheme Head' : 'Administrator';
             return redirect()->route('show.login')
                 ->with('success', $roleTitle . ' registration successful! You can now login directly.');
         }
@@ -211,7 +211,7 @@ class AuthController extends Controller
             $user = Auth::user();
             
             // Skip email verification check for Scheme Head and Administrator
-            if (!in_array($user->role, ['scheme_head', 'admin'])) {
+            if (!in_array($user->role, ['scheme_head', 'administrator'])) {
                 // Check if email is verified for certificate admin users
                 if ($user->email_verified_at === null) {
                     Auth::logout();

@@ -49,7 +49,7 @@ class User extends Authenticatable
      */
     public function isAdministrator()
     {
-        return $this->role === 'admin';
+        return $this->role === 'administrator';
     }
 
     /**
@@ -57,7 +57,7 @@ class User extends Authenticatable
      */
     public function hasAdminPrivileges()
     {
-        return in_array($this->role, ['scheme_head', 'admin']);
+        return in_array($this->role, ['scheme_head', 'administrator']);
     }
 
     /**

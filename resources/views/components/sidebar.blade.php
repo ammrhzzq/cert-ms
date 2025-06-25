@@ -51,7 +51,7 @@ $isCollapsed = isset($_COOKIE['sidebarCollapsed']) && $_COOKIE['sidebarCollapsed
                 <span class="text">Client Management</span>
             </a>
         </li>
-        @if(auth()->check() && auth()->user()->role === 'admin')
+        @if(auth()->check() && auth()->user()->role === 'administrator')
         <li>
             <a href="{{ route('users.index') }}" class="{{ $activeItem == 'users' ? 'active' : '' }}" title="User Management">
                 <i class="fas fa-user-cog icon"></i>
