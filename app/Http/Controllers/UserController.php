@@ -25,16 +25,16 @@ class UserController extends Controller
      */
     public function create() 
     {
-        // Check if HOD already exists
-        $hodExists = User::where('role', 'hod')->exists();
+        // Check if Scheme Head already exists
+        $schemeHeadExists = User::where('role', 'scheme_head')->exists();
         
         // Check if Administrator already exists
         $adminExists = User::where('role', 'admin')->exists();
         
         return view('users.create', [
-            'hodExists' => $hodExists,
+            'schemeHeadExists' => $schemeHeadExists,
             'adminExists' => $adminExists,
-            'hodEmail' => Config::get('roles.hod_email', 'hod@cybersecurity.my'),
+            'schemeHeadEmail' => Config::get('roles.scheme_head_email', 'schemehead@cybersecurity.my'),
             'adminEmail' => Config::get('roles.admin_email', 'admin@cybersecurity.my')
         ]);
     }
@@ -51,18 +51,18 @@ class UserController extends Controller
             'role' => [
                 'required',
                 'string',
-                Rule::in(['staff', 'manager', 'hod', 'admin']),
+                Rule::in(['certificate_admin', 'scheme_manager', 'scheme_head', 'admin']),
             ],
         ]);
 
         // Get designated emails
-        $hodEmail = Config::get('roles.hod_email', 'hod@cybersecurity.my');
+        $schemeHeadEmail = Config::get('roles.scheme_head_email', 'schemehead@cybersecurity.my');
         $adminEmail = Config::get('roles.admin_email', 'admin@cybersecurity.my');
 
-        // Check if trying to create HOD but it's not the designated email
-        if ($data['role'] === 'hod' && $data['email'] !== $hodEmail) {
+        // Check if trying to create Scheme Head but it's not the designated email
+        if ($data['role'] === 'scheme_head' && $data['email'] !== $schemeHeadEmail) {
             return redirect()->back()->withErrors([
-                'email' => "Only the designated email ({$hodEmail}) can be assigned the HOD role."
+                'email' => "Only the designated email ({$schemeHeadEmail}) can be assigned the Scheme Head role."
             ])->withInput();
         }
 
@@ -73,15 +73,15 @@ class UserController extends Controller
             ])->withInput();
         }
         
-        // Check if HOD already exists when trying to create another HOD
-        if ($data['role'] === 'hod' && User::where('role', 'hod')->exists()) {
+        // Check if Scheme Head already exists when trying to create another Scheme Head
+        if ($data['role'] === 'scheme_head' && User::where('role', 'scheme_head')->exists()) {
             return redirect()->back()->withErrors([
-                'role' => 'HOD role already assigned to another user. There can only be one HOD.'
+                'role' => 'Scheme Head role already assigned to another user. There can only be one Scheme Head.'
             ])->withInput();
         }
 
         // Check if Administrator already exists when trying to create another Administrator
-        if ($data['role'] === 'administrator' && User::where('role', 'admin')->exists()) {
+        if ($data['role'] === 'admin' && User::where('role', 'admin')->exists()) {
             return redirect()->back()->withErrors([
                 'role' => 'Administrator role already assigned to another user. There can only be one Administrator.'
             ])->withInput();
@@ -93,8 +93,8 @@ class UserController extends Controller
         // Set default approval status
         $data['is_approved'] = true;
 
-        // Auto-verify email for HOD and Administrator
-        if (in_array($data['role'], ['hod', 'admin'])) {
+        // Auto-verify email for Scheme Head and Administrator
+        if (in_array($data['role'], ['scheme_head', 'admin'])) {
             $data['email_verified_at'] = now();
         }
 
@@ -107,8 +107,8 @@ class UserController extends Controller
      */
     public function edit(User $user) 
     {
-        // Check if HOD already exists (excluding current user)
-        $hodExists = User::where('role', 'hod')
+        // Check if Scheme Head already exists (excluding current user)
+        $schemeHeadExists = User::where('role', 'scheme_head')
                      ->where('id', '!=', $user->id)
                      ->exists();
 
@@ -119,9 +119,9 @@ class UserController extends Controller
                      
         return view('users.edit', [
             'user' => $user,
-            'hodExists' => $hodExists,
+            'schemeHeadExists' => $schemeHeadExists,
             'adminExists' => $adminExists,
-            'hodEmail' => Config::get('roles.hod_email', 'hod@cybersecurity.my'),
+            'schemeHeadEmail' => Config::get('roles.scheme_head_email', 'hod@cybersecurity.my'),
             'adminEmail' => Config::get('roles.admin_email', 'admin@cybersecurity.my')
         ]);
     }
@@ -137,19 +137,19 @@ class UserController extends Controller
             'role' => [
                 'required',
                 'string',
-                Rule::in(['staff', 'manager', 'hod', 'admin']),
+                Rule::in(['certificate_admin', 'scheme_manager', 'scheme_head', 'admin']),
             ],
             'is_approved' => 'sometimes|boolean',
         ]);
 
         // Get designated emails
-        $hodEmail = Config::get('roles.hod_email', 'hod@cybersecurity.my');
+        $schemeHeadEmail = Config::get('roles.scheme_head_email', 'hod@cybersecurity.my');
         $adminEmail = Config::get('roles.admin_email', 'admin@cybersecurity.my');
 
-        // Check if trying to change to HOD but it's not the designated email
-        if ($data['role'] === 'hod' && $data['email'] !== $hodEmail) {
+        // Check if trying to change to Scheme Head but it's not the designated email
+        if ($data['role'] === 'scheme_head' && $data['email'] !== $schemeHeadEmail) {
             return redirect()->back()->withErrors([
-                'role' => "Only the designated email ({$hodEmail}) can be assigned the HOD role."
+                'role' => "Only the designated email ({$schemeHeadEmail}) can be assigned the Scheme Head role."
             ])->withInput();
         }
 
@@ -160,10 +160,10 @@ class UserController extends Controller
             ])->withInput();
         }
         
-        // Check if HOD already exists when trying to change role to HOD
-        if ($data['role'] === 'hod' && $user->role !== 'hod' && User::where('role', 'hod')->exists()) {
+        // Check if Scheme Head already exists when trying to change role to Scheme Head
+        if ($data['role'] === 'scheme_head' && $user->role !== 'scheme_head' && User::where('role', 'scheme_head')->exists()) {
             return redirect()->back()->withErrors([
-                'role' => 'HOD role already assigned to another user. There can only be one HOD.'
+                'role' => 'Scheme Head role already assigned to another user. There can only be one Scheme Head.'
             ])->withInput();
         }
 
@@ -174,8 +174,8 @@ class UserController extends Controller
             ])->withInput();
         }
 
-        // Auto-verify email when changing to HOD or Administrator role
-        if (in_array($data['role'], ['hod', 'admin']) && !in_array($user->role, ['hod', 'admin'])) {
+        // Auto-verify email when changing to Scheme Head or Administrator role
+        if (in_array($data['role'], ['scheme_head', 'admin']) && !in_array($user->role, ['scheme_head', 'admin'])) {
             $data['email_verified_at'] = now();
         }
 

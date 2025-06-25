@@ -58,7 +58,7 @@
     font-size: 14px;
 }
 
-.role-hod {
+.role-scheme_head {
     background-color: #ffebd4;
     color: var(--orange-border);
 }
@@ -68,12 +68,12 @@
     color: #c000b6;
 }
 
-.role-manager {
+.role-scheme_manager {
     background-color: #e0eefd;
     color: var(--blue-border);
 }
 
-.role-staff {
+.role-certificate_admin {
     background-color: #feffd4;
     color: #bdb000;
 }

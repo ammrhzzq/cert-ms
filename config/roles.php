@@ -2,9 +2,9 @@
 
 return [
     
-    'hod_email' => env('HOD_EMAIL', 'hod@example.com'),
+    'scheme_head_email' => env('SCHEME_HEAD_EMAIL', 'hod@example.com'),
     'admin_email' => env('ADMIN_EMAIL', 'admin@cybersecurity.my'),
-    'default_role' => env('DEFAULT_ROLE', 'staff'),
+    'default_role' => env('DEFAULT_ROLE', 'certificate_admin'),
     
     /*
     |--------------------------------------------------------------------------

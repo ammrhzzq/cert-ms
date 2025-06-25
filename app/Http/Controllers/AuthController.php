@@ -56,38 +56,38 @@ class AuthController extends Controller
         // Hash the password
         $validated['password'] = bcrypt($validated['password']);
         
-        // Check if the email is the designated HOD or Administrator email
-        $hodEmail = env('HOD_EMAIL', 'hod@cybersecurity.my');
+        // Check if the email is the designated Scheme Head or Administrator email
+        $schemeHeadEmail = env('SCHEME_HEAD_EMAIL', 'schemehead@cybersecurity.my');
         $adminEmail = env('ADMIN_EMAIL', 'admin@cybersecurity.my');
         
         // Get email domain
         $emailDomain = substr(strrchr($validated['email'], '@'), 1);
         
         // Set the role based on email
-        if ($validated['email'] === $hodEmail) {
-            $validated['role'] = 'hod';
-            $validated['is_approved'] = true; // Auto-approve HOD
-            $validated['email_verified_at'] = now(); // Auto-verify HOD email
+        if ($validated['email'] === $schemeHeadEmail) {
+            $validated['role'] = 'scheme_head';
+            $validated['is_approved'] = true; // Auto-approve Scheme Head
+            $validated['email_verified_at'] = now(); // Auto-verify Scheme Head email
         } elseif ($validated['email'] === $adminEmail) {
             $validated['role'] = 'admin';
             $validated['is_approved'] = true; // Auto-approve Administrator
             $validated['email_verified_at'] = now(); // Auto-verify Administrator email
         } else {
-            $validated['role'] = 'staff';
+            $validated['role'] = 'certificate_admin';
             
-            // Auto-approve Gmail users, others need HOD approval
+            // Auto-approve Gmail users, others need Scheme Head approval
             // TODO: Remove Gmail auto-approval once domain email is configured
             if ($emailDomain === 'gmail.com') {
                 $validated['is_approved'] = true; // Auto-approve Gmail users
             } else {
-                $validated['is_approved'] = false; // Others need HOD approval
+                $validated['is_approved'] = false; // Others need Scheme Head approval
             }
         }
 
         $user = User::create($validated);
 
-        // Only send verification email for staff users (skip HOD and Administrator)
-        if (!in_array($user->role, ['hod', 'admin'])) {
+        // Only send verification email for certificate admin users (skip Scheme Head and Administrator)
+        if (!in_array($user->role, ['scheme_head', 'admin'])) {
             // Generate and send email verification token
             $user->generateEmailVerificationToken();
             
@@ -104,8 +104,8 @@ class AuthController extends Controller
                     ->with('error', 'Registration successful but failed to send verification email. Please contact support.');
             }
         } else {
-            // HOD or Administrator registration complete - redirect to login
-            $roleTitle = $user->role === 'hod' ? 'HOD' : 'Admin';
+            // Scheme Head or Administrator registration complete - redirect to login
+            $roleTitle = $user->role === 'scheme_head' ? 'Scheme Head' : 'Admin';
             return redirect()->route('show.login')
                 ->with('success', $roleTitle . ' registration successful! You can now login directly.');
         }
@@ -210,9 +210,9 @@ class AuthController extends Controller
         if (Auth::attempt($validated)) {
             $user = Auth::user();
             
-            // Skip email verification check for HOD and Administrator
-            if (!in_array($user->role, ['hod', 'admin'])) {
-                // Check if email is verified for staff users
+            // Skip email verification check for Scheme Head and Administrator
+            if (!in_array($user->role, ['scheme_head', 'admin'])) {
+                // Check if email is verified for certificate admin users
                 if ($user->email_verified_at === null) {
                     Auth::logout();
                     
@@ -231,7 +231,7 @@ class AuthController extends Controller
                 ]);
             }
             
-            // User is verified and approved (or is HOD/Administrator), proceed with login
+            // User is verified and approved (or is Scheme Head/Administrator), proceed with login
             $request->session()->regenerate();
             return redirect()->route('dashboard')->with('success', 'Login successful!');
         }

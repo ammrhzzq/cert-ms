@@ -125,6 +125,24 @@ input[type="password"]:focus {
     opacity: 0.9;
 }
 
+.resend-btn {
+    display: inline-block;
+    background-color: var(--blue-border);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.resend-btn:hover {
+    opacity: 1;
+}
+
 .alert {
     padding: 0.75rem 1rem;
     margin-bottom: 1.25rem;

@@ -21,9 +21,9 @@
         </div>
         @endif
 
-        @if(isset($hodExists) && $hodExists)
+        @if(isset($chemeHeadExists) && $schemeHeadExists)
         <div class="alert alert-info">
-            <p>Note: The HOD role is already assigned to another user. There can only be one HOD in the system.</p>
+            <p>Note: The Scheme Head role is already assigned to another user. There can only be one Scheme Head in the system.</p>
         </div>
         @endif
 
@@ -38,20 +38,20 @@
             <div class="form-group">
                 <label>Email</label>
                 <input type="email" name="email" placeholder="Email Address" value="{{ old('email') }}" required>
-                @if(isset($hodEmail))
-                <small class="form-text text-muted">Note: The email "{{ $hodEmail }}" is reserved for the HOD role.</small>
+                @if(isset($schemeHeadEmail))
+                <small class="form-text text-muted">Note: The email "{{ $schemeHeadEmail }}" is reserved for the Scheme Head role.</small>
                 @endif
             </div>
 
             <div class="form-group">
                 <label>Role</label>
                 <select name="role" required>
-                    <option value="staff" {{ old('role') == 'staff' ? 'selected' : '' }}>Staff</option>
-                    <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Manager</option>
-                    <option value="hod" {{ old('role') == 'hod' ? 'selected' : '' }} {{ isset($hodExists) && $hodExists ? 'disabled' : '' }}>Head of Department</option>
+                    <option value="Certificate Admin" {{ old('role') == 'certificate_admin' ? 'selected' : '' }}>Certifcate Admin</option>
+                    <option value="Scheme Manager" {{ old('role') == 'scheme_manager' ? 'selected' : '' }}>Scheme Manager</option>
+                    <option value="Scheme Head" {{ old('role') == 'scheme_head' ? 'selected' : '' }} {{ isset($schemeHeadExists) && $schemeHeadExists ? 'disabled' : '' }}>Scheme Head</option>
                 </select>
-                @if(isset($hodExists) && $hodExists)
-                <small class="form-text text-muted">HOD role is already assigned.</small>
+                @if(isset($schemeHeadExists) && $schemeHeadExists)
+                <small class="form-text text-muted">Scheme Head role is already assigned.</small>
                 @endif
             </div>
 

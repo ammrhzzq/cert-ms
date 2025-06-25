@@ -14,7 +14,7 @@ class NotificationController extends Controller
         $notifications = [];
 
         // Get pending actions based on user role
-        if (in_array($user->role, ['manager', 'hod'])) {
+        if (in_array($user->role, ['scheme_manager', 'scheme_head'])) {
             // Certificates pending review
             $pendingReview = Cert::where('status', 'pending_review')->count();
             if ($pendingReview > 0) {
@@ -55,8 +55,8 @@ class NotificationController extends Controller
             }
         }
 
-        if ($user->role === 'hod') {
-            // HOD specific notifications
+        if ($user->role === 'scheme_head') {
+            // Scheme Head specific notifications
             $pendingHodApproval = Cert::where('status', 'pending_hod_approval')->count();
             if ($pendingHodApproval > 0) {
                 $notifications[] = [
@@ -70,7 +70,7 @@ class NotificationController extends Controller
             }
         }
 
-        if ($user->role === 'staff') {
+        if ($user->role === 'certificate_admin') {
             // Certificates needing revision
             $needRevision = Cert::where('status', 'need_revision')->count();
             if ($needRevision > 0) {

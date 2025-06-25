@@ -37,11 +37,11 @@ class User extends Authenticatable
     ];
 
     /**
-     * Check if user is HOD
+     * Check if user is Scheme Head
      */
-    public function isHod()
+    public function isSchemeHead()
     {
-        return $this->role === 'hod';
+        return $this->role === 'scheme_head';
     }
 
     /**
@@ -53,19 +53,27 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is HOD or Administrator
+     * Check if user is Scheme Head or Administrator
      */
     public function hasAdminPrivileges()
     {
-        return in_array($this->role, ['hod', 'admin']);
+        return in_array($this->role, ['scheme_head', 'admin']);
     }
 
     /**
-     * Check if user is staff
+     * Check if user is Certificate Admin
      */
-    public function isStaff()
+    public function isCertificateAdmin()
     {
-        return $this->role === 'staff';
+        return $this->role === 'certificate_admin';
+    }
+
+    /**
+     * Check if user is Scheme Manager
+     */
+    public function isSchemeManager()
+    {
+        return $this->role === 'scheme_manager';
     }
 
     /**
@@ -119,5 +127,22 @@ class User extends Authenticatable
     public function incrementVerificationAttempts()
     {
         $this->increment('email_verification_attempts');
+    }
+
+    // Legacy method support for backward compatibility
+    /**
+     * @deprecated Use isSchemeHead() instead
+     */
+    public function isHod()
+    {
+        return $this->isSchemeHead();
+    }
+
+    /**
+     * @deprecated Use isCertificateAdmin() instead
+     */
+    public function isStaff()
+    {
+        return $this->isCertificateAdmin();
     }
 }

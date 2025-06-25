@@ -42,9 +42,8 @@
             <td>{{ $user->email }}</td>
             <td>
                 <span class="role-badge role-{{ $user->role }}">
-                    {{ ucfirst($user->role) }}
+                    {{ ucfirst(str_replace('_', ' ', $user->role)) }}
                 </span>
-
             </td>
             <td>
                 <span class="badge {{ $user->is_approved ? 'badge-success' : 'badge-warning' }}">

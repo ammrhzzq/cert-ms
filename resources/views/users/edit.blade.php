@@ -38,16 +38,16 @@
             <div class="form-group">
                 <label>Role</label>
                 <select name="role" required>
-                    <option value="staff" {{ $user->role == 'staff' ? 'selected' : '' }}>Staff</option>
-                    <option value="manager" {{ $user->role == 'manager' ? 'selected' : '' }}>Manager</option>
-                    <option value="hod" 
-                            {{ $user->role == 'hod' ? 'selected' : '' }}
-                            {{ isset($hodExists) && $hodExists && $user->role !== 'hod' ? 'disabled' : '' }}>
-                        Head of Department
+                    <option value="Certificate Admin" {{ $user->role == 'certificate_admin' ? 'selected' : '' }}>Certificate Admin</option>
+                    <option value="Scheme Manager" {{ $user->role == 'scheme_manager' ? 'selected' : '' }}>Scheme Manager</option>
+                    <option value="Scheme Head"
+                            {{ $user->role == 'scheme_head' ? 'selected' : '' }}
+                            {{ isset($schemeHeadExists) && $schemeHeadExists && $user->role !== 'scheme_head' ? 'disabled' : '' }}>
+                    Scheme Head
                     </option>
                 </select>
-                @if(isset($hodExists) && $hodExists && $user->role !== 'hod')
-                <small class="form-text text-muted">HOD role is already assigned to another user.</small>
+                @if(isset($schemeHeadExists) && $schemeHeadExists && $user->role !== 'scheme_head')
+                <small class="form-text text-muted">Scheme Head role is already assigned to another user.</small>
                 @endif
             </div>
 
