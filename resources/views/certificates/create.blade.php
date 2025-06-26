@@ -5,6 +5,7 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/data-entry.css') }}">
+<link rel="stylesheet" href="{{ asset('css/preview.css') }}">
 @endsection
 
 @section('content')

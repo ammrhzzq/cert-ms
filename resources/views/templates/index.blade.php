@@ -226,8 +226,8 @@
         <h3>Confirm Delete <strong id="templateNameToDelete">[Template Name]</strong>?</h3>
         <p>Are you sure you want to delete the template? This action cannot be undone.</p>
         <div class="template-modal-actions">
-            <button id="deleteConfirmBtn" class="confirm-btn" disabled>Delete</button>
             <button id="deleteCancelBtn" class="btn-back">Cancel</button>
+            <button id="deleteConfirmBtn" class="confirm-btn">Delete</button>
         </div>
     </div>
 </div>

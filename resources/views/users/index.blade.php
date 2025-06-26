@@ -4,6 +4,7 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+<link rel="stylesheet" href="{{ asset('css/badge.css') }}">
 @endsection
 
 @section('content')
@@ -39,7 +40,11 @@
         <tr>
             <td>{{ $user->name }}</td>
             <td>{{ $user->email }}</td>
-            <td>{{ ucfirst($user->role) }}</td>
+            <td>
+                <span class="role-badge role{{ $user->role }}">
+                    {{ ucfirst($user->role) }}
+                </span>
+            </td>
             <td>
                 <span class="badge {{ $user->is_approved ? 'badge-success' : 'badge-warning' }}">
                     {{ $user->is_approved ? 'Approved' : 'Pending' }}
@@ -58,6 +63,10 @@
                     <a href="{{ route('users.edit', ['user' => $user]) }}" class="edit-icon" title="Edit">
                         <i class="fas fa-pencil-alt"></i>
                     </a>
+
+                    <a href="{{ route('users.reset-password', ['user' => $user]) }}" class="reset-password-icon" title="Reset Password">
+                        <i class="fas fa-key"></i>
+                    </a>
                 </div>
             </td>
         </tr>
@@ -71,8 +80,8 @@
         <h3>Confirm Delete <strong id="userNameToDelete">[User Name]</strong>?</h3>
         <p>Are you sure you want to delete this user? This action cannot be undone.</p>
         <div class="modal-actions">
-            <button id="deleteConfirmBtn" class="confirm-btn">Delete</button>
             <button id="deleteCancelBtn" class="btn-back">Cancel</button>
+            <button id="deleteConfirmBtn" class="confirm-btn">Delete</button>
         </div>
     </div>
 </div>

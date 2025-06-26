@@ -4,6 +4,8 @@
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+<link rel="stylesheet" href="{{ asset('css/preview.css') }}">
+<link rel="stylesheet" href="{{ asset('css/badge.css') }}">
 @endsection
 
 @section('content')
@@ -17,33 +19,33 @@
 @endif
 
 <!-- Status tabs -->
-<div class="status-tabs">
+<div class="tabs">
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'all'])) }}" 
-       class="status-tab {{ request('status', 'all') == 'all' ? 'active' : '' }}">
+       class="tab {{ request('status', 'all') == 'all' ? 'active' : '' }}">
         All
     </a>
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'pending_review'])) }}" 
-       class="status-tab {{ request('status') == 'pending_review' ? 'active' : '' }}">
+       class="tab {{ request('status') == 'pending_review' ? 'active' : '' }}">
         Pending Review
     </a>
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'pending_client_verification'])) }}" 
-       class="status-tab {{ request('status') == 'pending_client_verification' ? 'active' : '' }}">
+       class="tab {{ request('status') == 'pending_client_verification' ? 'active' : '' }}">
         Pending Client Verification
     </a>
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'client_verified'])) }}" 
-       class="status-tab {{ request('status') == 'client_verified' ? 'active' : '' }}">
+       class="tab {{ request('status') == 'client_verified' ? 'active' : '' }}">
         Client Verified
     </a>
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'need_revision'])) }}" 
-       class="status-tab {{ request('status') == 'need_revision' ? 'active' : '' }}">
+       class="tab {{ request('status') == 'need_revision' ? 'active' : '' }}">
         Need Revision
     </a>
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'pending_hod_approval'])) }}" 
-       class="status-tab {{ request('status') == 'pending_hod_approval' ? 'active' : '' }}">
+       class="tab {{ request('status') == 'pending_hod_approval' ? 'active' : '' }}">
         Pending HoD Approval
     </a>
     <a href="{{ route('certificates.index', array_merge(request()->except(['status', 'page']), ['status' => 'certificate_issued'])) }}" 
-       class="status-tab {{ request('status') == 'certificate_issued' ? 'active' : '' }}">
+       class="tab {{ request('status') == 'certificate_issued' ? 'active' : '' }}">
         Issued
     </a>
 </div>
@@ -52,18 +54,85 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Certificate</th>
-            <th>Last Edited</th>
-            <th>Status</th>
+            <th class="sortable-header">
+                <a href="{{ route('certificates.index', array_merge(request()->except(['sort_field', 'sort_direction']), [
+                    'sort_field' => 'comp_name',
+                    'sort_direction' => ($currentSortField == 'comp_name' && $currentSortDirection == 'asc') ? 'desc' : 'asc'
+                ])) }}">
+                    Certificate
+                    @if($currentSortField == 'comp_name')
+                        @if($currentSortDirection == 'asc')
+                            <i class="fas fa-sort-up sort-icon"></i>
+                        @else
+                            <i class="fas fa-sort-down sort-icon"></i>
+                        @endif
+                    @endif
+                </a>
+            </th>
+            <th class="sortable-header">
+                <a href="{{ route('certificates.index', array_merge(request()->except(['sort_field', 'sort_direction']), [
+                    'sort_field' => 'created_at',
+                    'sort_direction' => ($currentSortField == 'created_at' && $currentSortDirection == 'asc') ? 'desc' : 'asc'
+                ])) }}">
+                    Created
+                    @if($currentSortField == 'created_at')
+                        @if($currentSortDirection == 'asc')
+                            <i class="fas fa-sort-up sort-icon"></i>
+                        @else
+                            <i class="fas fa-sort-down sort-icon"></i>
+                        @endif
+                    @endif
+                </a>
+            </th>
+            <th class="sortable-header">
+                <a href="{{ route('certificates.index', array_merge(request()->except(['sort_field', 'sort_direction']), [
+                    'sort_field' => 'last_edited_at',
+                    'sort_direction' => ($currentSortField == 'last_edited_at' && $currentSortDirection == 'asc') ? 'desc' : 'asc'
+                ])) }}">
+                    Last Edited
+                    @if($currentSortField == 'last_edited_at')
+                        @if($currentSortDirection == 'asc')
+                            <i class="fas fa-sort-up sort-icon"></i>
+                        @else
+                            <i class="fas fa-sort-down sort-icon"></i>
+                        @endif
+                    @endif
+                </a>
+            </th>
+            <th class="sortable-header">
+                <a href="{{ route('certificates.index', array_merge(request()->except(['sort_field', 'sort_direction']), [
+                    'sort_field' => 'status',
+                    'sort_direction' => ($currentSortField == 'status' && $currentSortDirection == 'asc') ? 'desc' : 'asc'
+                ])) }}">
+                    Status
+                    @if($currentSortField == 'status')
+                        @if($currentSortDirection == 'asc')
+                            <i class="fas fa-sort-up sort-icon"></i>
+                        @else
+                            <i class="fas fa-sort-down sort-icon"></i>
+                        @endif
+                    @endif
+                </a>
+            </th>
             <th>Action</th>
         </tr>
     </thead>
     <tbody>
         @foreach($certs as $cert)
         <tr class="cert-row"
-            data-href="{{ route('certificates.show', ['cert' => $cert]) }}"
+            data-href="{{ route('certificates.preview', ['cert' => $cert]) }}"
             style="cursor: pointer; transition: background-color 0.2s;">
             <td>{{ $cert->cert_type }}-{{ $cert->comp_name }}</td>
+            <td>
+                @if($cert->created_at)
+                {{ \Carbon\Carbon::parse($cert->created_at)->format('d/m/Y H:i') }}<br>
+                @if($cert->creator)
+                by {{ $cert->creator->name }}
+                @else
+                Unknown Creator
+                @endif
+                @endif
+            </td>
             <td>
                 @if($cert->last_edited_at)
                 {{ \Carbon\Carbon::parse($cert->last_edited_at)->format('d/m/Y H:i') }}<br>
@@ -74,7 +143,11 @@
                 Not edited
                 @endif
             </td>
-            <td>{{ ucfirst(str_replace('_', ' ', $cert->status)) }}</td>
+            <td>
+                <span class="status-badge status-{{ $cert->status }}">
+                    {{ ucfirst(str_replace('_', ' ', $cert->status)) }}
+                </span>
+            </td>
             <td>
                 <div class="action-icons">
                     @if ($cert->status == 'pending_review')
@@ -112,15 +185,11 @@
 <!-- Delete Confirmation Modal -->
 <div id="deleteConfirmModal" class="modal" style="display: none;">
     <div class="modal-content">
-        <h3>Confirm Delete</h3>
-        <p>Type <strong>DELETE</strong> to confirm deletion. This action cannot be undone.</p>
-        <input type="text" id="deleteConfirmInput" placeholder="Type DELETE to continue" style="margin-bottom: 8px;">
-        <div id="deleteError" style="color: red; display: none; font-size: 14px; margin-bottom: 8px;">
-            Please type DELETE to enable the button.
-        </div>
+        <h3>Confirm Delete <strong id="certNameToDelete">[Item Name]</strong>?</h3>
+        <p>Are you sure you want to delete this item? This action cannot be undone.</p>
         <div class="modal-actions">
-            <button id="deleteConfirmBtn" class="confirm-btn" disabled>Delete</button>
             <button id="deleteCancelBtn" class="btn-back">Cancel</button>
+            <button id="deleteConfirmBtn" class="confirm-btn">Delete</button>
         </div>
     </div>
 </div>
@@ -164,54 +233,41 @@
             });
         });
     });
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        // Modal elements
-        let modal = document.getElementById('deleteConfirmModal');
-        let input = document.getElementById('deleteConfirmInput');
-        let error = document.getElementById('deleteError');
-        let confirmBtn = document.getElementById('deleteConfirmBtn');
-        let cancelBtn = document.getElementById('deleteCancelBtn');
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('deleteConfirmModal');
+        const certNameSpan = document.getElementById('certNameToDelete');
+        const confirmBtn = document.getElementById('deleteConfirmBtn');
+        const cancelBtn = document.getElementById('deleteCancelBtn');
         let formToDelete = null;
 
-        // Open modal on delete icon click
-        document.querySelectorAll('.open-delete-modal').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
+        // Handle delete modal open
+        document.querySelectorAll('.open-delete-modal').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 formToDelete = btn.closest('form');
-                input.value = '';
-                confirmBtn.disabled = true;
-                error.style.display = 'none';
+                const row = btn.closest('tr');
+                const name = row?.getAttribute('data-certificate-name') || 'this item';
+                certNameSpan.textContent = name;
                 modal.style.display = 'flex';
             });
         });
 
-        // Enable button only if DELETE is typed
-        input.addEventListener('input', function() {
-            if (input.value === 'DELETE') {
-                confirmBtn.disabled = false;
-                error.style.display = 'none';
-            } else {
-                confirmBtn.disabled = true;
-                error.style.display = input.value.length > 0 ? 'block' : 'none';
-            }
-        });
-
-        // Confirm delete
-        confirmBtn.addEventListener('click', function() {
+        // Handle delete confirm
+        confirmBtn.addEventListener('click', function () {
             if (formToDelete) {
                 formToDelete.submit();
             }
             modal.style.display = 'none';
         });
 
-        // Cancel button
-        cancelBtn.addEventListener('click', function() {
+        // Handle delete cancel
+        cancelBtn.addEventListener('click', function () {
             modal.style.display = 'none';
         });
 
-        // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
+        // Handle clicking outside the modal
+        window.addEventListener('click', function (event) {
             if (event.target === modal) {
                 modal.style.display = 'none';
             }

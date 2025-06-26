@@ -729,18 +729,6 @@ input[type="submit"]:hover {
     justify-content: center; 
 }
 
-.template-modal-content input[type="text"] {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border-color, #ccc);
-    border-radius: 8px;
-    font-size: 15px;
-    margin-bottom: 8px;
-    background: var(--input-bg, #f9f9f9);
-    color: var(--text-color, #333);
-    box-sizing: border-box;
-}
-
 .confirm-btn {
     background-color: var(--primary-color);
     color: var(--sidebar-bg);
@@ -752,15 +740,6 @@ input[type="submit"]:hover {
     cursor: pointer;
     transition: background-color 0.2s;
     text-align: center;
-}
-.confirm-btn:disabled {
-    cursor: not-allowed;
-}
-
-.confirm-btn:disabled:hover,
-.btn-back:disabled:hover {
-    background: #f5b7b1;
-    cursor: not-allowed;
 }
 
 .btn-back {

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Cert;  
 use setasign\Fpdi\Fpdi;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\CertVerification;
 use App\Models\CertComment;
@@ -58,6 +59,23 @@ class CertController extends Controller
             });
         }
         
+        // Apply sorting
+        $sortField = $request->get('sort_field', 'created_at'); // Default sort field
+        $sortDirection = $request->get('sort_direction', 'desc'); // Default sort direction
+
+        // Validate sort field to prevent SQL injection
+        $allowedSortFields = ['cert_type', 'comp_name', 'created_at', 'last_edited_at', 'status'];
+        if (!in_array($sortField, $allowedSortFields)) {
+            $sortField = 'created_at';
+        }
+
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+
+        $query->orderBy($sortField, $sortDirection);
+
         // Get all certificates matching the query
         $cert = $query->get();
         
@@ -90,7 +108,9 @@ class CertController extends Controller
             'regDates' => $regDates,
             'issueDates' => $issueDates,
             'expDates' => $expDates,
-            'statusCounts' => $statusCounts
+            'statusCounts' => $statusCounts,
+            'currentSortField' => $sortField,
+            'currentSortDirection' => $sortDirection
         ]);
     }
     
@@ -114,11 +134,31 @@ class CertController extends Controller
             'reg_date' => 'required|date',
             'issue_date' => 'required|date',
             'exp_date' => 'required|date',
+            'client_id' => 'nullable|exists:clients,id',
         ]);
 
         $data['status'] = 'pending_review'; // Default status
+        $data['created_by'] = Auth::id(); // Set the creator of the certificate
 
         $newCert = Cert::create($data);
+
+        // Create or update client information if client_id is empty or not selected
+        if (empty($request->client_id)) {
+            // If no client was selected, create a new client
+            $clientData = [
+                'comp_name' => $request->comp_name,
+                'comp_address1' => $request->comp_address1,
+                'comp_address2' => $request->comp_address2,
+                'comp_address3' => $request->comp_address3,
+                'comp_phone1' => $request->comp_phone1,
+                'comp_phone2' => $request->comp_phone2,
+                'phone1_name' => $request->phone1_name ?? '',
+                'phone2_name' => $request->phone2_name ?? '',
+            ];
+
+            Client::create($clientData);
+        }
+        
         return redirect()->route('certificates.index')->with('success', 'Certificate created successfully.');
     }
 
@@ -179,6 +219,16 @@ class CertController extends Controller
             $this->generateCertificatePDF($cert); // Directly pass the Cert instance
         }
 
+        if ($cert->status === 'pending_client_verification') {
+            CertComment::create([
+                'cert_id' => $cert->id,
+                'comment' => 'The certificate has been updated. Please review the changes.',
+                'commented_by' => auth()->user()->name,
+                'comment_type' => 'internal',
+                'revision_source' => 'system'
+            ]);
+        }
+
         return redirect()->route('certificates.index')->with('success', 'Certificate updated successfully.');
         } else {
             // No changes, do not update last_edited_at
@@ -191,7 +241,7 @@ class CertController extends Controller
         return redirect()->route('certificates.index')->with('success', 'Certificate deleted successfully.');
     }
 
-    public function show(Cert $cert) {
+    public function preview(Cert $cert) {
         // Get verification details if they exist
         $verification = CertVerification::where('cert_id', $cert->id)->latest()->first();
         $comments = CertComment::where('cert_id', $cert->id)->orderBy('created_at', 'desc')->get();
@@ -200,7 +250,7 @@ class CertController extends Controller
         ? route('certificates.verify', ['token' => $verification->token])
         : null;
 
-        return view('certificates.show', [
+        return view('certificates.preview', [
             'cert' => $cert,
             'verification' => $verification,
             'comments' => $comments,
@@ -248,6 +298,23 @@ class CertController extends Controller
                   ->orWhere('comp_address1', 'like', "%{$search}%");
             });
         }
+
+        // Apply sorting
+        $sortField = $request->get('sort_field', 'issue_date'); // Default sort field
+        $sortDirection = $request->get('sort_direction', 'desc'); // Default sort direction
+
+        // Validate sort field to prevent SQL injection
+        $allowedSortFields = ['cert_type', 'comp_name', 'issue_date', 'exp_date'];
+        if (!in_array($sortField, $allowedSortFields)) {
+            $sortField = 'issue_date';
+        }
+
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+
+        $query->orderBy($sortField, $sortDirection);
         
         // Get all certificates matching the query
         $cert = $query->get();
@@ -281,7 +348,9 @@ class CertController extends Controller
             'regDates' => $regDates,
             'issueDates' => $issueDates,
             'expDates' => $expDates,
-            'statusCounts' => $statusCounts
+            'statusCounts' => $statusCounts,
+            'currentSortField' => $sortField,
+            'currentSortDirection' => $sortDirection
         ]);
     }
 
@@ -298,7 +367,7 @@ class CertController extends Controller
             // Generate the final certificate PDF
             $this->generateCertificatePDF($cert);
 
-            return redirect()->route('certificates.show', $cert->id)
+            return redirect()->route('certificates.preview', $cert->id)
                 ->with('success', 'Certificate approved and final PDF generated.');
 
         } elseif ($action === 'reject') {
@@ -319,7 +388,7 @@ class CertController extends Controller
                 'revision_source' => 'hod'
             ]);
 
-            return redirect()->route('certificates.show', $cert->id)
+            return redirect()->route('certificates.preview', $cert->id)
                 ->with('error', 'Certificate sent back for revision.');
         }
 
@@ -381,7 +450,7 @@ class CertController extends Controller
             ]);
         }
         
-        return redirect()->route('certificates.show', $cert->id)->with('success', 'Verification link renewed successfully.');
+        return redirect()->route('certificates.preview', $cert->id)->with('success', 'Verification link renewed successfully.');
     }
 
     /**
@@ -436,9 +505,10 @@ class CertController extends Controller
 
             CertComment::create([
                 'cert_id' => $cert->id,
-                'comment' => 'Client has verified the cetificate',
-                'commented_by' => $request->input('name'),
-                'comment_type' => 'verification'
+                'comment' => 'Verified the certificate',
+                'commented_by' => $cert->comp_name,
+                'comment_type' => 'verification',
+                'revision_source' => 'client'
             ]);
             
             return redirect()->route('certificates.verify', ['token' => $token])
@@ -447,11 +517,9 @@ class CertController extends Controller
         elseif ($action == 'reject') {
 
             $request->validate([
-                'comment' => 'required|string|max:255',
-                'name' => 'required|string|max:255'
+                'comment' => 'required|string|max:2000'
             ], [
-                'comment.required' => 'Please provide a comment for rejection.',
-                'name.required' => 'Please provide your name.'
+                'comment.required' => 'Please provide a comment for rejection.'
             ]);
 
             $verification->is_verified = false;
@@ -464,7 +532,7 @@ class CertController extends Controller
             CertComment::create([
                 'cert_id' => $cert->id,
                 'comment' => $request->input('comment'),
-                'commented_by' => $request->input('name'),
+                'commented_by' => $cert->comp_name,
                 'comment_type' => 'revision_request',
                 'revision_source' => 'client'
             ]);
@@ -676,7 +744,7 @@ class CertController extends Controller
 
         $cert->save();
 
-        return redirect()->route('certificates.show', $cert->id)
+        return redirect()->route('certificates.preview', $cert->id)
             ->with('success', 'Certificate number assigned successfully.');
     }
 

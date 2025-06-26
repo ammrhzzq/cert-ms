@@ -1,5 +1,6 @@
 :root {
-    --primary-color: #FF7A00;
+    --primary-color: #000000;
+    --primary-hover: rgba(255, 122, 0, 0.8);
     --text-color: #333;
     --bg-color: #ffffff;
     --card-bg: #ffffff;
@@ -7,8 +8,9 @@
     --border-color: #e0e0e0;
     --hover-color: #f0f0f0;
     --card-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    --gray-border: #a8a8a8;
     --blue-border: #4285F4;
-    --yellow-border: #FFF239;
+    --yellow-border: #ffee00;
     --red-border: #EA4335;
     --green-border: #34A853;
     --orange-border: #FF7A00;
@@ -19,6 +21,7 @@
 
 .dark-mode {
     --primary-color: #fff239;
+    --primary-hover: rgba(255, 242, 57, 0.8);
     --text-color: #ffffff;
     --bg-color: #1a1a1a;
     --card-bg: #2a2a2a;

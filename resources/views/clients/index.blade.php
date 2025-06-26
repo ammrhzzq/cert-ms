@@ -28,7 +28,16 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Name</th>
+            <th class="sortable-header">
+                <a href="{{ route('clients.index', ['sort' => $currentSort == 'asc' ? 'desc' : 'asc']) }}" >
+                    Name
+                    @if($currentSort == 'asc')
+                        <i class="fas fa-sort-up sort-icon"></i>
+                    @else
+                        <i class="fas fa-sort-down sort-icon"></i>
+                    @endif
+                </a>
+            </th>
             <th>Address</th>
             <th>Contact Person</th>
             <th>Contact Number</th>
@@ -77,8 +86,8 @@
         <h3>Confirm Delete <strong id="clientNameToDelete">[Client Name]</strong>?</h3>
         <p>Are you sure you want to delete this client? This action cannot be undone.</p>
         <div class="modal-actions">
-            <button id="deleteConfirmBtn" class="confirm-btn" disabled>Delete</button>
             <button id="deleteCancelBtn" class="btn-back">Cancel</button>
+            <button id="deleteConfirmBtn" class="confirm-btn">Delete</button>
         </div>
     </div>
 </div>

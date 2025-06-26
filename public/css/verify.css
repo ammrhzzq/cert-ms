@@ -1,6 +1,6 @@
 /* Self-contained styles instead of relying on external CSS */
 :root {
-    --primary-color: #f2651f;
+    --primary-color: #000000;
     --sidebar-bg: #ffffff;
     --card-bg: #ffffff;
     --text-color: #333333;
@@ -46,6 +46,7 @@ body {
 .row {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     margin-right: -15px;
     margin-left: -15px;
 }
@@ -175,7 +176,7 @@ body {
 }
 
 .alert-success {
-    background-color: #fef2f2;
+    background-color: #dcfecf;
     border: 1px solid var(--green-border);
     color: #155724;
 }
@@ -292,7 +293,7 @@ textarea.form-control {
     color: white;
     padding: 8px 16px;
     border: none;
-    border-radius: 8px;
+    border-radius: 16px;
     text-decoration: none;
     font-size: 14px;
     font-weight: 500;
@@ -302,7 +303,8 @@ textarea.form-control {
 }
 
 .btn-action:hover {
-    background-color: #e75e1f;
+    background-color: var(--cancel-hover);
+    color: var(--text-color);
 }
 
 /* Modal styling */

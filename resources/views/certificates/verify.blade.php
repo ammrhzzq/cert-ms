@@ -33,11 +33,8 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-4" style="gap: 10px;">
-                        <div style="flex:1; text-align:left;">
+                        <div style="flex: 1; text-align: center;">
                             <h3 style="margin:0;">{{ $cert->comp_name }} - {{ $cert->cert_type }}</h3>
-                        </div>
-                        <div style="flex:1; text-align:center;">
-                            <h3 style="margin:0;">Certificate Preview</h3>
                         </div>
                     </div>
 
@@ -78,23 +75,15 @@
                                 </tr>
                             </table>
                         </div>
-                        <div class="col-md-6">
-                            <div class="embed-responsive embed-responsive-1by1">
-                                <iframe class="embed-responsive-item" src="{{ route('certificates.previewDraft', $cert->id) }}" allowfullscreen></iframe>
-                            </div>
-                            <div class="text-center mt-3">
-                                <a href="{{ route('certificates.previewDraft', $cert->id) }}" class="btn-action" target="_blank">Open PDF in New Tab</a>
-                            </div>
-                        </div>
                     </div>
 
                     @if(!$verification->is_verified)
-                    <div class="mt-4">
+                    <div class="mt-4" style="text-align: center;">
                         <hr>
                         <h3 style="margin-top: 8px;">Please verify this certificate</h3>
                         <p>Review the certificate details above and verify that they are correct.</p>
                         
-                        <div class="button-group mt-3" style="display: flex; justify-content: left;">
+                        <div class="button-group mt-3" style="display: flex; justify-content: center;">
                             <button type="button" class="confirm-btn" id="showVerifyModal">
                                 <i class="fas fa-check-circle"></i> Verify Certificate
                             </button>
@@ -121,7 +110,7 @@
                 </div>
             </div>
 
-            @if($comments->where('comment_type', 'revision_request')->count() > 0)
+            @if($comments->whereIn('comment_type', ['revision_request', 'verification', 'internal'])->count() > 0)
                 <div class="card mt-4">
                     <div class="card-header">
                         <button type="button" class="collapsible-btn"><h5>Comments History</h5></button>
@@ -129,15 +118,15 @@
                     <div class="collapsible-content">
                         <div class="card-body">
                             <ul class="list-group">
-                                @foreach($comments->where('comment_type', 'revision_request') as $comment)
-                                    <li class="list-group-item list-group-item-warning" style="background-color: white; border-color: #999;">
+                                @foreach($comments->whereIn('comment_type', ['revision_request', 'verification', 'internal']) as $comment)
+                                    <li class="list-group-item" style="border-radius: 4px; border: 0; border-bottom: 2px inset; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 10px;">
                                         <div style="display: flex; align-items: flex-start; gap: 10px;">
                                             <div style="flex-grow: 1;">
                                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                                    <span style="font-weight: 600; color: var(--primary-color);">{{ $comment->commented_by }}</span>
+                                                    <span style="font-weight: 600; color: {{ $comment->comment_type === 'verification' ? '#155724' : '#000000' }};">{{ $comment->commented_by }}</span>
                                                     <small style="color: #888;">{{ $comment->created_at->diffForHumans() }} ({{ $comment->created_at->format('d M Y H:i') }})</small>
                                                 </div>
-                                                <div style="margin-top: 8px; margin-left: 12px; color: #444; line-height: 1.5;">
+                                                <div style="margin-top: 8px; margin-left: 12px; color: {{ $comment->comment_type === 'verification' ? '#155724' : '#000000' }}; line-height: 1.5; white-space: pre-line;">
                                                     {{ $comment->comment }}
                                                 </div>
                                             </div>
@@ -164,11 +153,6 @@
             <p>Are you sure you want to verify this certificate?</p>
             <p>By verifying, you confirm that all details are correct and the certificate can be issued in its current form.</p>
             
-            <div class="form-group">
-                <label for="name">Your Name</label>
-                <input type="text" class="form-control" id="name" name="name" required>
-            </div>
-            
             <div class="modal-actions">
                 <button type="button" class="btn-back closeModal">Cancel</button>
                 <button type="submit" class="confirm-btn">Confirm Verification</button>
@@ -186,14 +170,6 @@
             
             <h3>Request Changes</h3>
             <p class="text-danger">You are requesting changes to this certificate.</p>
-            
-            <div class="form-group">
-                <label for="unverify-name">Your Name</label>
-                <input type="text" class="form-control" id="unverify-name" name="name" required>
-                @error('name')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
             
             <div class="form-group">
                 <label for="unverify-comment">Please provide detailed feedback about what needs to be changed</label>

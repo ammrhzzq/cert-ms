@@ -58,17 +58,6 @@
                     <option value="0" {{ !$user->is_approved ? 'selected' : '' }}>Pending</option>
                 </select>
             </div>
-
-            <div class="form-group">
-                <label>Password (leave blank to keep current)</label>
-                <input type="password" name="password" placeholder="New Password">
-            </div>
-
-            <div class="form-group">
-                <label>Confirm Password</label>
-                <input type="password" name="password_confirmation" placeholder="Confirm New Password">
-            </div>
-
             <div class="button-group">
                 <a href="{{ route('users.index') }}" class="btn-back">Cancel</a>
                 <input type="submit" value="Update" />

@@ -4,13 +4,13 @@
 @section('title', 'Certificates List')
 
 @section('styles')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" />
 <link rel="stylesheet" href="{{ asset('css/view.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" />
 <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script>
 @endsection
 
 @section('content')
-<h1>List of Certificate</h1>
+<h1>Certificate List</h1>
 
 <!-- Success alert -->
 @if(session()->has('success'))
@@ -112,9 +112,51 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Certificate</th>
-                <th>Issue Date</th>
-                <th>Expiry Date</th>
+                <th class="sortable-header">
+                    <a href="{{ route('certificates.view', array_merge(request()->except(['sort_field', 'sort_direction']), [
+                        'sort_field' => 'comp_name',
+                        'sort_direction' => ($currentSortField == 'comp_name' && $currentSortDirection == 'asc') ? 'desc' : 'asc'
+                    ])) }}">
+                        Certificate
+                        @if($currentSortField == 'comp_name')
+                        @if($currentSortDirection == 'asc')
+                        <i class="fas fa-sort-up sort-icon"></i>
+                        @else
+                        <i class="fas fa-sort-down sort-icon"></i>
+                        @endif
+                        @endif
+                    </a>
+                </th>
+                <th class="sortable-header">
+                    <a href="{{ route('certificates.view', array_merge(request()->except(['sort_field', 'sort_direction']), [
+                        'sort_field' => 'issue_date',
+                        'sort_direction' => ($currentSortField == 'issue_date' && $currentSortDirection == 'asc') ? 'desc' : 'asc'
+                    ])) }}">
+                        Issue Date
+                        @if($currentSortField == 'issue_date')
+                        @if($currentSortDirection == 'asc')
+                        <i class="fas fa-sort-up sort-icon"></i>
+                        @else
+                        <i class="fas fa-sort-down sort-icon"></i>
+                        @endif
+                        @endif
+                    </a>
+                </th>
+                <th class="sortable-header">
+                    <a href="{{ route('certificates.view', array_merge(request()->except(['sort_field', 'sort_direction']), [
+                        'sort_field' => 'exp_date',
+                        'sort_direction' => ($currentSortField == 'exp_date' && $currentSortDirection == 'asc') ? 'desc' : 'asc'
+                    ])) }}">
+                        Expiry Date
+                        @if($currentSortField == 'exp_date')
+                        @if($currentSortDirection == 'asc')
+                        <i class="fas fa-sort-up sort-icon"></i>
+                        @else
+                        <i class="fas fa-sort-down sort-icon"></i>
+                        @endif
+                        @endif
+                    </a>
+                </th>
                 <th>Certificate ID</th>
                 <th>Action</th>
             </tr>
@@ -158,8 +200,8 @@
         <h3>Confirm Delete <strong id="certNameToDelete">[Certificate Name]</strong>?</h3>
         <p>Are you sure you want to delete the certificate? This action cannot be undone.</p>
         <div class="modal-actions">
-            <button id="deleteConfirmBtn" class="confirm-btn" disabled>Delete</button>
             <button id="deleteCancelBtn" class="btn-back">Cancel</button>
+            <button id="deleteConfirmBtn" class="confirm-btn">Delete</button>
         </div>
     </div>
 </div>
@@ -168,6 +210,9 @@
 @section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const filterToggle = document.getElementById('filterToggle');
+        const filterPanel = document.getElementById('filterPanel');
+
         const modal = document.getElementById('deleteConfirmModal');
         const certNameSpan = document.getElementById('certNameToDelete');
         const confirmBtn = document.getElementById('deleteConfirmBtn');
@@ -217,6 +262,16 @@
         // Add event listener for date field change
         const dateTypeSelect = document.getElementById('date_type');
         dateTypeSelect.addEventListener('change', function() {
+            this.form.submit();
+        });
+
+
+        // Add event listener for date field change
+        const dateTypeSelect = document.getElementById('date_type');
+        const dateValueSelect = document.getElementById('date_value');
+
+        dateTypeSelect.addEventListener('change', function() {
+            // Submit the form to refresh the page with the new date type
             this.form.submit();
         });
 

@@ -18,11 +18,12 @@
             line-height: 1.6;
         }
         .main-header {
-            background-color: #FF7A00;
-            color: white;
+            background-color: white;
+            color: black;
             padding: 15px 0;
             text-align: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-bottom: var(--primary-color) 3px solid;
         }
         .main-footer {
             background-color: #f5f5f5;
@@ -43,7 +44,7 @@
 <body>
     <header class="main-header">
         <div class="container">
-            <h2>Certificate Verification Page</h2>
+            <h2>Certificate Verification Portal</h2>
         </div>
     </header>
     
@@ -59,6 +60,5 @@
     
     <!-- Scripts -->
     @yield('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

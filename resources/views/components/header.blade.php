@@ -4,10 +4,9 @@
         
     </div>
     <div class="navbar-right">
-        <a href="{{ route('user.manual') }}" class="icon-button" title="Help">
+        <a href="{{ route('user.manual') }}" class="icon-button" title="User Manual">
             <i class="fas fa-question-circle"></i>
         </a>
-        
         <!-- Notification Button with Popout -->
         <div class="notification-container">
             <button class="icon-button notification" id="notificationBtn" title="Notifications">
