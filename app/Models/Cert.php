@@ -18,11 +18,17 @@ class Cert extends Model
         'comp_address3',
         'comp_phone1',
         'phone1_name',
+        'comp_email1',
         'comp_phone2',
         'phone2_name',
+        'comp_email2',
         'reg_date',
         'issue_date',
         'exp_date',
+        'soa', 
+        'cert_number',      
+        'scope',    
+        'sites',
         'status',
         'last_edited_at',
         'last_edited_by',
@@ -33,7 +39,8 @@ class Cert extends Model
         'reg_date' => 'datetime',
         'issue_date' => 'datetime',
         'exp_date' => 'datetime',
-        'last_edited_at' => 'datetime'
+        'last_edited_at' => 'datetime',
+        'sites' => 'array'  // Cast sites as array for JSON handling
     ];
 
     // Get all verifications for the certificate
@@ -96,5 +103,15 @@ class Cert extends Model
     public function getLastEditorNameAttribute()
     {
         return $this->lastEditor ? $this->lastEditor->name : 'Unknown';
+    }
+
+    // Helper method to get sites as formatted string
+    public function getSitesListAttribute()
+    {
+        if (!$this->sites || empty($this->sites)) {
+            return 'No sites specified';
+        }
+        
+        return implode(', ', array_filter($this->sites));
     }
 }

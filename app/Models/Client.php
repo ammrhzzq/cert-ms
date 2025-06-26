@@ -16,7 +16,9 @@ class Client extends Model
         'comp_address3',
         'comp_phone1',
         'phone1_name',
+        'comp_email1',
         'comp_phone2',
         'phone2_name',
+        'comp_email2',
     ];
 }

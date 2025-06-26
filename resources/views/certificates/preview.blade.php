@@ -24,7 +24,7 @@ if ($cert->revision_source === 'client') {
 $statusSteps = array_slice($statusSteps, 0, 3, true) +
 ['need_revision' => 'Need Revision'] +
 array_slice($statusSteps, 3, null, true);
-} elseif ($cert->revision_source === 'hod') {
+} elseif ($cert->revision_source === 'scheme_head') {
 $statusSteps = array_slice($statusSteps, 0, 5, true) +
 ['need_revision' => 'Need Revision'] +
 array_slice($statusSteps, 5, null, true);
@@ -111,19 +111,50 @@ $stepNumber = 1;
         <div class="detail-value">{{ $cert->comp_address3 }}</div>
     </div>
 
+    <div class="detail-group">
+        <div class="detail-label">Scope</div>
+        <div class="detail-value">{{ $cert->scope }}</div>
+    </div>
+
+    <div class="detail-group">
+        <div class="detail-label">Statement of Applicability</div>
+        <div class="detail-value">{{ $cert->soa }}</div>
+    </div>
+
+    <div class="detail-group">
+        <div class="detail-label">Certificate Number</div>
+        <div class="detail-value">{{ $cert->cert_number }}</div>
+    </div>
+
     <div class="detail-column">
         <div class="detail-group">
             <div class="detail-label">Registration Date</div>
             <div class="detail-value">{{ \Carbon\Carbon::parse($cert->reg_date)->format('d/m/Y') }}</div>
         </div>
+        <div class="detail-group">
+            <div class="detail-label">Issue Date</div>
+            <div class="detail-value">{{ \Carbon\Carbon::parse($cert->issue_date)->format('d/m/Y') }}</div>
+        </div>
+        <div class="detail-group">
+            <div class="detail-label">Expiry Date</div>
+            <div class="detail-value">{{ \Carbon\Carbon::parse($cert->exp_date)->format('d/m/Y') }}</div>
+        </div>
     </div>
 
-    @if ($cert->cert_number)
     <div class="detail-group">
-        <div class="detail-label">Certificate Number</div>
-        <div class="detail-value">{{ $cert->cert_number }}</div>
-    </div>
+    <div class="detail-label">Site(s)</div>
+    @if($cert->sites && is_array($cert->sites) && count($cert->sites) > 0)
+        @foreach($cert->sites as $index => $site)
+            @if(!empty(trim($site)))
+                <div class="detail-value site-item">
+                {{ $index + 1 }}. {{ $site }}
+                </div>
+            @endif
+        @endforeach
+    @else
+        <div class="detail-value">No sites specified</div>
     @endif
+</div>
 
     @if ($cert->status === 'need_revision')
     @if(isset($comments) && count($comments) > 0)
@@ -163,7 +194,7 @@ $stepNumber = 1;
             </ul>
         </div>
         <div class="verification-action">
-            @if(in_array(auth()->user()->role, ['manager', 'hod']))
+            @if(in_array(auth()->user()->role, ['scheme_manager', 'scheme_head']))
             <a href="{{ route('certificates.edit', $cert->id) }}" class="verification-btn primary">
                 <i class="fas fa-edit"></i> Edit Certificate
             </a>
@@ -186,10 +217,10 @@ $stepNumber = 1;
 
     <div class="button-group">
         <a href="{{ route('certificates.index') }}" class="btn-back">Back</a>
-        @if (in_array(auth()->user()->role, ['manager', 'hod']) && $cert->status == 'pending_review')
+        @if (in_array(auth()->user()->role, ['scheme_manager', 'scheme_head']) && $cert->status == 'pending_review')
         <button class="confirm-btn" onclick="openConfirmModal()">Confirm</button>
         @endif
-        @if (auth()->user()->role === 'hod' && $cert->status == 'pending_hod_approval')
+        @if (auth()->user()->role === 'scheme_head' && $cert->status == 'pending_hod_approval')
         <button class="approve-btn" onclick="openApproveModal()">Approve</button>
         <button class="reject-btn" onclick="openRejectModal()">Reject</button>
         @endif
@@ -197,7 +228,7 @@ $stepNumber = 1;
 </div>
 
 {{-- Notification for Assign Number --}}
-@if(isset($verification) && $verification->is_verified && $cert->status === 'client_verified' && in_array(auth()->user()->role, ['manager', 'hod']))
+@if(isset($verification) && $verification->is_verified && $cert->status === 'client_verified' && in_array(auth()->user()->role, ['scheme_manager', 'scheme_head']))
 <div id="verificationNotification" class="verification pulse-animation">
     <button class="verification-close" onclick="closeNotification()">
         <i class="fas fa-times"></i>
@@ -286,7 +317,7 @@ $stepNumber = 1;
 </div>
 @endif
 
-@php $canVerify = in_array(auth()->user()->role, ['manager', 'hod']); @endphp
+@php $canVerify = in_array(auth()->user()->role, ['scheme_manager', 'scheme_head']); @endphp
 
 {{-- Confirm Modal --}}
 @if($canVerify && $cert->status == 'pending_review')
@@ -307,7 +338,7 @@ $stepNumber = 1;
 @endif
 
 {{-- Approve Modal --}}
-@if(auth()->user()->role === 'hod' && $cert->status === 'pending_hod_approval')
+@if(auth()->user()->role === 'scheme_head' && $cert->status === 'pending_hod_approval')
 <div id="approveModal" class="modal">
     <div class="modal-content">
         <h3>Review and Approve</h3>

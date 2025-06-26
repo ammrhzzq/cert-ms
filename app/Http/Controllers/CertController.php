@@ -7,11 +7,9 @@ use App\Models\Cert;
 use setasign\Fpdi\Fpdi;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\CertVerification;
 use App\Models\CertComment;
 use App\Models\Client;
-use App\Models\User;
 use Illuminate\Support\Str;
 use App\Models\Template;
 
@@ -127,22 +125,35 @@ class CertController extends Controller
             'iso_num' => 'required|string|max:255',
             'comp_name' => 'required|string|max:255',
             'comp_address1' => 'required|string|max:255',
-            'comp_address2' => 'nullable|string|max:255',
-            'comp_address3' => 'nullable|string|max:255',
-            'comp_phone1' => 'nullable|string|max:15',
-            'phone1_name' => 'nullable|string|max:255',
+            'comp_address2' => 'required|string|max:255',
+            'comp_address3' => 'required|string|max:255',
+            'comp_phone1' => 'required|string|max:15',
+            'phone1_name' => 'required|string|max:255',
+            'comp_email1' => 'nullable|string|max:255',
             'comp_phone2' => 'nullable|string|max:15',
             'phone2_name' => 'nullable|string|max:255',
+            'comp_email2' => 'nullable|string|max:255',
             'reg_date' => 'required|date',
-            'client_id' => 'nullable|exists:clients,id',
+            'issue_date' => 'required|date',
+            'exp_date' => 'required|date|after:issue_date',
+            'scope' => 'nullable|string',
+            'soa' => 'nullable|string|max:255',
+            'cert_number' => 'nullable|string|max:255',
+            'sites' => 'nullable|array',
+            'sites.*' => 'nullable|string|max:255',
+            'client_id' => 'nullable|exists:clients,id'
         ]);
+
+        // Process sites data - remove empty values
+        if (isset($data['sites'])) {
+            $data['sites'] = array_filter($data['sites'], function ($site) {
+                return !empty(trim($site));
+            });
+            $data['sites'] = array_values($data['sites']); // Reindex array
+        }
 
         $data['status'] = 'pending_review'; // Default status
         $data['created_by'] = Auth::id(); // Set the creator of the certificate
-
-        // Don't set issue_date and exp_date during creation - they will be set when certificate is issued
-        $data['issue_date'] = null;
-        $data['exp_date'] = null;
 
         $newCert = Cert::create($data);
 
@@ -158,6 +169,8 @@ class CertController extends Controller
                 'comp_phone2' => $request->comp_phone2,
                 'phone1_name' => $request->phone1_name ?? '',
                 'phone2_name' => $request->phone2_name ?? '',
+                'comp_email1' => $request->comp_email1,
+                'comp_email2' => $request->comp_email2,
             ];
 
             Client::create($clientData);
@@ -183,9 +196,18 @@ class CertController extends Controller
             'comp_address3' => 'nullable|string|max:255',
             'comp_phone1' => 'nullable|string|max:15',
             'comp_phone2' => 'nullable|string|max:15',
+            'comp_email1' => 'nullable|string|max:255',
             'phone1_name' => 'required|string|max:255',
             'phone2_name' => 'nullable|string|max:255',
-            'reg_date' => 'required|date',
+            'comp_email2' => 'nullable|string|max:255',
+            'reg_date' => 'nullable|date',
+            'issue_date' => 'nullable|date',
+            'exp_date' => 'nullable|date|after:issue_date',
+            'scope' => 'nullable|string',
+            'soa' => 'nullable|string|max:255',
+            'cert_number' => 'nullable|string|max:255',
+            'sites' => 'nullable|array',
+            'sites.*' => 'nullable|string|max:255'
         ];
 
         // Only validate issue_date and exp_date if certificate is already issued
@@ -195,6 +217,14 @@ class CertController extends Controller
         }
 
         $data = $request->validate($validationRules);
+
+        // Process sites data - remove empty values
+        if (isset($data['sites'])) {
+            $data['sites'] = array_filter($data['sites'], function ($site) {
+                return !empty(trim($site));
+            });
+            $data['sites'] = array_values($data['sites']); // Reindex array
+        }
 
         $data['last_edited_at'] = now();
         $data['last_edited_by'] = Auth::id();
@@ -334,21 +364,16 @@ class CertController extends Controller
         $action = $request->input('action');
 
         if ($action === 'approve') {
-            // Set issue date to today when certificate is approved
-            $issueDate = now()->toDateString();
-            $expDate = now()->addYears(3)->toDateString(); // 3 years from issue date
 
             $cert->status = 'certificate_issued';
             $cert->hod_approved = true;
-            $cert->issue_date = $issueDate;
-            $cert->exp_date = $expDate;
             $cert->save();
 
             // Generate the final certificate PDF
             $this->generateCertificatePDF($cert);
 
             return redirect()->route('certificates.preview', $cert->id)
-                ->with('success', 'Certificate approved and final PDF generated. Issue date set to today, expiry date set to 3 years from now.');
+                ->with('success', 'Certificate approved and final PDF generated.');
         } elseif ($action === 'reject') {
             // Validate the comment
             $request->validate([
@@ -612,11 +637,7 @@ class CertController extends Controller
         // Certificate Number
         $pdf->SetFont('Helvetica', '', 14);
         $pdf->SetXY(87, 160.5);
-        if ($isDraft) {
-            $pdf->Write(8, $cert->cert_number ?? '[Certificate Number]');
-        } else {
-            $pdf->Write(8, $cert->cert_number);
-        }
+        $pdf->Write(8, $cert->cert_number);
 
         // Registration Date
         $pdf->SetXY(88, 167.5);
@@ -624,19 +645,11 @@ class CertController extends Controller
 
         // Issue Date
         $pdf->SetXY(74, 174.5);
-        if ($isDraft) {
-            $pdf->Write(8, '[Issue Date]');
-        } else {
-            $pdf->Write(8, $cert->issue_date->format('d M Y'));
-        }
+        $pdf->Write(8, $cert->issue_date->format('d M Y'));
 
         // Expiry Date
         $pdf->SetXY(76, 181.5);
-        if ($isDraft) {
-            $pdf->Write(8, '[Expiry Date]');
-        } else {
-            $pdf->Write(8, $cert->exp_date->format('d M Y'));
-        }
+        $pdf->Write(8, $cert->exp_date->format('d M Y'));
 
         return $pdf;
     }
@@ -671,24 +684,6 @@ class CertController extends Controller
         } catch (\Exception $e) {
             abort(404, $e->getMessage());
         }
-    }
-
-    public function assignNumber(Request $request, Cert $cert)
-    {
-        $request->validate([
-            'cert_number' => 'required|string|max:255',
-        ]);
-
-        $cert->cert_number = $request->input('cert_number');
-
-        if ($cert->status === 'client_verified') {
-            $cert->status = 'pending_hod_approval';
-        }
-
-        $cert->save();
-
-        return redirect()->route('certificates.preview', $cert->id)
-            ->with('success', 'Certificate number assigned successfully.');
     }
 
     public function showAssignNumberForm(Cert $cert)

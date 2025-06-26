@@ -21,12 +21,14 @@ $isCollapsed = isset($_COOKIE['sidebarCollapsed']) && $_COOKIE['sidebarCollapsed
                 <span class="text">Dashboard</span>
             </a>
         </li>
+        {{-- @if(auth()->check() && auth()->user()->role !== 'scheme_head' && auth()->user()->role !== 'scheme_manager') --}}
         <li>
             <a href="{{ route('certificates.create') }}" class="{{ $activeItem == 'create' ? 'active' : '' }}" title="Create New Certificate">
                 <i class="fas fa-plus-circle icon"></i>
                 <span class="text">Create New</span>
             </a>
         </li>
+        {{-- @endif --}}
         <li>
             <a href="{{ route('certificates.index') }}" class="{{ $activeItem == 'certificates' ? 'active' : '' }}" title="Status & Action">
                 <i class="fas fa-clipboard-list icon"></i>
@@ -51,7 +53,7 @@ $isCollapsed = isset($_COOKIE['sidebarCollapsed']) && $_COOKIE['sidebarCollapsed
                 <span class="text">Client Management</span>
             </a>
         </li>
-        @if(auth()->check() && auth()->user()->role === 'administrator')
+        @if(auth()->check() && auth()->user()->role === 'administrator' || auth()->user()->role === 'scheme_head')
         <li>
             <a href="{{ route('users.index') }}" class="{{ $activeItem == 'users' ? 'active' : '' }}" title="User Management">
                 <i class="fas fa-user-cog icon"></i>

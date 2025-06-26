@@ -26,7 +26,7 @@
         <div class="user-info">
             <p><strong>User:</strong> {{ $user->name }}</p>
             <p><strong>Email:</strong> {{ $user->email }}</p>
-            <p><strong>Role:</strong> {{ ucfirst($user->role) }}</p>
+            <p><strong>Role:</strong> {{ ucfirst(str_replace('_', ' ', $user->role)) }}</p>
         </div>
 
         <form action="{{ route('users.reset-password.update', $user) }}" method="POST">

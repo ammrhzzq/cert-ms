@@ -46,9 +46,9 @@
             <div class="form-group">
                 <label>Role</label>
                 <select name="role" required>
-                    <option value="Certificate Admin" {{ old('role') == 'certificate_admin' ? 'selected' : '' }}>Certifcate Admin</option>
-                    <option value="Scheme Manager" {{ old('role') == 'scheme_manager' ? 'selected' : '' }}>Scheme Manager</option>
-                    <option value="Scheme Head" {{ old('role') == 'scheme_head' ? 'selected' : '' }} {{ isset($schemeHeadExists) && $schemeHeadExists ? 'disabled' : '' }}>Scheme Head</option>
+                    <option value="certificate_admin" {{ old('role') == 'certificate_admin' ? 'selected' : '' }}>Certificate Admin</option>
+                    <option value="scheme_manager" {{ old('role') == 'scheme_manager' ? 'selected' : '' }}>Scheme Manager</option>
+                    <option value="scheme_head" {{ old('role') == 'scheme_head' ? 'selected' : '' }}>Scheme Head</option>
                 </select>
                 @if(isset($schemeHeadExists) && $schemeHeadExists)
                 <small class="form-text text-muted">Scheme Head role is already assigned.</small>

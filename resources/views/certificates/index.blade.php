@@ -158,20 +158,6 @@
                     <a href="{{ route('certificates.preview', ['cert' => $cert]) }}" class="view-icon" title="View">
                         <i class="fa-regular fa-eye"></i>
                     </a>
-                    @php
-                    $user = auth()->user();
-                    $canDelete = false;
-
-                    if ($user->role === 'hod') {
-                    $canDelete = true;
-                    } elseif ($user->role === 'manager' && $cert->status !== 'certificate_issued') {
-                    $canDelete = true;
-                    } elseif ($user->role === 'staff' && $cert->status === 'pending_review') {
-                    $canDelete = true;
-                    }
-                    @endphp
-
-                    @if($canDelete)
                     <form action="{{ route('certificates.destroy', ['cert' => $cert]) }}" method="POST" class="delete-form">
                         @csrf
                         @method('DELETE')
@@ -179,7 +165,6 @@
                             <i class="fas fa-trash"></i>
                         </button>
                     </form>
-                    @endif
                 </div>
             </td>
         </tr>

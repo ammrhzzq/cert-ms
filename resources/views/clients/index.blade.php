@@ -40,6 +40,7 @@
             <th>Address</th>
             <th>Contact Person</th>
             <th>Contact Number</th>
+            <th>Email</th>
             <th>Action</th>
         </tr>
     </thead>
@@ -60,6 +61,9 @@
                 {{ $client->comp_phone1 }}<br>
                 {{ $client->comp_phone2 }}
             </td>
+            <td>
+                {{ $client->comp_email1 }}<br>
+                {{ $client->comp_email2 }}
             <td>
                 <div class="action-icons">
                     <form action="{{ route('clients.destroy', ['client' => $client]) }}" method="POST" class="delete-form">
